@@ -1,0 +1,16 @@
+# IDE/Code Editor Specific
+.vs/
+.vscode/
+
+# Binaries
+Binaries/
+Binaries-Int/
+
+# Project Files
+*.sln
+*.vcxproj
+*.filters
+*.user
+Makefile
+**/Makefile
+*.mk
