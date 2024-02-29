@@ -1,6 +1,6 @@
 project "Sandbox"
 	language "C++"
-	cppdialect "C++17"
+	cppdialect "C++20"
 	
 	targetdir "%{OutputDir.Binaries}/%{prj.name}"
 	objdir    "%{OutputDir.Intermediates}/%{prj.name}"

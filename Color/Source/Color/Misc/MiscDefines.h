@@ -5,3 +5,5 @@
 
 #define CL_STRINGIFY_IMPL(x) #x
 #define CL_STRINGIFY(x)      CL_STRINGIFY_IMPL(x)
+
+#define CL_NODISCARD [[nodiscard]]
