@@ -103,15 +103,15 @@ public:
 
 	bool RemoveAt(SizeType Index)
 	{
-		if (!Contains(Index))
+		if (!IsValidIndex(Index))
 		{
 			return false;
 		}
 
-		Allocator.Destruct(Data + i);
+		Allocator.Destruct(Data + Index);
 		for (SizeType i = Index; i < Size - 1; i++)
 		{
-			Array[i] = MoveTemp(Array[i+1]);
+			Data[i] = MoveTemp(Data[i+1]);
 		}
 		Size--;
 
@@ -252,6 +252,7 @@ public:
 
 	SizeType GetAllocatedSize() const { return Capacity * sizeof(T); }
 	SizeType MaxSize() const { return TNumericLimits<SizeType>::Max(); }
+	SizeType GetMaxIndex() const { return Size > 0 ? Size - 1 : 0; }
 	SizeType Num() const { return Size; }
 	SizeType Max() const { return Capacity; }
 	CL_NODISCARD bool IsEmpty() const { return Size == 0; }

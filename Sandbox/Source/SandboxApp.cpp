@@ -7,16 +7,19 @@
 #include "Containers/Array.h"
 
 #include <iostream>
+#include <string>
 
 FSandboxApp::FSandboxApp()
 {
-	TArray<int> Array{1,2,3,4};
-	Array.Resize(8);
+	TArray<std::string> Array = { "Hello ", "world ", "from ", "Color", " Engine", "!" };
+	Array.RemoveAt(Array.Num() - 1);
 
 	for (uint32 i = 0; i < Array.Num(); i++)
 	{
-		std::cout << Array[i] << '\n';
+		std::cout << Array[i];
 	}
+
+	std::cout << '\n';
 }
 
 FSandboxApp::~FSandboxApp()
