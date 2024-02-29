@@ -12,7 +12,7 @@
 FSandboxApp::FSandboxApp()
 {
 	TArray<std::string> Array = { "Hello ", "world ", "from ", "Color", " Engine", "!" };
-	Array.RemoveAt(Array.Num() - 1);
+	Array.SetRange("USSR ");
 
 	for (uint32 i = 0; i < Array.Num(); i++)
 	{

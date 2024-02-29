@@ -196,7 +196,7 @@ public:
 	 */
 	void SetRange(const T& Value, uint32 Position = 0, uint32 Count = NPos)
 	{
-		uint32 EndIndex = Size - Position - (Count == NPos ? 0 : Count) - 1;
+		uint32 EndIndex = Size - (Count == NPos ? 0 : Count) + Position;
 		uint32 CollectCount = EndIndex - Position + 1;
 		// TODO: Make sure CollectCount <= Size
 
