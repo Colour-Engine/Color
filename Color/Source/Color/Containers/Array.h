@@ -30,9 +30,9 @@ public:
 	}
 
 	TArray(const TArray& Other, const AllocatorType& Allocator)
+		: Allocator(Allocator)
 	{
-		Copy(Other);
-		this->Allocator = Allocator;
+		Copy(Other, false);
 	}
 
 	TArray(TArray&& Other) noexcept
@@ -40,13 +40,13 @@ public:
 		Move(MoveTemp(Other));
 	}
 
-	TArray(TArray&& Other, const AllocatorType& Allocator) noexcept
+	TArray(TArray&& Other, const AllocatorType& Allocator)
+		: Allocator(Allocator)
 	{
-		Move(MoveTemp(Other));
-		this->Allocator = Allocator;
+		Move(MoveTemp(Other), false);
 	}
 
-	TArray(T* Pointer, SizeType Size, const AllocatorType& Allocator = AllocatorType())
+	TArray(const T* Pointer, SizeType Size, const AllocatorType& Allocator = AllocatorType())
 		: Allocator(Allocator)
 	{
 		Copy(Pointer, Size);
@@ -196,9 +196,8 @@ public:
 	 */
 	void SetRange(const T& Value, uint32 Position = 0, uint32 Count = NPos)
 	{
-		uint32 EndIndex = Size - (Count == NPos ? 0 : Count) + Position;
-		uint32 CollectCount = EndIndex - Position + 1;
-		// TODO: Make sure CollectCount <= Size
+		uint32 EndIndex = (Count != NPos ? Count : Size - Position) + Position;
+		// TODO: Make sure IsValidIndex(EndIndex)
 
 		for (Position; Position < EndIndex; Position++)
 		{
@@ -219,6 +218,19 @@ public:
 		::Swap(Size, Other.Size);
 		::Swap(Capacity, Other.Capacity);
 		::Swap(Allocator, Other.Allocator);
+	}
+
+	bool Compare(const TArray& Other) const
+	{
+		for (SizeType i = 0; i < Size; i++)
+		{
+			if (Data[i] != Other.Data[i])
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	SizeType Find(const T& Item) const
@@ -286,15 +298,7 @@ public:
 
 	bool operator==(const TArray& Other) const
 	{
-		for (SizeType i = 0; i < Size; i++)
-		{
-			if (Data[i] != Other.Data[i])
-			{
-				return false;
-			}
-		}
-
-		return true;
+		return Compare(Other);
 	}
 private:
 	void Allocate(SizeType Cap, bool bStrictlyUseGivenSize = false)
@@ -345,7 +349,7 @@ private:
 		}
 	}
 
-	void Copy(T* Pointer, SizeType Size)
+	void Copy(const T* Pointer, SizeType Size)
 	{
 		Destruct();
 		Allocate(Size);
@@ -371,21 +375,30 @@ private:
 		}
 	}
 
-	void Copy(const TArray& Other)
+	void Copy(const TArray& Other, bool bCopyAllocator = true)
 	{
 		Destruct();
 		Copy(Other.Data, Other.Size);
+
+		if (bCopyAllocator)
+		{
+			Allocator = Other.Allocator;
+		}
 	}
 
-	void Move(TArray&& Other) noexcept
+	void Move(TArray&& Other, bool bMoveAllocator = true) noexcept
 	{
 		Destruct();
 
 		Data = Other.Data;
 		Size = Other.Size;
 		Capacity = Other.Capacity;
-		Allocator = MoveTemp(Other.Allocator);
 
+		if (bMoveAllocator)
+		{
+			Allocator = MoveTemp(Other.Allocator);
+		}
+		
 		Other.Data = nullptr;
 		Other.Size = 0;
 		Other.Capacity = 0;

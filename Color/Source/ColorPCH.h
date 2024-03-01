@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Containers/String.h"
+#include "Containers/Array.h"
+
 #ifdef CL_PLATFORM_WINDOWS
 	#include <Windows.h>
 #endif

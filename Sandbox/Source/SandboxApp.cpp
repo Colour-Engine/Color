@@ -4,6 +4,7 @@
 // Include this header in only one translation unit (.cpp file etc.) to avoid duplicate symbol errors.
 #include "Core/EntryPoint.h"
 
+#include "Containers/String.h"
 #include "Containers/Array.h"
 
 #include <iostream>
@@ -11,15 +12,18 @@
 
 FSandboxApp::FSandboxApp()
 {
-	TArray<std::string> Array = { "Hello ", "world ", "from ", "Color", " Engine", "!" };
-	Array.SetRange("USSR ");
+	FString ENG = "This is a string.";
+	FString GER = "Das ist ein String.";
+	FString TUR = "Bu bir string";
 
-	for (uint32 i = 0; i < Array.Num(); i++)
-	{
-		std::cout << Array[i];
-	}
+	TUR.Push('.');
+	TUR.Append(2, '.');
+	TUR.Append(" Simdi oncelik oradan buradan bu kodu goren butun Turk kardeslerime selamlarimi iletmek isterim. Allah yardimcimiz olsun bu zamanlarda :)");
+	TUR += { ' ', 'N', 'e', ' ', 'd', 'i', 'y', 'e', 'b', 'i', 'l', 'i', 'r', 'i', 'm', ' ', 'k', 'i', '?' };
 
-	std::cout << '\n';
+	std::cout << *ENG << '\n';
+	std::cout << *GER << '\n';
+	std::cout << *TUR << '\n';
 }
 
 FSandboxApp::~FSandboxApp()
