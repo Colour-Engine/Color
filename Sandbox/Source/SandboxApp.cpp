@@ -24,6 +24,8 @@ FSandboxApp::FSandboxApp()
 	std::cout << *ENG << '\n';
 	std::cout << *GER << '\n';
 	std::cout << *TUR << '\n';
+
+	std::cout << ENG.FindLastNotOf("ghtGHT") << '\n';
 }
 
 FSandboxApp::~FSandboxApp()

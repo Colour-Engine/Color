@@ -384,7 +384,293 @@ public:
 		::Swap(Allocator, Other.Allocator);
 	}
 
-	TString Sub(SizeType Position = 0, SizeType Count = NPos)
+	SizeType Find(T Char, SizeType Position = 0) const
+	{
+		for (Position; Position < Size; Position++)
+		{
+			if (Data[Position] == Char)
+			{
+				return Position;
+			}
+		}
+
+		return NPos;
+	}
+
+	SizeType Find(const T* Substring, SizeType Position, SizeType Length) const
+	{
+		if (Length > Size)
+		{
+			return false;
+		}
+		if (Length == Size)
+		{
+			return *this == Substring;
+		}
+
+		SizeType InitialIndex = NPos;
+		SizeType SubstringIndex = 0;
+
+		for (SizeType i = Position; i < Size; i++)
+		{
+			if (SubstringIndex == Length - 1)
+			{
+				return InitialIndex;
+			}
+
+			if (Data[i] == Substring[SubstringIndex])
+			{
+				if (InitialIndex == NPos)
+				{
+					InitialIndex = i;
+				}
+
+				SubstringIndex++;
+			}
+			else
+			{
+				InitialIndex = NPos;
+				SubstringIndex = 0;
+			}
+		}
+
+		if (SubstringIndex == Length - 1)
+		{
+			return InitialIndex;
+		}
+
+		return NPos;
+	}
+
+	SizeType Find(const T* Substring, SizeType Position = 0) const
+	{
+		return Find(Substring, Position, (SizeType) StringUtility::Len(Substring));
+	}
+
+	SizeType Find(const TString& Substring, SizeType Position = 0) const
+	{
+		return Find(Substring.Data, Position, Substring.Size);
+	}
+
+	SizeType Rfind(T Char, SizeType Position = NPos) const
+	{
+		for (Position = (Position == NPos ? Size - 1 : Position); Position != 0; Position--)
+		{
+			if (Data[Position] == Char)
+			{
+				return Position;
+			}
+		}
+
+		return NPos;
+	}
+
+	SizeType Rfind(const T* Substring, SizeType Position, SizeType Length) const
+	{
+		if (Length > Size)
+		{
+			return false;
+		}
+		if (Length == Size)
+		{
+			return *this == Substring;
+		}
+
+		const SizeType DefSubstrIdx = Length - 1;
+		SizeType SubstringIndex = DefSubstrIdx;
+
+		for (SizeType i = (Position == NPos ? Size - 1 : Position); i != 0; i--)
+		{
+			if (Data[i] == Substring[SubstringIndex])
+			{
+				if (SubstringIndex == 0)
+				{
+					return i;
+				}
+
+				SubstringIndex--;
+			}
+			else
+			{
+				SubstringIndex = DefSubstrIdx;
+			}
+		}
+
+		if (SubstringIndex == 0)
+		{
+			return 0;
+		}
+
+		return NPos;
+	}
+
+	SizeType Rfind(const T* Substring, SizeType Position = NPos) const
+	{
+		return Rfind(Substring, Position, (SizeType) StringUtility::Len(Substring));
+	}
+
+	SizeType Rfind(const TString& Substring, SizeType Position = NPos) const
+	{
+		return Rfind(Substring.Data, Position, Substring.Size);
+	}
+
+	SizeType FindFirstOf(T Char, SizeType Position = 0) const
+	{
+		return Find(Char, Position);
+	}
+
+	SizeType FindFirstOf(const T* Charset, SizeType Position, SizeType Length) const
+	{
+		for (Position; Position < Size; Position++)
+		{
+			for (SizeType i = 0; i < Length; i++)
+			{
+				if (Data[Position] == Charset[i])
+				{
+					return Position;
+				}
+			}
+		}
+
+		return NPos;
+	}
+
+	SizeType FindFirstOf(const T* Charset, SizeType Position = 0) const
+	{
+		return FindFirstOf(Charset, Position, (SizeType) StringUtility::Len(Charset));
+	}
+
+	SizeType FindFirstOf(const TString& Charset, SizeType Position = 0) const
+	{
+		return FindFirstOf(Charset.Data, Position, Charset.Size);
+	}
+
+	SizeType FindFirstNotOf(T Char, SizeType Position = 0) const
+	{
+		for (Position; Position < Size; Position++)
+		{
+			if (Data[Position] != Char)
+			{
+				return Position;
+			}
+		}
+
+		return NPos;
+	}
+
+	SizeType FindFirstNotOf(const T* Charset, SizeType Position, SizeType Length) const
+	{
+		for (Position; Position < Size; Position++)
+		{
+			bool bMatched = false;
+
+			for (SizeType i = 0; i < Length; i++)
+			{
+				if (Data[Position] == Charset[i])
+				{
+					bMatched = true;
+					break;
+				}
+			}
+
+			if (!bMatched)
+			{
+				return Position;
+			}
+		}
+
+		return NPos;
+	}
+
+	SizeType FindFirstNotOf(const T* Charset, SizeType Position = 0) const
+	{
+		return FindFirstNotOf(Charset, Position, (SizeType) StringUtility::Len(Charset));
+	}
+
+	SizeType FindFirstNotOf(const TString& Charset, SizeType Position = 0) const
+	{
+		return FindFirstNotOf(Charset.Data, Position, Charset.Size);
+	}
+
+	SizeType FindLastOf(T Char, SizeType Position = NPos) const
+	{
+		return Rfind(Char, Position);
+	}
+
+	SizeType FindLastOf(const T* Charset, SizeType Position, SizeType Length) const
+	{
+		for (Position = (Position == NPos ? Size - 1 : Position); Position != 0; Position--)
+		{
+			for (SizeType i = 0; i < Length; i++)
+			{
+				if (Data[Position] == Charset[i])
+				{
+					return Position;
+				}
+			}
+		}
+
+		return NPos;
+	}
+
+	SizeType FindLastOf(const T* Charset, SizeType Position = NPos) const
+	{
+		return FindLastOf(Charset, Position, (SizeType) StringUtility::Len(Charset));
+	}
+
+	SizeType FindLastOf(const TString& Charset, SizeType Position = NPos) const
+	{
+		return FindLastOf(Charset.Data, Position, Charset.Size);
+	}
+
+	SizeType FindLastNotOf(T Char, SizeType Position = NPos) const
+	{
+		for (Position = (Position == NPos ? Size - 1 : Position); Position != 0; Position--)
+		{
+			if (Data[Position] != Char)
+			{
+				return Position;
+			}
+		}
+
+		return NPos;
+	}
+
+	SizeType FindLastNotOf(const T* Charset, SizeType Position, SizeType Length) const
+	{
+		for (Position = (Position == NPos ? Size - 1 : Position); Position != 0; Position--)
+		{
+			bool bMatched = false;
+
+			for (SizeType i = 0; i < Length; i++)
+			{
+				if (Data[Position] == Charset[i])
+				{
+					bMatched = true;
+					break;
+				}
+			}
+
+			if (!bMatched)
+			{
+				return Position;
+			}
+		}
+
+		return NPos;
+	}
+
+	SizeType FindLastNotOf(const T* Charset, SizeType Position = NPos) const
+	{
+		return FindLastNotOf(Charset, Position, (SizeType) StringUtility::Len(Charset));
+	}
+
+	SizeType FindLastNotOf(const TString& Charset, SizeType Position = NPos) const
+	{
+		return FindLastNotOf(Charset.Data, Position, Charset.Size);
+	}
+
+	TString Sub(SizeType Position = 0, SizeType Count = NPos) const
 	{
 		uint32 EndIndex = (Count != NPos ? Count : Size - Position) + Position;
 		// TODO: Make sure IsValidIndex(EndIndex)
