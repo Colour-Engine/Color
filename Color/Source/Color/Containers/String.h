@@ -72,7 +72,7 @@ public:
 	}
 
 	TString(T Char, uint32 Count, const AllocatorType& Allocator = AllocatorType())
-		: Allocator(Allocator)
+		: Size(Count), Allocator(Allocator)
 	{
 		Allocate(Count);
 		SetRange(Char, 0, Count);
