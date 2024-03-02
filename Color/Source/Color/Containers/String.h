@@ -5,6 +5,8 @@
 
 #include "Core/Memory.h"
 #include "Misc/NoInit.h"
+#include "Math/Math.h"
+
 #include "Utils/StringUtility.h"
 
 #include <initializer_list>
@@ -71,7 +73,7 @@ public:
 		Copy(String);
 	}
 
-	TString(T Char, uint32 Count, const AllocatorType& Allocator = AllocatorType())
+	TString(T Char, SizeType Count, const AllocatorType& Allocator = AllocatorType())
 		: Size(Count), Allocator(Allocator)
 	{
 		Allocate(Count);
@@ -167,6 +169,11 @@ public:
 		return Appended(InitList);
 	}
 
+	TString operator~() const
+	{
+		return Reversed();
+	}
+
 	TString Appended(T Char) const
 	{
 		TString Result = *this;
@@ -215,6 +222,11 @@ public:
 		}
 
 		InsertNullTerminator();
+	}
+
+	void Append(T Char)
+	{
+		Push(Char);
 	}
 
 	void Append(const T* String, SizeType Count)
@@ -338,6 +350,67 @@ public:
 		{
 			ReAllocate(Size, true);
 		}
+	}
+
+	template <typename TInt>
+	static TString FromInt(TInt Integer, FMath::BaseType Base = FMath::BaseDecimal)
+	{
+		if (Integer == 0)
+		{
+			return "0";
+		}
+
+		SizeType Length = FMath::GetNumDigitsOfInt(Integer);
+		TString Result(NO_INIT);
+		Result.Allocate(Length);
+		Result.Size = Length;
+
+		bool bNegative = false;
+		if (Integer < 0 && Base == FMath::BaseDecimal)
+		{
+			bNegative = true;
+			Integer = -Integer;
+		}
+
+		SizeType i = 0;
+		while (Integer)
+		{
+			T Remainder = Integer % Base;
+			Result[i++] = (Remainder > 9) ? (Remainder - 10) + 'a' : Remainder + '0';
+			Integer /= Base;
+		}
+
+		if (bNegative)
+		{
+			Result[i] = '-';
+		}
+
+		Result.InsertNullTerminator();
+		Result.Reverse();
+
+		return Result;
+	}
+	
+	void Reverse()
+	{
+		SizeType MaxIndex = Size-1;
+
+		for (SizeType i = 0; i < Size / 2; i++)
+		{
+			SizeType Otherside = MaxIndex - i;
+			char Tmp = Data[i];
+
+			Data[i] = Data[Otherside];
+			Data[Otherside] = Tmp;
+		}
+	}
+
+	TString Reversed() const
+	{
+		TString Result = *this;
+		Result.Reverse();
+
+		return Result;
 	}
 
 	void Replace(T From, T To)

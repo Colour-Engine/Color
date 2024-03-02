@@ -25,7 +25,12 @@ FSandboxApp::FSandboxApp()
 	std::cout << *GER << '\n';
 	std::cout << *TUR << '\n';
 
-	std::cout << ENG.FindLastNotOf("ghtGHT") << '\n';
+	std::cout << "---------------------------------------------------------\n";
+	std::cout << ~ENG << '\n';
+	std::cout << "---------------------------------------------------------\n";
+
+	int32 NumConvert = -8421312;
+	std::cout << NumConvert << " stringified to " << FString::FromInt(NumConvert) << '\n';
 }
 
 FSandboxApp::~FSandboxApp()
