@@ -30,7 +30,16 @@ FSandboxApp::FSandboxApp()
 	std::cout << "---------------------------------------------------------\n";
 
 	int32 NumConvert = -8421312;
+	double DblConvert = 532.861;
+	float FltConvert = 324.523f;
 	std::cout << NumConvert << " stringified to " << FString::FromInt(NumConvert) << '\n';
+	std::cout << "532.861 stringified to " << FString::FromDouble(DblConvert) << '\n';
+	std::cout << "324.523(f) stringified to " << FString::FromFloat(FltConvert) << '\n';
+	std::cout << "---------------------------------------------------------\n";
+
+	FString Formatted = FString::Format("%s %d %c %b %b %f %f", "Heyo", 45, 'a', false, true, 12.57, 912.544f);
+	std::cout << "Formatted String Output:\n";
+	std::cout << "  " << Formatted << '\n';
 }
 
 FSandboxApp::~FSandboxApp()

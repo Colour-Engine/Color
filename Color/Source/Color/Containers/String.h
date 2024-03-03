@@ -10,6 +10,7 @@
 #include "Utils/StringUtility.h"
 
 #include <initializer_list>
+#include <stdarg.h>
 
 template <typename T, typename TSizeType = uint32, typename TAllocatorType = TDefaultAllocator<T>>
 class TString
@@ -31,6 +32,7 @@ public:
 		: Allocator(Allocator)
 	{
 		Allocate(BlockSize, true);
+		InsertNullTerminator();
 	}
 
 	TString(const TString& Other)
@@ -352,6 +354,112 @@ public:
 		}
 	}
 
+	// Format Specifiers:
+	//   %% - Writes '%'.
+	//   %s - String.
+	//   %i - Integer.
+	//   %d - Integer.
+	//   %d - Character.
+	//   %b - Boolean.
+	//   %f - Float or Double.
+	static TString Format(const T* Fmt, va_list Args)
+	{
+		TString Result;
+
+		while (*Fmt)
+		{
+			T Char = *Fmt++;
+
+			if (Char == '%')
+			{
+				if (!*Fmt)
+				{
+					Result = "[[String format failure!]] Format indicator found but the string was terminated before the format specifier was found!";
+					return Result;
+				}
+
+				T Specifier = *Fmt++;
+				switch (Specifier)
+				{
+				case '%':
+				{
+					Result += '%';
+					break;
+				}
+				case 's':
+				{
+					T* String = va_arg(Args, T*);
+					Result += String;
+					break;
+				}
+				case 'i':
+				case 'd':
+				{
+					int32 Integer = va_arg(Args, int32);
+					Result += TString::FromInt(Integer);
+					break;
+				}
+				case 'c':
+				{
+					int32 Char = va_arg(Args, int32);
+					Result += (T) Char;
+					break;
+				}
+				case 'b':
+				{
+					int32 Bool = va_arg(Args, int32);
+					Result += Bool ? "true" : "false";
+					break;
+				}
+				case 'f':
+				{
+					double FloatOrDouble = va_arg(Args, double);
+					Result += TString::FromDouble(FloatOrDouble);
+					break;
+				}
+				default:
+				{
+					Result = TString("[[String format failure!]] Specifier '") + Specifier + "' is not a valid specifier!";
+					return Result;
+				}
+				}
+			}
+			else
+			{
+				Result += Char;
+			}
+		}
+
+		return Result;
+	}
+
+	static TString Format(const TString& Fmt, va_list Args)
+	{
+		return Format(Fmt.Data, Args);
+	}
+
+	static TString Format(const T* Fmt, ...)
+	{
+		va_list Args;
+		va_start(Args, Fmt);
+
+		TString Result = Format(Fmt, Args);
+		va_end(Args);
+
+		return Result;
+	}
+
+	static TString Format(const TString& Fmt, ...)
+	{
+		va_list Args;
+		va_start(Args, Fmt);
+
+		TString Result = Format(Fmt.Data, Args);
+		va_end(Args);
+
+		return Result;
+	}
+
 	template <typename TInt>
 	static TString FromInt(TInt Integer, FMath::BaseType Base = FMath::BaseDecimal)
 	{
@@ -389,6 +497,27 @@ public:
 		Result.Reverse();
 
 		return Result;
+	}
+
+	static TString FromDouble(double Double, int32 Precision = 1000)
+	{
+		int32 IntegerPart = (int32) Double;
+		int32 FractionPart = ((int32)(Double * Precision) % Precision);
+
+		int32 DigitsInt = FMath::GetNumDigitsOfInt(IntegerPart);
+		int32 DigitsFrc = FMath::GetNumDigitsOfInt(FractionPart);
+
+		SizeType Length = DigitsInt + DigitsFrc;
+		TString Result(NO_INIT);
+		Result.Allocate(Length);
+
+		Result += TString::FromInt(IntegerPart) + '.' + TString::FromInt(FractionPart);
+		return Result;
+	}
+
+	static TString FromFloat(float Float, int32 Precision = 1000)
+	{
+		return FromDouble((double) Float, Precision);
 	}
 	
 	void Reverse()
