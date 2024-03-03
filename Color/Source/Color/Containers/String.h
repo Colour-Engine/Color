@@ -359,7 +359,7 @@ public:
 	//   %s - String.
 	//   %i - Integer.
 	//   %d - Integer.
-	//   %d - Character.
+	//   %c - Character.
 	//   %b - Boolean.
 	//   %f - Float or Double.
 	static TString Format(const T* Fmt, va_list Args)
@@ -433,11 +433,27 @@ public:
 		return Result;
 	}
 
+	// Format Specifiers:
+	//   %% - Writes '%'.
+	//   %s - String.
+	//   %i - Integer.
+	//   %d - Integer.
+	//   %c - Character.
+	//   %b - Boolean.
+	//   %f - Float or Double.
 	static TString Format(const TString& Fmt, va_list Args)
 	{
 		return Format(Fmt.Data, Args);
 	}
 
+	// Format Specifiers:
+	//   %% - Writes '%'.
+	//   %s - String.
+	//   %i - Integer.
+	//   %d - Integer.
+	//   %c - Character.
+	//   %b - Boolean.
+	//   %f - Float or Double.
 	static TString Format(const T* Fmt, ...)
 	{
 		va_list Args;
@@ -449,6 +465,14 @@ public:
 		return Result;
 	}
 
+	// Format Specifiers:
+	//   %% - Writes '%'.
+	//   %s - String.
+	//   %i - Integer.
+	//   %d - Integer.
+	//   %c - Character.
+	//   %b - Boolean.
+	//   %f - Float or Double.
 	static TString Format(const TString& Fmt, ...)
 	{
 		va_list Args;
