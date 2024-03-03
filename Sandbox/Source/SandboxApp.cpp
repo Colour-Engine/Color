@@ -7,8 +7,9 @@
 #include "Containers/String.h"
 #include "Containers/Array.h"
 
+#include "Templates/Scope.h"
+
 #include <iostream>
-#include <string>
 
 FSandboxApp::FSandboxApp()
 {
@@ -40,6 +41,23 @@ FSandboxApp::FSandboxApp()
 	FString Formatted = FString::Format("%s %d %c %b %b %f %f", "Heyo", 45, 'a', false, true, 12.57, 912.544f);
 	std::cout << "Formatted String Output:\n";
 	std::cout << "  " << Formatted << '\n';
+	std::cout << "---------------------------------------------------------\n";
+
+	// Iterator test
+	for (const char& Ch : TUR)
+	{
+		std::cout << Ch;
+	}
+	std::cout << '\n';
+
+	int* Ptr = nullptr;
+	{
+		TScope<int> Integer = MakeScope<int>(5);
+		Ptr = Integer.Get();
+
+		std::cout << *Ptr << '\n';
+	}
+	std::cout << *Ptr << '\n';
 }
 
 FSandboxApp::~FSandboxApp()

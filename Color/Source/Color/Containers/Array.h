@@ -3,6 +3,7 @@
 #include "Allocators/DefaultAllocator.h"
 #include "Templates/NumericLimits.h"
 
+#include "Containers/Iterator.h"
 #include "Core/Memory.h"
 
 #include <initializer_list>
@@ -14,6 +15,8 @@ public:
 	using ValueType     = T;
 	using SizeType      = TSizeType;
 	using AllocatorType = TAllocatorType;
+	using Iterator      = TIndexedContainerIterator<TArray, T, TSizeType>;
+	using ConstIterator = TIndexedContainerIterator<const TArray, const T, TSizeType>;
 public:
 	static constexpr SizeType NPos = TNumericLimits<SizeType>::Max();
 	static constexpr SizeType BlockSize = 15;
@@ -255,6 +258,25 @@ public:
 	{
 		return Index >= 0 && Index < Size;
 	}
+
+	Iterator CreateIterator()
+	{
+		return Iterator(*this);
+	}
+
+	ConstIterator CreateConstIterator() const
+	{
+		return ConstIterator(*this);
+	}
+
+	Iterator begin() { return CreateIterator(); }
+	Iterator end() { Iterator It = CreateIterator(); It.SetToEnd(); return It; }
+
+	ConstIterator begin() const { return CreateConstIterator(); }
+	ConstIterator end() const { ConstIterator It = CreateConstIterator(); It.SetToEnd(); return It; }
+
+	ConstIterator cbegin() const { return begin(); }
+	ConstIterator cend() const { return end(); }
 
 	const T* Get() const { return Data; }
 	T* Get() { return Data; }
