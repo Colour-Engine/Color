@@ -9,6 +9,13 @@ struct TDefaultDelete
 {
 	TDefaultDelete() = default;
 	TDefaultDelete(const TDefaultDelete&) = default;
+
+	template <typename U>
+	TDefaultDelete(const TDefaultDelete<U>&) { }
+
+	template <typename U>
+	TDefaultDelete& operator=(const TDefaultDelete<U>&) { return *this; }
+
 	TDefaultDelete& operator=(const TDefaultDelete&) = default;
 
 	void operator()(T* Pointer) const
@@ -23,9 +30,17 @@ struct TDefaultDelete<T[]>
 {
 	TDefaultDelete() = default;
 	TDefaultDelete(const TDefaultDelete<T[]>&) = default;
+
+	template <typename U>
+	TDefaultDelete(const TDefaultDelete<U[]>&) { }
+
+	template <typename U>
+	TDefaultDelete& operator=(const TDefaultDelete<U[]>&) { return *this; }
+
 	TDefaultDelete& operator=(const TDefaultDelete<T[]>&) = default;
 
-	void operator()(T* Pointer) const
+	template <typename U>
+	void operator()(U* Pointer) const
 	{
 		delete[] Pointer;
 	}
@@ -67,11 +82,17 @@ public:
 	{
 	}
 
-	TScope(TScope&& Other) noexcept
-		: Pointer(Other.Pointer), Deleter(MoveTemp(Other.Deleter))
+	template <typename U, typename Dx>
+	TScope(TScope<U, Dx>&& Other) noexcept
+		: Pointer(Other.Get()), Deleter(MoveTemp(Other.GetDeleter()))
 	{
-		Other.Pointer = nullptr;
-		Other.Deleter = TDeleter();
+		Other.Internal__GetPtrRef() = nullptr;
+		Other.GetDeleter() = TDeleter();
+	}
+
+	TScope(TScope&& Other) noexcept
+		: TScope(Other)
+	{
 	}
 
 	~TScope()
@@ -93,20 +114,26 @@ public:
 		return *this;
 	}
 
-	TScope& operator=(TScope&& Other) noexcept
+	template <typename U, typename Dx>
+	TScope& operator=(TScope<U, Dx>&& Other) noexcept
 	{
 		if (Pointer)
 		{
 			Deleter(Pointer);
 		}
 
-		Pointer = Other.Pointer;
-		Deleter = MoveTemp(Other.Deleter);
+		Pointer = Other.Get();
+		Deleter = MoveTemp(Other.GetDeleter());
 
-		Other.Pointer = nullptr;
-		Other.Deleter = TDeleter();
+		Other.Internal__GetPtrRef() = nullptr;
+		Other.GetDeleter() = TDeleter();
 
 		return *this;
+	}
+
+	TScope& operator=(TScope&& Other) noexcept
+	{
+		return *this = Other;
 	}
 
 	void Reset(T* InPointer = nullptr)
@@ -142,6 +169,11 @@ public:
 
 	explicit operator bool() const { return Pointer; }
 	bool IsValid() const { return Pointer; }
+
+	bool operator==(const TScope& Other) const { return Pointer == Other.Pointer; }
+	bool operator!=(const TScope& Other) const { return Pointer != Other.Pointer; }
+
+	T*& Internal__GetPtrRef() { return Pointer; }
 private:
 	T* Pointer = nullptr;
 	TDeleter Deleter;
@@ -168,26 +200,35 @@ public:
 	TScope() = default;
 	TScope(TYPE_OF_NULLPTR) { }
 	
-	explicit TScope(T* InPointer)
-		: Pointer(InPointer)
+	template <typename U>
+	explicit TScope(U* InPointer)
+		: Pointer((T*) InPointer)
 	{
 	}
 
-	TScope(T* InPointer, const TDeleter& InDeleter)
-		: Pointer(InPointer), Deleter(InDeleter)
+	template <typename U>
+	TScope(U* InPointer, const TDeleter& InDeleter)
+		: Pointer((T*) InPointer), Deleter(InDeleter)
 	{
 	}
 
-	TScope(T* InPointer, TDeleter&& InDeleter)
-		: Pointer(InPointer), Deleter(MoveTemp(InDeleter))
+	template <typename U>
+	TScope(U* InPointer, TDeleter&& InDeleter)
+		: Pointer((T*) InPointer), Deleter(MoveTemp(InDeleter))
 	{
+	}
+
+	template <typename U, typename Dx>
+	TScope(TScope<U[], Dx>&& Other) noexcept
+		: Pointer(Other.Get()), Deleter(MoveTemp(Other.GetDeleter()))
+	{
+		Other.Internal__GetPtrRef() = nullptr;
+		Other.GetDeleter() = TDeleter();
 	}
 
 	TScope(TScope&& Other) noexcept
-		: Pointer(Other.Pointer), Deleter(MoveTemp(Other.Deleter))
+		: TScope(Other)
 	{
-		Other.Pointer = nullptr;
-		Other.Deleter = TDeleter();
 	}
 
 	~TScope()
@@ -209,26 +250,33 @@ public:
 		return *this;
 	}
 
-	TScope& operator=(TScope&& Other) noexcept
+	template <typename U, typename Dx>
+	TScope& operator=(TScope<U, Dx>&& Other) noexcept
 	{
 		if (Pointer)
 		{
 			Deleter(Pointer);
 		}
 
-		Pointer = Other.Pointer;
-		Deleter = MoveTemp(Other.Deleter);
+		Pointer = Other.Get();
+		Deleter = MoveTemp(Other.GetDeleter());
 
-		Other.Pointer = nullptr;
-		Other.Deleter = TDeleter();
+		Other.Internal__GetPtrRef() = nullptr;
+		Other.GetDeleter() = TDeleter();
 
 		return *this;
 	}
 
-	void Reset(T* InPointer = nullptr)
+	TScope& operator=(TScope&& Other) noexcept
+	{
+		return *this = Other;
+	}
+
+	template <typename U>
+	void Reset(U* InPointer = nullptr)
 	{
 		T* Temp = Pointer;
-		Pointer = InPointer;
+		Pointer = (T*) InPointer;
 
 		if (Temp)
 		{
@@ -269,6 +317,8 @@ public:
 
 	bool operator==(const TScope& Other) const { return Pointer == Other.Pointer; }
 	bool operator!=(const TScope& Other) const { return Pointer != Other.Pointer; }
+
+	T*& Internal__GetPtrRef() { return Pointer; }
 private:
 	T* Pointer = nullptr;
 	TDeleter Deleter;

@@ -1,9 +1,9 @@
 #pragma once
 
-#define CL_CONCAT_IMPL(l, r) l##r
-#define CL_CONCAT(l, r)      CL_CONCAT_IMPL(l, r)
+#define CL_CONCAT_IMPL(L, R) L##R
+#define CL_CONCAT(L, R)      CL_CONCAT_IMPL(L, R)
 
-#define CL_STRINGIFY_IMPL(x) #x
-#define CL_STRINGIFY(x)      CL_STRINGIFY_IMPL(x)
+#define CL_STRINGIFY_IMPL(X) #X
+#define CL_STRINGIFY(X)      CL_STRINGIFY_IMPL(X)
 
 #define CL_NODISCARD [[nodiscard]]

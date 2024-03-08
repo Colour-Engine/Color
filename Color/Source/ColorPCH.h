@@ -1,10 +1,15 @@
 #pragma once
 
-#include "Containers/String.h"
-#include "Containers/Array.h"
+#include "Core/Base.h"
 
 #ifdef CL_PLATFORM_WINDOWS
 	#include <Windows.h>
+	#include <io.h> // unistd.h-like
+#endif
+
+#ifdef CL_PLATFORM_LINUX
+	#include <linux/limits.h>
+	#include <unistd.h>
 #endif
 
 #ifdef CL_INCLUDE_STL_IN_PCH
@@ -37,3 +42,7 @@
 	#include <any>
 	#include <new>
 #endif
+
+#include <stdio.h>
+#include <stdlib.h>
+	

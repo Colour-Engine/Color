@@ -5,6 +5,6 @@
 class FSandboxApp : public FApplication
 {
 public:
-	FSandboxApp();
+	FSandboxApp(const FCommandLine& InCommandLine);
 	~FSandboxApp() override;
 };

@@ -1,9 +1,22 @@
 #include "ColorPCH.h"
 #include "Application.h"
 
-FApplication::FApplication()
+#include "Utils/FileSystem.h"
+
+FApplication::FApplication(const FCommandLine& InCommandLine)
+	: CommandLine(InCommandLine)
 {
+	// TODO: Make sure Instance=nullptr
 	Instance = this;
+
+	const FApplicationSpecification& Specification = GetApplicationSpecification();
+	{
+		if (!Specification.WorkingDir.IsEmpty() && Specification.WorkingDir == ".")
+		{
+			// TODO: Log this
+			FFileSystem::SetWorkingDir(Specification.WorkingDir);
+		}
+	}
 }
 
 FApplication::~FApplication()
@@ -18,6 +31,7 @@ void FApplication::Run()
 {
 	if (bRunning)
 	{
+		// TODO: Warn
 		return;
 	}
 
@@ -39,6 +53,7 @@ void FApplication::Quit()
 {
 	if (!bRunning)
 	{
+		// TODO: Warn
 		return;
 	}
 

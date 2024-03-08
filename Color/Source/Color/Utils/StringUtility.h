@@ -16,3 +16,6 @@ struct TStringUtility<char>
 	static uint_t Len(const char* String);
 	static int32  Cmp(const char* LHS, const char* RHS);
 };
+
+using FAnsiStringUtility = TStringUtility<char>;
+using FStringUtility     = TStringUtility<char>;

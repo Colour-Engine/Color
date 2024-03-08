@@ -33,7 +33,7 @@ project "Sandbox"
 	filter "system:linux"
 		defines
 		{
-			"CL_PLATFORM_LINUXU"
+			"CL_PLATFORM_LINUX"
 		}
 	
 	filter "configurations:Development"

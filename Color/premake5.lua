@@ -27,11 +27,19 @@ project "Color"
 		{
 			"CL_PLATFORM_WINDOWS"
 		}
+		excludes
+		{
+			"Source/Platform/Linux/**.cpp"
+		}
 		
 	filter "system:linux"
 		defines
 		{
-			"CL_PLATFORM_LINUXU"
+			"CL_PLATFORM_LINUX"
+		}
+		excludes
+		{
+			"Source/Platform/Windows/**.cpp"
 		}
 	
 	filter "configurations:Development"

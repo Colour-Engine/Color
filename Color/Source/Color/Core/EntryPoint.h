@@ -4,7 +4,7 @@
 
 int32 EngineMain(int32 ArgumentCount, char** ArgumentList)
 {
-	FApplication* Application = CreateApplication();
+	FApplication* Application = CreateApplication({ ArgumentList, (uint32) ArgumentCount });
 	Application->Run();
 
 	delete Application;
