@@ -18,13 +18,13 @@ EDialogResult FLinuxMessageDialog::CreateAndAwait()
 bool FLinuxMessageDialog::SupportsControls(EDialogControls Controls) const
 {
 	// Linux supports NONE of the controls.
-	return true;
+	return false;
 }
 
 bool FLinuxMessageDialog::SupportsIcon(EDialogIcon Icon) const
 {
 	// Linux supports NONE of the icons.
-	return true;
+	return false;
 }
 
 void FLinuxMessageDialog::SetCaption(const FString& NewCaption)
