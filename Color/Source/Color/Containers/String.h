@@ -4,14 +4,22 @@
 #include "Templates/NumericLimits.h"
 
 #include "Core/Memory.h"
+#include "Misc/ExitCode.h"
 #include "Misc/NoInit.h"
 #include "Math/Math.h"
 
+#include "Misc/RuntimeErrorManager.h"
 #include "Containers/Iterator.h"
 #include "Utils/StringUtility.h"
 
 #include <initializer_list>
 #include <stdarg.h>
+
+#ifndef CL_SHIPPING
+	#define CL_TString_AttentionRequired(InExitCode) CL_PLATFORM_DEBUGBREAK()
+#else
+	#define CL_TString_AttentionRequired(InExitCode) FRuntimeErrorManager::RtFatal("TString internal error (exitcode %d)", (int32) ExitCode::InExitCode)
+#endif
 
 template <typename T, typename TSizeType = uint32, typename TAllocatorType = TDefaultAllocator<T>>
 class TString
@@ -558,7 +566,13 @@ public:
 	void SetRange(T Char, uint32 Position = 0, uint32 Count = NPos)
 	{
 		uint32 EndIndex = (Count != NPos ? Count : Size - Position) + Position;
-		// TODO: Make sure IsValidIndex(EndIndex)
+		
+		if (!IsValidIndex(EndIndex))
+		{
+			// EndIndex is out of bounds!
+			CL_TString_AttentionRequired(StrIndexOutOfBounds);
+			return;
+		}
 
 		for (Position; Position < EndIndex; Position++)
 		{
@@ -869,9 +883,6 @@ public:
 
 	TString Sub(SizeType Position = 0, SizeType Count = NPos) const
 	{
-		uint32 EndIndex = (Count != NPos ? Count : Size - Position) + Position;
-		// TODO: Make sure IsValidIndex(EndIndex)
-
 		return TString(Data + Position, Count == NPos ? Size - Position : Count);
 	}
 
@@ -1100,13 +1111,23 @@ public:
 
 	const T& At(SizeType Index) const
 	{
-		// TODO: Bounds checking
+		if (!IsValidIndex(Index))
+		{
+			// Index out of bounds!
+			CL_TString_AttentionRequired(StrIndexOutOfBounds);
+		}
+
 		return Data[Index];
 	}
 
 	T& At(SizeType Index)
 	{
-		// TODO: Bounds checking
+		if (!IsValidIndex(Index))
+		{
+			// Index out of bounds!
+			CL_TString_AttentionRequired(StrIndexOutOfBounds);
+		}
+
 		return Data[Index];
 	}
 

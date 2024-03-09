@@ -5,15 +5,6 @@
 #include "Misc/MiscDefines.h"
 #include "Misc/ExitCode.h"
 
-#ifdef CL_PLATFORM_WINDOWS
-	#define CL_PLATFORM_DEBUGBREAK() __debugbreak()
-#elif defined CL_PLATFORM_LINUX
-	#include <signal.h>
-	#define CL_PLATFORM_DEBUGBREAK() raise(SIGTRAP)
-#else
-	#error "This platform doesn't support debugbreak!"
-#endif
-
 #ifndef CL_SHIPPING
 	#define CL_AssertHelper() { CL_PLATFORM_DEBUGBREAK(); }
 #else

@@ -9,6 +9,16 @@ FApplication::FApplication(const FCommandLine& InCommandLine)
 	checkf(!Instance, "An application instance already exists!");
 	Instance = this;
 
+#ifdef CL_PLATFORM_WINDOWS
+	HANDLE StdOutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	DWORD dwMode;
+
+	GetConsoleMode(StdOutHandle, &dwMode);
+	FLogger::bCanEverUseColors = SetConsoleMode(StdOutHandle, dwMode | (ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING));
+#else
+	FLogger::bCanEverUseColors = false;
+#endif
+
 	InitLog();
 
 	const FApplicationSpecification& Specification = GetApplicationSpecification();

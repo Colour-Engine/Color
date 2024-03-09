@@ -1,10 +1,8 @@
 #include "ColorPCH.h"
 #include "Logger.h"
 
-#include "Misc/MessageDialog.h"
-#include "Misc/ExitCode.h"
-
 #include "Utils/FileSystem.h"
+#include "Misc/ExitCode.h"
 
 #include <time.h>
 
@@ -41,7 +39,7 @@ void FLogger::LogTo(void* Stream, ELogLevel Level, const char* Format, va_list A
 		FFileSystem::AppendToFile(FileInfo.OutputFile, NonColoredOutput);
 	}
 
-	if (bUseColors)
+	if (bCanEverUseColors && bUseColors)
 	{
 		ColoredOutput = FString::Format("%s[%s] %s: %s\x1b[0m\n", LogLevelColors[(uint8) Level], TimeBuffer, *Name, *Message);
 		fwrite(*ColoredOutput, sizeof(FString::CharType), ColoredOutput.Len(), (FILE*) Stream);
@@ -174,65 +172,4 @@ void FLoggerFileInfo::ResetFile()
 		FFileSystem::SetupDirectoriesForFile(OutputFile);
 		FFileSystem::WriteToFile(OutputFile, "");
 	}
-}
-
-void FRuntimeErrorManager::RuntimeErrorLog(ELogLevel Level, const char* Format, va_list Arguments)
-{
-	if (Level < ELogLevel::Error)
-	{
-		return;
-	}
-
-	FString Message = FString::Format(Format, Arguments);
-	TScope<FMessageDialog> MessageDialog = FMessageDialog::New("", Message, EDialogControls::Ok, EDialogIcon::Error);
-
-	switch (Level)
-	{
-	case ELogLevel::Error:
-	{
-		MessageDialog->SetCaption("Runtime error!");
-		break;
-	}
-	case ELogLevel::Fatal:
-	{
-		MessageDialog->SetCaption("Fatal error!");
-		MessageDialog->SetContent(MessageDialog->GetContent() + "\n\nThe application will be aborted due to that.");
-		break;
-	}
-	}
-
-	// This will block the current thread until the message box is closed.
-	MessageDialog->CreateAndAwait();
-
-	if (Level == ELogLevel::Fatal)
-	{
-		RtExit(ExitCode::FatalLog);
-	}
-}
-
-void FRuntimeErrorManager::RuntimeErrorLog(ELogLevel Level, const char* Format, ...)
-{
-	va_list Arguments;
-	va_start(Arguments, Format);
-
-	RuntimeErrorLog(Level, Format, Arguments);
-	va_end(Arguments);
-}
-
-void FRuntimeErrorManager::RtError(const char* Format, ...)
-{
-	va_list Arguments;
-	va_start(Arguments, Format);
-
-	RuntimeErrorLog(ELogLevel::Error, Format, Arguments);
-	va_end(Arguments);
-}
-
-void FRuntimeErrorManager::RtFatal(const char* Format, ...)
-{
-	va_list Arguments;
-	va_start(Arguments, Format);
-
-	RuntimeErrorLog(ELogLevel::Fatal, Format, Arguments);
-	va_end(Arguments);
 }

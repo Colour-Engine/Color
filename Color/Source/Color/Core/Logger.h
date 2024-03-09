@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Containers/String.h"
+#include "Misc/RuntimeErrorManager.h"
 
 enum class ELogLevel : uint8
 {
@@ -47,6 +48,8 @@ struct FLoggerFileInfo
 class FLogger
 {
 public:
+	inline static bool bCanEverUseColors = false;
+public:
 	FLogger
 	(
 		const FString&         Name       = "Unnamed Logger",
@@ -85,16 +88,6 @@ private:
 	FLoggerFileInfo FileInfo;
 	ELogLevel Level = ELogLevel::Trace;
 	bool bUseColors = true;
-};
-
-class FRuntimeErrorManager
-{
-public:
-	static void RuntimeErrorLog(ELogLevel Level, const char* Format, va_list Arguments);
-	static void RuntimeErrorLog(ELogLevel Level, const char* Format, ...);
-
-	static void RtError(const char* Format, ...);
-	static void RtFatal(const char* Format, ...);
 };
 
 #ifndef CL_SHIPPING
