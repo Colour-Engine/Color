@@ -87,20 +87,30 @@ private:
 	bool bUseColors = true;
 };
 
+class FRuntimeErrorManager
+{
+public:
+	static void RuntimeErrorLog(ELogLevel Level, const char* Format, va_list Arguments);
+	static void RuntimeErrorLog(ELogLevel Level, const char* Format, ...);
+
+	static void RtError(const char* Format, ...);
+	static void RtFatal(const char* Format, ...);
+};
+
 #ifndef CL_SHIPPING
 
-#define CL_LOGGER_TRACE(Logger, ...) Logger.Trace(__VA_ARGS__)
-#define CL_LOGGER_INFO(Logger, ...)  Logger.Info(__VA_ARGS__)
-#define CL_LOGGER_WARN(Logger, ...)  Logger.Warn(__VA_ARGS__)
-#define CL_LOGGER_ERROR(Logger, ...) Logger.Error(__VA_ARGS__)
-#define CL_LOGGER_FATAL(Logger, ...) Logger.Fatal(__VA_ARGS__)
+#define CL_LOGGER_TRACE(Logger, ...) Logger->Trace(__VA_ARGS__)
+#define CL_LOGGER_INFO(Logger, ...)  Logger->Info(__VA_ARGS__)
+#define CL_LOGGER_WARN(Logger, ...)  Logger->Warn(__VA_ARGS__)
+#define CL_LOGGER_ERROR(Logger, ...) Logger->Error(__VA_ARGS__)
+#define CL_LOGGER_FATAL(Logger, ...) Logger->Fatal(__VA_ARGS__)
 
 #else
 
 #define CL_LOGGER_TRACE(Logger, ...)
 #define CL_LOGGER_INFO(Logger, ...)
 #define CL_LOGGER_WARN(Logger, ...)
-#define CL_LOGGER_ERROR(Logger, ...)
-#define CL_LOGGER_FATAL(Logger, ...)
+#define CL_LOGGER_ERROR(Logger, ...) FRuntimeErrorManager::RtError(__VA_ARGS__)
+#define CL_LOGGER_FATAL(Logger, ...) FRuntimeErrorManager::RtFatal(__VA_ARGS__)
 
 #endif

@@ -1,29 +1,13 @@
 #include "ColorPCH.h"
 #include "Log.h"
 
-FLogger GEngineLogger =
-{
-	"COLOR",
-	 FLoggerFileInfo
-	 (
-		 "Logs/Engine.log"
-	 )
-};
+TScope<FLogger> GEngineLogger;
+TScope<FLogger> GClientLogger;
+TScope<FLogger> GAssertLogger;
 
-FLogger GClientLogger =
+void InitLog()
 {
-	"APP",
-	 FLoggerFileInfo
-	 (
-		 "Logs/Client.log"
-	 )
-};
-
-FLogger GAssertLogger =
-{
-	"ASSERT",
-	 FLoggerFileInfo
-	 (
-		 "Logs/Assert.log"
-	 )
-};
+	GEngineLogger = MakeScope<FLogger>("ENGINE", FLoggerFileInfo("Log/Engine.log"));
+	GClientLogger = MakeScope<FLogger>("CLIENT", FLoggerFileInfo("Log/Client.log"));
+	GAssertLogger = MakeScope<FLogger>("ASSERT", FLoggerFileInfo("Log/Assert.log"));
+}

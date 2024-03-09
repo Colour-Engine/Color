@@ -17,7 +17,7 @@
 #ifndef CL_SHIPPING
 	#define CL_AssertHelper() { CL_PLATFORM_DEBUGBREAK(); }
 #else
-	#define CL_AssertHelper() { RtExit(ExitCode::AsertFail); }
+	#define CL_AssertHelper() { RtExit(ExitCode::AssertFail); }
 #endif
 
 #define CL_AssertBaseMacro(Type, Expression) \
@@ -61,8 +61,8 @@ if (!(Expression)) \
 	#define unreachable()           CL_UnreachableBaseMacro()
 #else
 	#define CL_DEBUGBREAK()
-	#define check(Expression
-	#define checka(Expression
+	#define check(Expression)
+	#define checka(Expression)
 	#define checkf(Expression, ...)
 	#define unreachable()
 #endif

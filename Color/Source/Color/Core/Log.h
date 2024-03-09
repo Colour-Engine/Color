@@ -1,15 +1,18 @@
 #pragma once
 
 #include "Core/Logger.h"
+#include "Templates/Scope.h"
 
 // The generic logger used to log any sort of information by the engine.
-extern FLogger GEngineLogger;
+extern TScope<FLogger> GEngineLogger;
 
 // The generic logger used to log any sort of information by the game/client/application.
-extern FLogger GClientLogger;
+extern TScope<FLogger> GClientLogger;
 
 // The logger used to log assertion (check/verify/unreachable) failures.
-extern FLogger GAssertLogger;
+extern TScope<FLogger> GAssertLogger;
+
+void InitLog();
 
 #define CL_CORE_TRACE(...)   CL_LOGGER_TRACE(GEngineLogger, __VA_ARGS__)
 #define CL_CORE_INFO(...)    CL_LOGGER_INFO(GEngineLogger, __VA_ARGS__)

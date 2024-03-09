@@ -91,7 +91,7 @@ public:
 	}
 
 	TScope(TScope&& Other) noexcept
-		: TScope(Other)
+		: TScope<T, TDeleter>(MoveTemp(Other))
 	{
 	}
 
@@ -133,7 +133,7 @@ public:
 
 	TScope& operator=(TScope&& Other) noexcept
 	{
-		return *this = Other;
+		return operator=<T, TDeleter>(MoveTemp(Other));
 	}
 
 	void Reset(T* InPointer = nullptr)
@@ -227,7 +227,7 @@ public:
 	}
 
 	TScope(TScope&& Other) noexcept
-		: TScope(Other)
+		: TScope<T, TDeleter>(MoveTemp(Other))
 	{
 	}
 
@@ -269,7 +269,7 @@ public:
 
 	TScope& operator=(TScope&& Other) noexcept
 	{
-		return *this = Other;
+		return operator=<T, TDeleter>(MoveTemp(Other));
 	}
 
 	template <typename U>

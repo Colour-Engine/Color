@@ -9,6 +9,8 @@ FApplication::FApplication(const FCommandLine& InCommandLine)
 	checkf(!Instance, "An application instance already exists!");
 	Instance = this;
 
+	InitLog();
+
 	const FApplicationSpecification& Specification = GetApplicationSpecification();
 	{
 		if (!Specification.WorkingDir.IsEmpty() && Specification.WorkingDir == ".")
