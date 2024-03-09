@@ -6,7 +6,7 @@
 FApplication::FApplication(const FCommandLine& InCommandLine)
 	: CommandLine(InCommandLine)
 {
-	// TODO: Make sure Instance=nullptr
+	checkf(!Instance, "An application instance already exists!");
 	Instance = this;
 
 	const FApplicationSpecification& Specification = GetApplicationSpecification();

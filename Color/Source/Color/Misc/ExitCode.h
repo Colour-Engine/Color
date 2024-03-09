@@ -9,7 +9,8 @@ namespace ExitCode
 	{
 		Successful = 0,
 		Failure    = 1,
-		FatalLog   = 2
+		FatalLog   = 2,
+		AssertFail = 3
 	};
 }
 

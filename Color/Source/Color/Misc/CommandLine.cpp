@@ -6,7 +6,6 @@
 FCommandLine::FCommandLine(char** InList, uint32 InSize)
 	: List(InList), Size(InSize)
 {
-	// TODO: Validate InList and InSize.
 }
 
 FCommandLine::~FCommandLine()
@@ -56,6 +55,6 @@ uint32 FCommandLine::Count(const char* Argument) const
 
 char* FCommandLine::At(uint32 Index) const
 {
-	// TODO: Validate index
+	verifyf(IsValidIndex(Index), "Index out of bounds");
 	return List[Index];
 }

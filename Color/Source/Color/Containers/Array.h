@@ -4,6 +4,7 @@
 #include "Templates/NumericLimits.h"
 
 #include "Containers/Iterator.h"
+#include "Core/Assert.h"
 #include "Core/Memory.h"
 
 #include <initializer_list>
@@ -200,7 +201,7 @@ public:
 	void SetRange(const T& Value, uint32 Position = 0, uint32 Count = NPos)
 	{
 		uint32 EndIndex = (Count != NPos ? Count : Size - Position) + Position;
-		// TODO: Make sure IsValidIndex(EndIndex)
+		checkf(IsValidIndex(EndIndex), "TArray::SetRange was supplied with such parameters that'd result with the end of the range being out of bounds!")
 
 		for (Position; Position < EndIndex; Position++)
 		{
@@ -305,18 +306,27 @@ public:
 
 	const T& At(SizeType Index) const
 	{
-		// TODO: Bounds checking
+		verifyf(IsValidIndex(Index), "Index out of bounds!");
 		return Data[Index];
 	}
 
 	T& At(SizeType Index)
 	{
-		// TODO: Bounds checking
+		verifyf(IsValidIndex(Index), "Index out of bounds!");
 		return Data[Index];
 	}
 
-	const T& operator[](SizeType Index) const { return Data[Index]; }
-	T& operator[](SizeType Index) { return Data[Index]; }
+	const T& operator[](SizeType Index) const
+	{
+		checkf(IsValidIndex(Index), "Index out of bounds!");
+		return Data[Index];
+	}
+
+	T& operator[](SizeType Index)
+	{
+		checkf(IsValidIndex(Index), "Index out of bounds!");
+		return Data[Index];
+	}
 
 	bool operator==(const TArray& Other) const
 	{
