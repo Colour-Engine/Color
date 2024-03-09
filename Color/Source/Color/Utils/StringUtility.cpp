@@ -3,6 +3,11 @@
 
 uint_t TStringUtility<char>::Len(const char* String)
 {
+	if (*String == 0)
+	{
+		return 0;
+	}
+
 	const char* Start = String;
 	while (*++String);
 	return (uint_t)(String - Start);

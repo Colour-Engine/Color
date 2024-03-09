@@ -25,7 +25,8 @@ project "Color"
 		systemversion "latest"
 		defines
 		{
-			"CL_PLATFORM_WINDOWS"
+			"CL_PLATFORM_WINDOWS",
+			"_CRT_SECURE_NO_WARNINGS", -- Disable stupid CRT compilation "warning error"s.
 		}
 		excludes
 		{

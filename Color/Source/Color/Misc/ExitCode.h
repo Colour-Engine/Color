@@ -8,7 +8,8 @@ namespace ExitCode
 	enum : Type
 	{
 		Successful = 0,
-		Failure    = 1
+		Failure    = 1,
+		FatalLog   = 2
 	};
 }
 

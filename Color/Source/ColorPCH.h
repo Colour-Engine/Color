@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Core/Base.h"
+#include "Core/Log.h"
 
 #ifdef CL_PLATFORM_WINDOWS
 	#include <Windows.h>
-	#include <io.h> // unistd.h-like
 #endif
 
 #ifdef CL_PLATFORM_LINUX

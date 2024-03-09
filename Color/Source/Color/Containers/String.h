@@ -34,7 +34,7 @@ public:
 	TString(const AllocatorType& Allocator = AllocatorType())
 		: Allocator(Allocator)
 	{
-		Allocate(BlockSize, true);
+		Allocate(BlockSize + 1, true);
 		InsertNullTerminator();
 	}
 
@@ -444,44 +444,12 @@ public:
 	//   %c - Character.
 	//   %b - Boolean.
 	//   %f - Float or Double.
-	static TString Format(const TString& Fmt, va_list Args)
-	{
-		return Format(Fmt.Data, Args);
-	}
-
-	// Format Specifiers:
-	//   %% - Writes '%'.
-	//   %s - String.
-	//   %i - Integer.
-	//   %d - Integer.
-	//   %c - Character.
-	//   %b - Boolean.
-	//   %f - Float or Double.
 	static TString Format(const T* Fmt, ...)
 	{
 		va_list Args;
 		va_start(Args, Fmt);
 
 		TString Result = Format(Fmt, Args);
-		va_end(Args);
-
-		return Result;
-	}
-
-	// Format Specifiers:
-	//   %% - Writes '%'.
-	//   %s - String.
-	//   %i - Integer.
-	//   %d - Integer.
-	//   %c - Character.
-	//   %b - Boolean.
-	//   %f - Float or Double.
-	static TString Format(const TString& Fmt, ...)
-	{
-		va_list Args;
-		va_start(Args, Fmt);
-
-		TString Result = Format(Fmt.Data, Args);
 		va_end(Args);
 
 		return Result;
@@ -996,6 +964,32 @@ public:
 		return EndsWith(Substring.Data, Substring.Size);
 	}
 
+	bool ContainsAnyOf(const T* Charset, SizeType Length) const
+	{
+		for (SizeType i = 0; i < Size; i++)
+		{
+			for (SizeType j = 0; j < Length; j++)
+			{
+				if (Data[i] == Charset[i])
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	bool ContainsAnyOf(const T* Charset) const
+	{
+		return ContainsAnyOf(Charset, (SizeType) StringUtility::Len(Charset));
+	}
+
+	bool ContainsAnyOf(const TString& Charset) const
+	{
+		return ContainsAnyOf(Charset, Charset.Size);
+	}
+
 	bool Contains(const T* Substring, SizeType Length) const
 	{
 		if (Length > Size)
@@ -1136,10 +1130,8 @@ private:
 		SizeType NewCapacity = bStrictlyUseGivenSize ? Cap : GetCapacityForSize(Cap);
 		T* NewData = Allocator.Allocate(NewCapacity);
 
-		for (SizeType i = 0; i < Size; i++)
-		{
-			NewData[i] = Data[i];
-		}
+		// We also copy the null terminator by copying Size+1 amount of bytes, so no need to call InsertNullTerminator().
+		FMemory::Copy(NewData, Data, Size + 1);
 
 		Allocator.DeAllocate(Data, Capacity);
 		Data = NewData;
@@ -1154,7 +1146,7 @@ private:
 
 	void GrowIfNecessary()
 	{
-		if (Size == Capacity)
+		if (Size == Capacity - 1)
 		{
 			Grow();
 		}
@@ -1163,21 +1155,30 @@ private:
 	void Copy(const T* Pointer, SizeType Size)
 	{
 		Destruct();
-		Allocate(Size);
-		this->Size = Size;
 
-		for (SizeType i = 0; i < Size; i++)
+		if (Size != 0)
 		{
-			Data[i] = Pointer[i];
-		}
+			Allocate(Size);
+			this->Size = Size;
 
-		InsertNullTerminator();
+			for (SizeType i = 0; i < Size; i++)
+			{
+				Data[i] = Pointer[i];
+			}
+
+			InsertNullTerminator();
+		}
+		else
+		{
+			Allocate(BlockSize + 1, true);
+			Size = 0;
+			*Data = 0;
+		}
 	}
 
 	void Copy(const T* String)
 	{
 		Copy(String, (SizeType) StringUtility::Len(String));
-		InsertNullTerminator();
 	}
 
 	void Copy(std::initializer_list<T> InitList)
