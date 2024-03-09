@@ -20,6 +20,12 @@ FApplication::FApplication(const FCommandLine& InCommandLine)
 #endif
 
 	InitLog();
+	CL_CORE_INFO("Initialized logging.");
+
+	CL_CORE_INFO("Engine Build Info:");
+	CL_CORE_INFO("  Compiler:   %s (%s)", CCompiler.Name, CCompiler.Abbreviation);
+	CL_CORE_INFO("  Build Date: %s", __DATE__);
+	CL_CORE_INFO("  Build Time: %s", __TIME__);
 
 	const FApplicationSpecification& Specification = GetApplicationSpecification();
 	{
