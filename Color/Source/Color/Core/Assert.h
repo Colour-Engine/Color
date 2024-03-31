@@ -33,7 +33,6 @@ if (!(Expression)) \
 }
 
 #define CL_UnreachableBaseMacro() \
-if (!(Expression)) \
 { \
 	CL_ASSERT_ERROR("Unreachable point in file '" __FILE__ "' at line " CL_STRINGIFY(__LINE__) " was hit!"); \
 	CL_AssertHelper(); \

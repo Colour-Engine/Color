@@ -11,6 +11,11 @@ workspace "Color"
 
 include "Paths.lua"
 
+group "Engine/ThirdParty"
+	include "Color/ThirdParty/GLFW"
+	include "Color/ThirdParty/Glad"
+group ""
+
 group "Engine"
 	include "Color"
 group ""

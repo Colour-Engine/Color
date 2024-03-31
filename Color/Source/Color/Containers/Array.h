@@ -84,17 +84,35 @@ public:
 		Copy(InitList);
 		return *this;
 	}
+	
+	uint32 Add(const T& Item)
+	{
+		SizeType Index = Size++;
+
+		GrowIfNecessary();
+		Allocator.Construct(Data+(Index), Item);
+
+		return Index;
+	}
+
+	uint32 Add(T&& Item)
+	{
+		SizeType Index = Size++;
+
+		GrowIfNecessary();
+		Allocator.Construct(Data+(Index), MoveTemp(Item));
+
+		return Index;
+	}
 
 	void Push(const T& Item)
 	{
-		GrowIfNecessary();
-		Allocator.Construct(Data+(Size++), Item);
+		Add(Item);
 	}
 
 	void Push(T&& Item)
 	{
-		GrowIfNecessary();
-		Allocator.Construct(Data+(Size++), MoveTemp(Item));
+		Add(MoveTemp(Item));
 	}
 
 	template <typename... Args>
@@ -103,6 +121,20 @@ public:
 		GrowIfNecessary();
 		Allocator.Construct(Data+(Size++), Forward<Args>(Arguments)...);
 		return Back();
+	}
+
+	SizeType RemoveAll(const T& Item)
+	{
+		SizeType NumRemoved = 0;
+		SizeType Idx;
+
+		while ((Idx = Find(Item)) != NPos)
+		{
+			RemoveAt(Idx);
+			NumRemoved++;
+		}
+		
+		return NumRemoved;
 	}
 
 	bool RemoveAt(SizeType Index)
@@ -198,9 +230,9 @@ public:
 	 * @param Position The index at which the changes will start happening.
 	 * @param Count Amount of elements to change. Leave as NPos if every elements in the array from the starting index is going to be changed.
 	 */
-	void SetRange(const T& Value, uint32 Position = 0, uint32 Count = NPos)
+	void SetRange(const T& Value, SizeType Position = 0, SizeType Count = NPos)
 	{
-		uint32 EndIndex = (Count != NPos ? Count : Size - Position) + Position;
+		SizeType EndIndex = (Count != NPos ? Count : Size - Position) + Position;
 		checkf(IsValidIndex(EndIndex), "TArray::SetRange was supplied with such parameters that'd result with the end of the range being out of bounds!")
 
 		for (Position; Position < EndIndex; Position++)
@@ -237,6 +269,7 @@ public:
 		return true;
 	}
 
+	// Returns NPos if the item wasn't found.
 	SizeType Find(const T& Item) const
 	{
 		for (SizeType i = 0; i < Size; i++)
@@ -288,6 +321,7 @@ public:
 	SizeType GetAllocatedSize() const { return Capacity * sizeof(T); }
 	SizeType MaxSize() const { return TNumericLimits<SizeType>::Max(); }
 	SizeType GetMaxIndex() const { return Size > 0 ? Size - 1 : 0; }
+	SizeType GetNPos() const { return NPos; }
 	SizeType Num() const { return Size; }
 	SizeType Max() const { return Capacity; }
 	CL_NODISCARD bool IsEmpty() const { return Size == 0; }

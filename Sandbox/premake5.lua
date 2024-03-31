@@ -15,7 +15,9 @@ project "Sandbox"
 	{
 		"%{IncludeDir.Color}",
 		"%{SourceDir.Color}",
-		"Source"
+		"Source",
+		
+		"%{IncludeDir.glm}"
 	}
 	
 	links

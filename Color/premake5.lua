@@ -18,7 +18,22 @@ project "Color"
 	includedirs
 	{
 		"Source",
-		"Source/Color"
+		"Source/Color",
+
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.Glad}",
+		"%{IncludeDir.glm}"
+	}
+	
+	defines
+	{
+		"GLFW_INCLUDE_NONE"
+	}
+
+	links
+	{
+		"GLFW",
+		"Glad"
 	}
 	
 	filter "system:windows"

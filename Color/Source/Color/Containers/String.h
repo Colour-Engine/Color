@@ -351,7 +351,7 @@ public:
 
 	void Reserve(SizeType Cap)
 	{
-		if (Capacity < Cap)
+		if (Capacity <= Cap)
 		{
 			ReAllocate(Cap);
 		}

@@ -1,6 +1,7 @@
 #include "ColorPCH.h"
 #include "Application.h"
 
+#include "Renderer/Renderer.h"
 #include "Utils/FileSystem.h"
 
 FApplication::FApplication(const FCommandLine& InCommandLine)
@@ -10,13 +11,16 @@ FApplication::FApplication(const FCommandLine& InCommandLine)
 	Instance = this;
 
 #ifdef CL_PLATFORM_WINDOWS
+{
 	HANDLE StdOutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 	DWORD dwMode;
 
 	GetConsoleMode(StdOutHandle, &dwMode);
 	FLogger::bCanEverUseColors = SetConsoleMode(StdOutHandle, dwMode | (ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING));
+}
 #else
-	FLogger::bCanEverUseColors = false;
+	// It's very likely that the terminal supports ANSI escape codes if it's a TTY.
+	FLogger::bCanEverUseColors = isatty(STDOUT_FILENO);
 #endif
 
 	InitLog();
@@ -35,6 +39,18 @@ FApplication::FApplication(const FCommandLine& InCommandLine)
 			FFileSystem::SetWorkingDir(Specification.WorkingDir);
 		}
 	}
+
+	Window = FWindow::New(Specification.WindowProps);
+	if (!Window->Init())
+	{
+		CL_CORE_FATAL("Application window creation failure!");
+		return;
+	}
+	Window->OnClose.Bind(CALL_ON_OBJ(this, Quit));
+	CL_CORE_TRACE("Created the application window.");
+
+	FRenderer::Init();
+	CL_CORE_TRACE("Initialized the Renderer.");
 }
 
 FApplication::~FApplication()
@@ -57,7 +73,7 @@ void FApplication::Run()
 
 	while (bRunning)
 	{
-
+		Window->Update();
 	}
 
 	CleanUp();
@@ -65,6 +81,7 @@ void FApplication::Run()
 
 void FApplication::CleanUp()
 {
+	Window->Destroy();
 }
 
 void FApplication::Quit()

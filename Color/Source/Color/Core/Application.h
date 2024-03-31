@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Base.h"
+#include "Core/Window.h"
 
 #include "Misc/CommandLine.h"
 #include "Misc/ExitCode.h"
@@ -13,6 +14,9 @@ struct FApplicationSpecification
 
 	// The working/current directory the application will use within it's lifetime. Could be left as empty or "." to not change the inital one.
 	FString WorkingDir;
+
+	// The properties to create the application window with.
+	FWindowProps WindowProps = { Name };
 };
 
 class FApplication
@@ -30,14 +34,15 @@ public:
 	// Immediately exits the application without any clean up whatsoever.
 	void Exit(ExitCode::Type ExitCode);
 
+	const TScope<FWindow>& GetWindow() const { return Window; }
 	const FCommandLine& GetCommandLineArgs() const { return CommandLine; }
-	FCommandLine& GetCommandLineArgs() { return CommandLine; }
 	bool IsRunning() const { return bRunning; }
 
 	static FApplication* Get() { return Instance; }
 private:
 	void CleanUp();
 private:
+	TScope<FWindow> Window;
 	FCommandLine CommandLine;
 	bool bRunning = false;
 private:

@@ -1,0 +1,9 @@
+[submodule "Color/ThirdParty/GLFW"]
+	path = Color/ThirdParty/GLFW
+	url = https://github.com/trianglx/clglfw
+[submodule "Color/ThirdParty/Glad"]
+	path = Color/ThirdParty/Glad
+	url = https://github.com/trianglxboi/clglad
+[submodule "Color/ThirdParty/glm"]
+	path = Color/ThirdParty/glm
+	url = https://github.com/g-truc/glm
