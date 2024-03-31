@@ -14,9 +14,13 @@ struct TDefaultAllocator
 
 	TDefaultAllocator() = default;
 	TDefaultAllocator(const TDefaultAllocator&) = default;
+	TDefaultAllocator& operator=(const TDefaultAllocator&) = default;
 
 	template <typename U>
 	TDefaultAllocator(const TDefaultAllocator<U>&) { }
+
+	template <typename U>
+	TDefaultAllocator& operator=(const TDefaultAllocator<U>&) { return *this; }
 
 	~TDefaultAllocator() = default;
 
@@ -43,4 +47,10 @@ struct TDefaultAllocator
 
 	bool operator==(const TDefaultAllocator&) const { return true; }
 	bool operator!=(const TDefaultAllocator&) const { return false; }
+
+	template <typename U>
+	bool operator==(const TDefaultAllocator<U>&) const { return true; }
+
+	template <typename U>
+	bool operator!=(const TDefaultAllocator<U>&) const { return false; }
 };
