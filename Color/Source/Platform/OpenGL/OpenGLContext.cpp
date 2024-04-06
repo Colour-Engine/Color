@@ -30,7 +30,7 @@ bool FOpenGLContext::Init()
 	{
 		CL_CORE_ERROR(
 			"Color Engine requires the GPU to provide at least OpenGL 4.5 functionality but the current renderer only supports up to %d.%d! "
-			"Try changing your renderer if there are other ones available.",
+			"Try updating your GPU drivers or changing your renderer if there are other ones available.",
 
 			GLVersion.major,
 			GLVersion.minor
