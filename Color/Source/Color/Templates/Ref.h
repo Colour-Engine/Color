@@ -66,7 +66,7 @@ public:
 
 	TRef& operator=(TRef&& Other) noexcept
 	{
-		MoveIn(MoveTemp(Other));
+		Move(MoveTemp(Other));
 		return *this;
 	}
 
@@ -80,7 +80,7 @@ public:
 	template <typename U>
 	TRef& operator=(TRef<U>&& Other) noexcept
 	{
-		MoveIn(MoveTemp(Other));
+		Move(MoveTemp(Other));
 		return *this;
 	}
 
