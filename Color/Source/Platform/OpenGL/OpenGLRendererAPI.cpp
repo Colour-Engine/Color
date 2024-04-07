@@ -61,3 +61,16 @@ void FOpenGLRendererAPI::Clear()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
+
+void FOpenGLRendererAPI::DrawIndexed(const TRef<FVertexArray>& VertexArray, uint32 IndexCount)
+{
+	VertexArray->Bind();
+	uint8 Count = IndexCount ? IndexCount : VertexArray->GetIndexBuffer()->GetCount();
+	glDrawElements(GL_TRIANGLES, Count, GL_UNSIGNED_INT, nullptr);
+}
+
+void FOpenGLRendererAPI::DrawLines(const TRef<FVertexArray>& VertexArray, uint32 VertexCount)
+{
+	VertexArray->Bind();
+	glDrawArrays(GL_LINES, 0, VertexCount);
+}

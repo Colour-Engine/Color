@@ -127,7 +127,7 @@ private:
 		Destruct();
 
 		Pointer = (T*) Other.Get();
-		Refs = Other.__Internal_GetControlBlock();
+		Refs = ((TRef<U>&)(Other)).__Internal_GetControlBlock();
 
 		++*Refs;
 	}
@@ -138,7 +138,7 @@ private:
 		Destruct();
 
 		Pointer = (T*) Other.Get();
-		Refs = Other.__Internal_GetControlBlock();
+		Refs = ((TRef<U>&)(Other)).__Internal_GetControlBlock();
 
 		Other.__Internal_GetPtr() = nullptr;
 		Other.__Internal_GetControlBlock() = nullptr;

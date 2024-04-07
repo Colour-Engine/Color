@@ -25,6 +25,9 @@ public:
 	FApplication(const FCommandLine& InCommandLine);
 	virtual ~FApplication();
 
+	virtual void OnPreAppTick() { }
+	virtual void OnPostAppTick() { }
+
 	// Starts the application loop.
 	void Run();
 

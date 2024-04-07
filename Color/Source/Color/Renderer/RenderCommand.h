@@ -29,6 +29,16 @@ public:
 	{
 		API->Clear();
 	}
+
+	static void DrawIndexed(const TRef<FVertexArray>& VertexArray, uint32 IndexCount = 0)
+	{
+		API->DrawIndexed(VertexArray, IndexCount);
+	}
+
+	static void DrawLines(const TRef<FVertexArray>& VertexArray, uint32 VertexCount)
+	{
+		API->DrawLines(VertexArray, VertexCount);
+	}
 private:
 	static TScope<FRendererAPI> API;
 };

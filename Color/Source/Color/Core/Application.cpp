@@ -73,7 +73,9 @@ void FApplication::Run()
 
 	while (bRunning)
 	{
+		OnPreAppTick();
 		Window->Update();
+		OnPostAppTick();
 	}
 
 	CleanUp();

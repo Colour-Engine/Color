@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Base.h"
+#include "Renderer/VertexArray.h"
 
 #include <glm/glm.hpp>
 
@@ -20,6 +21,9 @@ public:
 	virtual void SetClearColor(const glm::vec4& Color) = 0;
 	virtual void SetLineWidth(float Width) = 0;
 	virtual void Clear() = 0;
+
+	virtual void DrawIndexed(const TRef<FVertexArray>& VertexArray, uint32 IndexCount = 0) = 0;
+	virtual void DrawLines(const TRef<FVertexArray>& VertexArray, uint32 VertexCount) = 0;
 
 	static ERendererAPI GetAPI() { return API; }
 	static TScope<FRendererAPI> New();
