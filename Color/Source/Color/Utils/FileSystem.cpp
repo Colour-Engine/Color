@@ -8,7 +8,7 @@ TScope<FNativeFileSystem> FFileSystem::Instance = MakeScope<ConcatWithPlatformNa
 
 FString FFileSystem::GetLeadingDirectories(const FString& Filepath)
 {
-	uint32 LastSlash = Filepath.FindLastOf("/\\");
+	uint_t LastSlash = Filepath.FindLastOf("/\\");
 	return LastSlash != FString::NPos ? Filepath.Sub(0, LastSlash) : "";
 }
 
@@ -29,7 +29,7 @@ bool FFileSystem::CreateNewDirectory(const FString& Path)
 
 bool FFileSystem::CreateDirectories(const FString& Path)
 {
-	uint32 Pos = 0;
+	uint_t Pos = 0;
 	bool bLastSuccess = false;
 
 	while (Pos != FString::NPos)

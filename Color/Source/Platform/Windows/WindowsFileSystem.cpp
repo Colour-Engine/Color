@@ -52,7 +52,7 @@ bool FWindowsNativeFileSystem::WriteToFileEx(const FString& Filepath, const FStr
 		(
 			hFile,
 			Data.Get(),
-			Data.Len(),
+			(DWORD) Data.Len(),
 			&NoBytesWritten,
 			NULL
 		);

@@ -9,7 +9,7 @@
 
 #include <initializer_list>
 
-template <typename T, typename TSizeType = uint32, typename TAllocatorType = TDefaultAllocator<T>>
+template <typename T, typename TSizeType = uint_t, typename TAllocatorType = TDefaultAllocator<T>>
 class TArray
 {
 public:
@@ -85,7 +85,7 @@ public:
 		return *this;
 	}
 	
-	uint32 Add(const T& Item)
+	SizeType Add(const T& Item)
 	{
 		SizeType Index = Size++;
 
@@ -95,7 +95,7 @@ public:
 		return Index;
 	}
 
-	uint32 Add(T&& Item)
+	SizeType Add(T&& Item)
 	{
 		SizeType Index = Size++;
 

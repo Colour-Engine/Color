@@ -2,6 +2,7 @@
 
 #include "Allocators/DefaultAllocator.h"
 #include "Templates/NumericLimits.h"
+#include "Templates/Hash.h"
 
 #include "Core/Memory.h"
 #include "Misc/ExitCode.h"
@@ -21,7 +22,7 @@
 	#define CL_TString_AttentionRequired(InExitCode) FRuntimeErrorManager::RtFatal("TString internal error (exitcode %d)", (int32) ExitCode::InExitCode)
 #endif
 
-template <typename T, typename TSizeType = uint32, typename TAllocatorType = TDefaultAllocator<T>>
+template <typename T, typename TSizeType = uint_t, typename TAllocatorType = TDefaultAllocator<T>>
 class TString
 {
 public:
@@ -1290,3 +1291,24 @@ typedef TString<char> FString;
 
 // UNSUPPORTED FOR NOW DUE TO wchar_t OVERLOAD OF TStringUtility NOT EXISTING!
 typedef TString<wchar_t> FWideString;
+
+// Hash specialization for "FString"
+template <>
+class THash<FString>
+{
+public:
+	uint_t Hash(const FString& Value) const
+	{
+		uint_t HashValue = 0x1505;
+
+		const FString::CharType* String = Value.Get();
+		FString::CharType Char;
+
+		while (Char = *String++)
+		{
+			HashValue = ((HashValue << 5) + HashValue) + Char;
+		}
+
+		return HashValue;
+	}
+};

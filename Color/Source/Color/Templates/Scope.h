@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Templates/Utility.h"
+#include "Templates/Hash.h"
 #include "Misc/IntTypes.h"
 
 // The default deleter used by TScope, this is the single object version.
@@ -335,3 +336,14 @@ constexpr TScope<T[]> MakeScope(uint_t Size)
 {
 	return TScope<T[]>(new T[Size]);
 }
+
+// Hash support for TScope with type & deleter
+template <typename T, typename TDeleter>
+class THash<TScope<T, TDeleter>>
+{
+public:
+	uint_t Hash(const TScope<T, TDeleter>& Value) const
+	{
+		return THash<typename TScope<T, TDeleter>::ElementType*>(Value.Get()).Hash();
+	}
+};

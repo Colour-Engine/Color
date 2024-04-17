@@ -200,3 +200,14 @@ constexpr TRef<T> MakeRef(Args&&... Arguments)
 {
 	return TRef<T>(new T(Forward<Args>(Arguments)...));
 }
+
+// Hash support for TRef.
+template <typename T>
+class THash<TRef<T>>
+{
+public:
+	uint_t Hash(const TRef<T>& Value) const
+	{
+		return THash<typename TRef<T>::ElementType*>(Value.Get()).Hash();
+	}
+};
