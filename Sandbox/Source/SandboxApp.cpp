@@ -7,10 +7,12 @@
 #include "Renderer/RenderCommand.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/Buffer.h"
+#include "Renderer/Shader.h"
 
 TRef<FVertexArray>  VertexArray;
 TRef<FVertexBuffer> VertexBuffer;
 TRef<FIndexBuffer>  IndexBuffer;
+TRef<FShader>       Shader;
 
 FSandboxApp::FSandboxApp(const FCommandLine& InCommandLine)
 	: FApplication(InCommandLine)
@@ -28,6 +30,9 @@ FSandboxApp::FSandboxApp(const FCommandLine& InCommandLine)
 		0, 1, 3,
 		1, 2, 3
 	};
+
+	Shader = FShader::New("Content/Shaders/FlatColor.glsl");
+	Shader->Bind();
 
 	VertexArray = FVertexArray::New();
 	VertexArray->Bind();
@@ -51,11 +56,22 @@ FSandboxApp::~FSandboxApp()
 
 void FSandboxApp::OnPreAppTick()
 {
-	// The code below shouldn't render anything at normal conditions.
-	// But if the GPU provides a default shader, it will actually render.
 	FRenderCommand::Clear();
 	FRenderCommand::DrawIndexed(VertexArray);
 }
 
-IMPLEMENT_SPECIFICATION("Sandbox");
+IMPLEMENT_SPECIFICATION
+(
+	"Sandbox", // Application name
+	".",       // Working directory
+	{          // Window properties
+		"Sandbox", // Title
+		 1600,     // Width
+		 900,      // Height
+		 false,    // Fullscreen?
+		 false,    // Resizable?
+		 true      // VSync?
+	}
+);
+
 IMPLEMENT_APPLICATION(FSandboxApp);

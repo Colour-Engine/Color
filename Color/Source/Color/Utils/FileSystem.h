@@ -14,12 +14,17 @@ public:
 
 	virtual bool WriteToFile(const FString& Filepath, const FString& Data) = 0;
 	virtual bool AppendToFile(const FString& Filepath, const FString& Data) = 0;
+
+	virtual bool DoesFileExist(const FString& Filepath) const = 0;
+	virtual uint_t GetFileSize(const FString& Filepath) const = 0;
+	virtual bool ReadFile(const FString& Filepath, FString& OutData) const = 0;
 };
 
 class FFileSystem
 {
 public:
 	static FString GetLeadingDirectories(const FString& Filepath);
+	static FString ExtractFilenameFromFilepath(const FString& Filepath);
 
 	static void SetWorkingDir(const FString& WorkingDir);
 	static FString GetWorkingDir();
@@ -31,6 +36,10 @@ public:
 	static void SetupDirectoriesForFile(const FString& Filepath);
 	static bool WriteToFile(const FString& Filepath, const FString& Data);
 	static bool AppendToFile(const FString& Filepath, const FString& Data);
+
+	static bool DoesFileExist(const FString& Filepath);
+	static uint_t GetFileSize(const FString& Filepath);
+	static bool ReadFile(const FString& Filepath, FString& OutData);
 private:
 	static TScope<FNativeFileSystem> Instance;
 };

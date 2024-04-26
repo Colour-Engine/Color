@@ -19,7 +19,7 @@ public:
 	using Iterator      = TIndexedContainerIterator<TArray, T, TSizeType>;
 	using ConstIterator = TIndexedContainerIterator<const TArray, const T, TSizeType>;
 public:
-	static constexpr SizeType NPos = TNumericLimits<SizeType>::Max();
+	static constexpr SizeType Npos = TNumericLimits<SizeType>::Max();
 	static constexpr SizeType BlockSize = 15;
 public:
 	TArray(const AllocatorType& Allocator = AllocatorType())
@@ -54,6 +54,22 @@ public:
 		: Allocator(Allocator)
 	{
 		Copy(Pointer, Size);
+	}
+
+	template <typename TIterator>
+	TArray(TIterator Begin, TIterator End, const AllocatorType& Allocator = AllocatorType())
+		: Allocator(Allocator)
+	{
+		for (TIterator It = Begin; It != End; It++)
+		{
+			Size++;
+		}
+		Allocate(Size);
+
+		for (TIterator It = Begin; It != End; It++)
+		{
+			Push(*It);
+		}
 	}
 
 	TArray(std::initializer_list<T> InitList, const AllocatorType& Allocator = AllocatorType())
@@ -128,7 +144,7 @@ public:
 		SizeType NumRemoved = 0;
 		SizeType Idx;
 
-		while ((Idx = Find(Item)) != NPos)
+		while ((Idx = Find(Item)) != Npos)
 		{
 			RemoveAt(Idx);
 			NumRemoved++;
@@ -228,11 +244,11 @@ public:
 	 * 
 	 * @param Value The value to set the elements within the range to.
 	 * @param Position The index at which the changes will start happening.
-	 * @param Count Amount of elements to change. Leave as NPos if every elements in the array from the starting index is going to be changed.
+	 * @param Count Amount of elements to change. Leave as Npos if every elements in the array from the starting index is going to be changed.
 	 */
-	void SetRange(const T& Value, SizeType Position = 0, SizeType Count = NPos)
+	void SetRange(const T& Value, SizeType Position = 0, SizeType Count = Npos)
 	{
-		SizeType EndIndex = (Count != NPos ? Count : Size - Position) + Position;
+		SizeType EndIndex = (Count != Npos ? Count : Size - Position) + Position;
 		checkf(IsValidIndex(EndIndex), "TArray::SetRange was supplied with such parameters that'd result with the end of the range being out of bounds!")
 
 		for (Position; Position < EndIndex; Position++)
@@ -242,7 +258,7 @@ public:
 	}
 
 	// Sets every element within the array to the given value.
-	// Basically, it just calls SetRange(Value, 0, NPos).
+	// Basically, it just calls SetRange(Value, 0, Npos).
 	void Fill(const T& Value)
 	{
 		SetRange(Value);
@@ -269,7 +285,7 @@ public:
 		return true;
 	}
 
-	// Returns NPos if the item wasn't found.
+	// Returns Npos if the item wasn't found.
 	SizeType Find(const T& Item) const
 	{
 		for (SizeType i = 0; i < Size; i++)
@@ -280,12 +296,12 @@ public:
 			}
 		}
 
-		return NPos;
+		return Npos;
 	}
 
 	bool Contains(const T& Item) const
 	{
-		return Find(Item) != NPos;
+		return Find(Item) != Npos;
 	}
 
 	bool IsValidIndex(SizeType Index) const
@@ -321,7 +337,7 @@ public:
 	SizeType GetAllocatedSize() const { return Capacity * sizeof(T); }
 	SizeType MaxSize() const { return TNumericLimits<SizeType>::Max(); }
 	SizeType GetMaxIndex() const { return Size > 0 ? Size - 1 : 0; }
-	SizeType GetNPos() const { return NPos; }
+	SizeType GetNpos() const { return Npos; }
 	SizeType Num() const { return Size; }
 	SizeType Max() const { return Capacity; }
 	CL_NODISCARD bool IsEmpty() const { return Size == 0; }

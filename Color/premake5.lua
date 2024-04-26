@@ -22,7 +22,8 @@ project "Color"
 
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.VulkanSDK}"
 	}
 	
 	defines
@@ -47,7 +48,7 @@ project "Color"
 		{
 			"Source/Platform/Linux/**.cpp"
 		}
-		
+
 	filter "system:linux"
 		defines
 		{
@@ -65,6 +66,12 @@ project "Color"
 		{
 			"CL_DEVELOPMENT"
 		}
+		links
+		{
+			"%{Libraries.ShaderC_Debug}",
+			"%{Libraries.SPIRV_Cross_Debug}",
+			"%{Libraries.SPIRV_Cross_GLSL_Debug}"
+		}
 	
 	filter "configurations:Preview"
 		runtime "Release"
@@ -73,6 +80,12 @@ project "Color"
 		{
 			"CL_PREVIEW"
 		}
+		links
+		{
+			"%{Libraries.ShaderC_Release}",
+			"%{Libraries.SPIRV_Cross_Release}",
+			"%{Libraries.SPIRV_Cross_GLSL_Release}"
+		}
 	
 	filter "configurations:Shipping"
 		runtime "Release"
@@ -80,5 +93,11 @@ project "Color"
 		defines
 		{
 			"CL_SHIPPING"
+		}
+		links
+		{
+			"%{Libraries.ShaderC_Release}",
+			"%{Libraries.SPIRV_Cross_Release}",
+			"%{Libraries.SPIRV_Cross_GLSL_Release}"
 		}
 	

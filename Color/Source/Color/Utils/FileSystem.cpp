@@ -9,7 +9,13 @@ TScope<FNativeFileSystem> FFileSystem::Instance = MakeScope<ConcatWithPlatformNa
 FString FFileSystem::GetLeadingDirectories(const FString& Filepath)
 {
 	uint_t LastSlash = Filepath.FindLastOf("/\\");
-	return LastSlash != FString::NPos ? Filepath.Sub(0, LastSlash) : "";
+	return LastSlash != FString::Npos ? Filepath.Sub(0, LastSlash) : "";
+}
+
+FString FFileSystem::ExtractFilenameFromFilepath(const FString& Filepath)
+{
+	uint_t LastSlash = Filepath.FindLastOf("/\\");
+	return LastSlash != FString::Npos ? Filepath.Sub(LastSlash+1) : Filepath;
 }
 
 void FFileSystem::SetWorkingDir(const FString& WorkingDir)
@@ -32,7 +38,7 @@ bool FFileSystem::CreateDirectories(const FString& Path)
 	uint_t Pos = 0;
 	bool bLastSuccess = false;
 
-	while (Pos != FString::NPos)
+	while (Pos != FString::Npos)
 	{
 		Pos = Path.FindFirstOf("/\\", Pos + 1);
 		bLastSuccess = CreateNewDirectory(*Path.Sub(0, Pos));
@@ -59,4 +65,19 @@ bool FFileSystem::WriteToFile(const FString& Filepath, const FString& Data)
 bool FFileSystem::AppendToFile(const FString& Filepath, const FString& Data)
 {
 	return Instance->AppendToFile(Filepath, Data);
+}
+
+bool FFileSystem::DoesFileExist(const FString& Filepath)
+{
+	return Instance->DoesFileExist(Filepath);
+}
+
+uint_t FFileSystem::GetFileSize(const FString& Filepath)
+{
+	return Instance->GetFileSize(Filepath);
+}
+
+bool FFileSystem::ReadFile(const FString& Filepath, FString& OutData)
+{
+	return Instance->ReadFile(Filepath, OutData);
 }

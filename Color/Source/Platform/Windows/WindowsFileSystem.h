@@ -13,6 +13,10 @@ public:
 
 	virtual bool WriteToFile(const FString& Filepath, const FString& Data) override;
 	virtual bool AppendToFile(const FString& Filepath, const FString& Data) override;
+
+	virtual bool DoesFileExist(const FString& Filepath) const override;
+	virtual uint_t GetFileSize(const FString& Filepath) const override;
+	virtual bool ReadFile(const FString& Filepath, FString& OutData) const override;
 private:
 	bool WriteToFileEx(const FString& Filepath, const FString& Data, bool bAppend = false);
 };

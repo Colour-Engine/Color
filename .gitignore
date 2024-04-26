@@ -9,6 +9,12 @@ Binaries-Int/
 # Log Outputs
 *.log
 
+# Cached Shaders
+*.cached_opengl.vert
+*.cached_opengl.frag
+*.cached_vulkan.vert
+*.cached_vulkan.frag
+
 # Project Files
 *.sln
 *.vcxproj

@@ -46,7 +46,7 @@ public:
 	{
 		uint32 Index = Find(Binding);
 
-		if (Index == Bindings.NPos)
+		if (Index == Bindings.Npos)
 		{
 			return false;
 		}
@@ -63,7 +63,7 @@ public:
 		}
 	}
 
-	// Returns NPos if the item wasn't found.
+	// Returns Npos if the item wasn't found.
 	uint32 Find(const BindingType& Binding) const
 	{
 		for (uint32 i = 0; i < Bindings.Num(); i++)
@@ -76,7 +76,7 @@ public:
 			}
 		}
 
-		return Bindings.NPos;
+		return Bindings.Npos;
 	}
 
 	bool IsBound(const BindingType& Binding) const

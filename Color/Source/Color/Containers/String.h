@@ -33,7 +33,7 @@ public:
 	using Iterator      = TIndexedContainerIterator<TString, T, TSizeType>;
 	using ConstIterator = TIndexedContainerIterator<const TString, const T, TSizeType>;
 public:
-	static constexpr SizeType NPos = TNumericLimits<SizeType>::Max();
+	static constexpr SizeType Npos = TNumericLimits<SizeType>::Max();
 	static constexpr SizeType BlockSize = 30;
 public:
 	TString(TYPE_OF_NULLPTR) = delete;
@@ -368,7 +368,7 @@ public:
 
 	// Format Specifiers:
 	//   %% - Writes '%'.
-	//   %s - String.
+	//   %s - String (char*).
 	//   %i - Integer.
 	//   %d - Integer.
 	//   %c - Character.
@@ -562,11 +562,11 @@ public:
 	 *
 	 * @param Char The character to set the characters within the range to.
 	 * @param Position The index at which the changes will start happening.
-	 * @param Count Amount of characters to change. Leave as NPos if every character in the array from the starting index is going to be changed.
+	 * @param Count Amount of characters to change. Leave as Npos if every character in the array from the starting index is going to be changed.
 	 */
-	void SetRange(T Char, uint32 Position = 0, uint32 Count = NPos)
+	void SetRange(T Char, SizeType Position = 0, SizeType Count = Npos)
 	{
-		uint32 EndIndex = (Count != NPos ? Count : Size - Position) + Position;
+		SizeType EndIndex = (Count != Npos ? Count : Size - Position) + Position;
 		
 		if (!IsValidIndex(EndIndex))
 		{
@@ -582,7 +582,7 @@ public:
 	}
 
 	// Sets every character within the string to the given value.
-	// Basically, it just calls SetRange(Value, 0, NPos).
+	// Basically, it just calls SetRange(Value, 0, Npos).
 	void Fill(T Char)
 	{
 		SetRange(Char);
@@ -606,7 +606,7 @@ public:
 			}
 		}
 
-		return NPos;
+		return Npos;
 	}
 
 	SizeType Find(const T* Substring, SizeType Position, SizeType Length) const
@@ -620,7 +620,7 @@ public:
 			return *this == Substring;
 		}
 
-		SizeType InitialIndex = NPos;
+		SizeType InitialIndex = Npos;
 		SizeType SubstringIndex = 0;
 
 		for (SizeType i = Position; i < Size; i++)
@@ -632,7 +632,7 @@ public:
 
 			if (Data[i] == Substring[SubstringIndex])
 			{
-				if (InitialIndex == NPos)
+				if (InitialIndex == Npos)
 				{
 					InitialIndex = i;
 				}
@@ -641,7 +641,7 @@ public:
 			}
 			else
 			{
-				InitialIndex = NPos;
+				InitialIndex = Npos;
 				SubstringIndex = 0;
 			}
 		}
@@ -651,7 +651,7 @@ public:
 			return InitialIndex;
 		}
 
-		return NPos;
+		return Npos;
 	}
 
 	SizeType Find(const T* Substring, SizeType Position = 0) const
@@ -664,9 +664,9 @@ public:
 		return Find(Substring.Data, Position, Substring.Size);
 	}
 
-	SizeType Rfind(T Char, SizeType Position = NPos) const
+	SizeType Rfind(T Char, SizeType Position = Npos) const
 	{
-		for (Position = (Position == NPos ? Size - 1 : Position); Position != 0; Position--)
+		for (Position = (Position == Npos ? Size - 1 : Position); Position != 0; Position--)
 		{
 			if (Data[Position] == Char)
 			{
@@ -674,7 +674,7 @@ public:
 			}
 		}
 
-		return NPos;
+		return Npos;
 	}
 
 	SizeType Rfind(const T* Substring, SizeType Position, SizeType Length) const
@@ -691,7 +691,7 @@ public:
 		const SizeType DefSubstrIdx = Length - 1;
 		SizeType SubstringIndex = DefSubstrIdx;
 
-		for (SizeType i = (Position == NPos ? Size - 1 : Position); i != 0; i--)
+		for (SizeType i = (Position == Npos ? Size - 1 : Position); i != 0; i--)
 		{
 			if (Data[i] == Substring[SubstringIndex])
 			{
@@ -713,15 +713,15 @@ public:
 			return 0;
 		}
 
-		return NPos;
+		return Npos;
 	}
 
-	SizeType Rfind(const T* Substring, SizeType Position = NPos) const
+	SizeType Rfind(const T* Substring, SizeType Position = Npos) const
 	{
 		return Rfind(Substring, Position, (SizeType) StringUtility::Len(Substring));
 	}
 
-	SizeType Rfind(const TString& Substring, SizeType Position = NPos) const
+	SizeType Rfind(const TString& Substring, SizeType Position = Npos) const
 	{
 		return Rfind(Substring.Data, Position, Substring.Size);
 	}
@@ -744,7 +744,7 @@ public:
 			}
 		}
 
-		return NPos;
+		return Npos;
 	}
 
 	SizeType FindFirstOf(const T* Charset, SizeType Position = 0) const
@@ -767,7 +767,7 @@ public:
 			}
 		}
 
-		return NPos;
+		return Npos;
 	}
 
 	SizeType FindFirstNotOf(const T* Charset, SizeType Position, SizeType Length) const
@@ -791,7 +791,7 @@ public:
 			}
 		}
 
-		return NPos;
+		return Npos;
 	}
 
 	SizeType FindFirstNotOf(const T* Charset, SizeType Position = 0) const
@@ -804,14 +804,14 @@ public:
 		return FindFirstNotOf(Charset.Data, Position, Charset.Size);
 	}
 
-	SizeType FindLastOf(T Char, SizeType Position = NPos) const
+	SizeType FindLastOf(T Char, SizeType Position = Npos) const
 	{
 		return Rfind(Char, Position);
 	}
 
 	SizeType FindLastOf(const T* Charset, SizeType Position, SizeType Length) const
 	{
-		for (Position = (Position == NPos ? Size - 1 : Position); Position != 0; Position--)
+		for (Position = (Position == Npos ? Size - 1 : Position); Position != 0; Position--)
 		{
 			for (SizeType i = 0; i < Length; i++)
 			{
@@ -822,22 +822,22 @@ public:
 			}
 		}
 
-		return NPos;
+		return Npos;
 	}
 
-	SizeType FindLastOf(const T* Charset, SizeType Position = NPos) const
+	SizeType FindLastOf(const T* Charset, SizeType Position = Npos) const
 	{
 		return FindLastOf(Charset, Position, (SizeType) StringUtility::Len(Charset));
 	}
 
-	SizeType FindLastOf(const TString& Charset, SizeType Position = NPos) const
+	SizeType FindLastOf(const TString& Charset, SizeType Position = Npos) const
 	{
 		return FindLastOf(Charset.Data, Position, Charset.Size);
 	}
 
-	SizeType FindLastNotOf(T Char, SizeType Position = NPos) const
+	SizeType FindLastNotOf(T Char, SizeType Position = Npos) const
 	{
-		for (Position = (Position == NPos ? Size - 1 : Position); Position != 0; Position--)
+		for (Position = (Position == Npos ? Size - 1 : Position); Position != 0; Position--)
 		{
 			if (Data[Position] != Char)
 			{
@@ -845,12 +845,12 @@ public:
 			}
 		}
 
-		return NPos;
+		return Npos;
 	}
 
 	SizeType FindLastNotOf(const T* Charset, SizeType Position, SizeType Length) const
 	{
-		for (Position = (Position == NPos ? Size - 1 : Position); Position != 0; Position--)
+		for (Position = (Position == Npos ? Size - 1 : Position); Position != 0; Position--)
 		{
 			bool bMatched = false;
 
@@ -869,22 +869,22 @@ public:
 			}
 		}
 
-		return NPos;
+		return Npos;
 	}
 
-	SizeType FindLastNotOf(const T* Charset, SizeType Position = NPos) const
+	SizeType FindLastNotOf(const T* Charset, SizeType Position = Npos) const
 	{
 		return FindLastNotOf(Charset, Position, (SizeType) StringUtility::Len(Charset));
 	}
 
-	SizeType FindLastNotOf(const TString& Charset, SizeType Position = NPos) const
+	SizeType FindLastNotOf(const TString& Charset, SizeType Position = Npos) const
 	{
 		return FindLastNotOf(Charset.Data, Position, Charset.Size);
 	}
 
-	TString Sub(SizeType Position = 0, SizeType Count = NPos) const
+	TString Sub(SizeType Position = 0, SizeType Count = Npos) const
 	{
-		return TString(Data + Position, Count == NPos ? Size - Position : Count);
+		return TString(Data + Position, Count == Npos ? Size - Position : Count);
 	}
 
 	bool StartsWith(T Char) const
