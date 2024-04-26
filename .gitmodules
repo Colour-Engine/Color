@@ -7,3 +7,6 @@
 [submodule "Color/ThirdParty/Glad"]
 	path = Color/ThirdParty/Glad
 	url = https://github.com/trianglxboi/cleglad
+[submodule "Color/ThirdParty/stb"]
+	path = Color/ThirdParty/stb
+	url = https://github.com/trianglxboi/clstbcol

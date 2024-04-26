@@ -14,6 +14,7 @@ include "Paths.lua"
 group "Engine/ThirdParty"
 	include "Color/ThirdParty/GLFW"
 	include "Color/ThirdParty/Glad"
+	include "Color/ThirdParty/stb"
 group ""
 
 group "Engine"
