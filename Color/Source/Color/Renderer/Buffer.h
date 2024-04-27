@@ -23,7 +23,7 @@ struct FBufferElement
 
 	FBufferElement() = default;
 	FBufferElement(EShaderDataType Type, const FString& Name, bool bNormalized = false)
-		: Type(Type), Name(Name), bNormalized(bNormalized)
+		: Type(Type), Name(Name), Size(SizeOfShaderDataType(Type)), bNormalized(bNormalized)
 	{
 	}
 

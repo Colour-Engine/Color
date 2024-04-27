@@ -6,12 +6,14 @@
 
 #include "Renderer/RenderCommand.h"
 #include "Renderer/VertexArray.h"
+#include "Renderer/Texture.h"
 #include "Renderer/Buffer.h"
 #include "Renderer/Shader.h"
 
 TRef<FVertexArray>  VertexArray;
 TRef<FVertexBuffer> VertexBuffer;
 TRef<FIndexBuffer>  IndexBuffer;
+TRef<FTexture2D>    Texture;
 TRef<FShader>       Shader;
 
 FSandboxApp::FSandboxApp(const FCommandLine& InCommandLine)
@@ -19,10 +21,10 @@ FSandboxApp::FSandboxApp(const FCommandLine& InCommandLine)
 {
 	float Vertices[] =
 	{
-		 0.5f,  0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f,
-		-0.5f,  0.5f, 0.0f
+		 0.5f,  0.5f, 0.0f,    1.0f, 1.0f,
+		 0.5f, -0.5f, 0.0f,    1.0f, 0.0f,
+		-0.5f, -0.5f, 0.0f,    0.0f, 0.0f,
+		-0.5f,  0.5f, 0.0f,    0.0f, 1.0f
 	};
 
 	uint32 Indices[] =
@@ -31,7 +33,10 @@ FSandboxApp::FSandboxApp(const FCommandLine& InCommandLine)
 		1, 2, 3
 	};
 
-	Shader = FShader::New("Content/Shaders/FlatColor.glsl");
+	Texture = FTexture2D::New("Content/Textures/T_Meme_Logo_Wide_D.png");
+	Texture->Bind(0);
+
+	Shader = FShader::New("Content/Shaders/Textured.glsl");
 	Shader->Bind();
 
 	VertexArray = FVertexArray::New();
@@ -40,7 +45,8 @@ FSandboxApp::FSandboxApp(const FCommandLine& InCommandLine)
 	VertexBuffer = FVertexBuffer::New(Vertices, sizeof(Vertices));
 	VertexBuffer->SetLayout
 	({
-		{ EShaderDataType::Float3, "a_Position" }
+		{ EShaderDataType::Float3, "a_Position" },
+		{ EShaderDataType::Float2, "a_TexCoord" }
 	});
 
 	IndexBuffer = FIndexBuffer::New(Indices, 6);
