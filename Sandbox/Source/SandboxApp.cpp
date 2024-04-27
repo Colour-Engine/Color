@@ -5,16 +5,18 @@
 #include "Core/EntryPoint.h"
 
 #include "Renderer/RenderCommand.h"
+#include "Renderer/UniformBuffer.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/Texture.h"
 #include "Renderer/Buffer.h"
 #include "Renderer/Shader.h"
 
-TRef<FVertexArray>  VertexArray;
-TRef<FVertexBuffer> VertexBuffer;
-TRef<FIndexBuffer>  IndexBuffer;
-TRef<FTexture2D>    Texture;
-TRef<FShader>       Shader;
+TRef<FUniformBuffer> UniformBuffer;
+TRef<FVertexArray>   VertexArray;
+TRef<FVertexBuffer>  VertexBuffer;
+TRef<FIndexBuffer>   IndexBuffer;
+TRef<FTexture2D>     Texture;
+TRef<FShader>        Shader;
 
 FSandboxApp::FSandboxApp(const FCommandLine& InCommandLine)
 	: FApplication(InCommandLine)
@@ -33,8 +35,12 @@ FSandboxApp::FSandboxApp(const FCommandLine& InCommandLine)
 		1, 2, 3
 	};
 
-	Texture = FTexture2D::New("Content/Textures/T_Meme_Logo_Wide_D.png");
+	Texture = FTexture2D::New("Content/Textures/Engine_Logo_Wide.png");
 	Texture->Bind(0);
+
+	int SamplerID = 1;
+	UniformBuffer = FUniformBuffer::New(sizeof(int), 0);
+	UniformBuffer->SetData(&SamplerID, sizeof(int));
 
 	Shader = FShader::New("Content/Shaders/Textured.glsl");
 	Shader->Bind();
