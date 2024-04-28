@@ -37,7 +37,9 @@ public:
 	float FltVar = 0.12412f;
 	float FlVar2 = 0.f;
 	float FlVar3 = 0.51f;
+	float FltVar4 = .3f;
 
 	double DblVar = 0.12312;
 	double DblVar2 = 0.;
+	double DblVar3 = .0;
 };

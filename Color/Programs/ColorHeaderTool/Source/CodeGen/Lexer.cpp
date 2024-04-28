@@ -39,6 +39,19 @@ FToken FLexer::Lexe()
 		return CollectNumber();
 	}
 
+	if (Current == '.')
+	{
+		if (CanAdvance() && isdigit(Source[Position + 1]))
+		{
+			Advance(); // Skip dot
+			return CollectNumber(true, "0.");
+		}
+		else
+		{
+			return AdvanceWithToken({ Current, ETokenType::Dot });
+		}
+	}
+
 	switch (Current)
 	{
 	case '\"': return CollectString();
@@ -52,7 +65,6 @@ FToken FLexer::Lexe()
 	case ',': return AdvanceWithToken({ Current, ETokenType::Comma });
 	case '<': return AdvanceWithToken({ Current, ETokenType::LeftAngle });
 	case '>': return AdvanceWithToken({ Current, ETokenType::RightAngle });
-	case '.': return AdvanceWithToken({ Current, ETokenType::Dot });
 	case '+': return AdvanceWithToken({ Current, ETokenType::Plus });
 	case '-': return AdvanceWithToken({ Current, ETokenType::Minus });
 	case '*': return AdvanceWithToken({ Current, ETokenType::Asterisk });
@@ -285,7 +297,7 @@ FToken FLexer::CollectString()
 	return Result;
 }
 
-FToken FLexer::CollectNumber()
+FToken FLexer::CollectNumber(bool bStartWithFloatingPoint, const FString& InitialValue)
 {
 	uint32 NumSkips = 0;
 	auto Adv = [this, &NumSkips]() -> void
@@ -328,9 +340,9 @@ FToken FLexer::CollectNumber()
 		}
 		}
 	};
-	SetMode(ENumberLexeMode::Undecided);
+	SetMode(!bStartWithFloatingPoint ? ENumberLexeMode::Undecided : ENumberLexeMode::FloatingPoint);
 
-	FToken Result("", ETokenType::Integer); // Start with int for now.
+	FToken Result(InitialValue, !bStartWithFloatingPoint ? ETokenType::Integer : ETokenType::Double); // Start with int for now.
 	FString& Value = Result.Value;
 
 	// It never feels good having to use while true but anyway.

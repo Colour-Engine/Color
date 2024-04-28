@@ -38,7 +38,7 @@ private:
 	FToken CollectIdentifier();
 	FToken CollectChar();
 	FToken CollectString();
-	FToken CollectNumber();
+	FToken CollectNumber(bool bStartWithFloatingPoint = false, const FString& InitialValue = "");
 
 	bool CanAdvance() const;
 	bool HasCommentPotential() const;
