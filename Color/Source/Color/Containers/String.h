@@ -88,17 +88,23 @@ public:
 	}
 
 	TString(T Char, SizeType Count, const AllocatorType& Allocator = AllocatorType())
-		: Size(Count), Allocator(Allocator)
+		: Allocator(Allocator)
 	{
 		Allocate(Count);
+		Size = Count;
+
 		SetRange(Char, 0, Count);
+		InsertNullTerminator();
 	}
 
 	TString(T Char, const AllocatorType& Allocator = AllocatorType())
 		: Allocator(Allocator)
 	{
-		Allocate(1);
-		*Data = Char;
+		Allocate(2);
+		Size = 1;
+
+		Data[0] = Char;
+		Data[1] = '\0';
 	}
 
 	~TString()
@@ -127,8 +133,11 @@ public:
 	TString& operator=(T Char)
 	{
 		Destruct();
-		Allocate(1);
-		*Data = Char;
+		Allocate(2);
+
+		Data[0] = Char;
+		Data[1] = '\0';
+		Size = 1;
 
 		return *this;
 	}

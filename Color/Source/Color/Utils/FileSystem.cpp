@@ -6,6 +6,11 @@
 
 TScope<FNativeFileSystem> FFileSystem::Instance = MakeScope<ConcatWithPlatformNameDef(NativeFileSystem)>();
 
+void FFileSystem::InitFS()
+{
+	Instance = MakeScope<ConcatWithPlatformNameDef(NativeFileSystem)>();
+}
+
 FString FFileSystem::GetLeadingDirectories(const FString& Filepath)
 {
 	uint_t LastSlash = Filepath.FindLastOf("/\\");

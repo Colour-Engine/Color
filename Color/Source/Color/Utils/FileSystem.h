@@ -23,6 +23,8 @@ public:
 class FFileSystem
 {
 public:
+	static void InitFS();
+
 	static FString GetLeadingDirectories(const FString& Filepath);
 	static FString ExtractFilenameFromFilepath(const FString& Filepath);
 

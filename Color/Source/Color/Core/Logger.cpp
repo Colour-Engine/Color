@@ -12,7 +12,7 @@ FLogger::FLogger(const FString& Name, const FLoggerFileInfo& FileInfo, ELogLevel
 	this->FileInfo.ResetFile();
 }
 
-void FLogger::LogTo(void* Stream, ELogLevel Level, const char* Format, va_list Arguments)
+void FLogger::LogTo(void* Stream, ELogLevel Level, const char* Format, va_list Arguments) const
 {
 	if (Level < this->Level)
 	{
@@ -43,6 +43,7 @@ void FLogger::LogTo(void* Stream, ELogLevel Level, const char* Format, va_list A
 	{
 		ColoredOutput = FString::Format("%s[%s] %s: %s\x1b[0m\n", LogLevelColors[(uint8) Level], TimeBuffer, *Name, *Message);
 		fwrite(*ColoredOutput, sizeof(FString::CharType), ColoredOutput.Len(), (FILE*) Stream);
+		fflush((FILE*) Stream);
 	}
 	else
 	{
@@ -52,6 +53,7 @@ void FLogger::LogTo(void* Stream, ELogLevel Level, const char* Format, va_list A
 		}
 
 		fwrite(*NonColoredOutput, sizeof(FString::CharType), ColoredOutput.Len(), (FILE*) Stream);
+		fflush((FILE*) Stream);
 	}
 
 	if (Level == ELogLevel::Fatal)
@@ -62,7 +64,7 @@ void FLogger::LogTo(void* Stream, ELogLevel Level, const char* Format, va_list A
 	}
 }
 
-void FLogger::LogTo(void* Stream, ELogLevel Level, const char* Format, ...)
+void FLogger::LogTo(void* Stream, ELogLevel Level, const char* Format, ...) const
 {
 	va_list Arguments;
 	va_start(Arguments, Format);
@@ -71,12 +73,12 @@ void FLogger::LogTo(void* Stream, ELogLevel Level, const char* Format, ...)
 	va_end(Arguments);
 }
 
-void FLogger::Log(ELogLevel Level, const char* Format, va_list Arguments)
+void FLogger::Log(ELogLevel Level, const char* Format, va_list Arguments) const
 {
 	LogTo(stdout, Level, Format, Arguments);
 }
 
-void FLogger::Log(ELogLevel Level, const char* Format, ...)
+void FLogger::Log(ELogLevel Level, const char* Format, ...) const
 {
 	va_list Arguments;
 	va_start(Arguments, Format);
@@ -85,7 +87,7 @@ void FLogger::Log(ELogLevel Level, const char* Format, ...)
 	va_end(Arguments);
 }
 
-void FLogger::Trace(const char* Format, ...)
+void FLogger::Trace(const char* Format, ...) const
 {
 	va_list Arguments;
 	va_start(Arguments, Format);
@@ -94,7 +96,7 @@ void FLogger::Trace(const char* Format, ...)
 	va_end(Arguments);
 }
 
-void FLogger::Info(const char* Format, ...)
+void FLogger::Info(const char* Format, ...) const
 {
 	va_list Arguments;
 	va_start(Arguments, Format);
@@ -103,7 +105,7 @@ void FLogger::Info(const char* Format, ...)
 	va_end(Arguments);
 }
 
-void FLogger::Warn(const char* Format, ...)
+void FLogger::Warn(const char* Format, ...) const
 {
 	va_list Arguments;
 	va_start(Arguments, Format);
@@ -112,7 +114,7 @@ void FLogger::Warn(const char* Format, ...)
 	va_end(Arguments);
 }
 
-void FLogger::Error(const char* Format, ...)
+void FLogger::Error(const char* Format, ...) const
 {
 	va_list Arguments;
 	va_start(Arguments, Format);
@@ -121,7 +123,7 @@ void FLogger::Error(const char* Format, ...)
 	va_end(Arguments);
 }
 
-void FLogger::Fatal(const char* Format, ...)
+void FLogger::Fatal(const char* Format, ...) const
 {
 	va_list Arguments;
 	va_start(Arguments, Format);
@@ -157,7 +159,7 @@ void FLogger::SetUseColors(bool bNewUseColors)
 	bUseColors = bNewUseColors;
 }
 
-void FLoggerFileInfo::EnsureFile()
+void FLoggerFileInfo::EnsureFile() const
 {
 	if (OutputFile.ContainsAnyOf("/\\") && !FFileSystem::DoesDirectoryExist(FFileSystem::GetLeadingDirectories(OutputFile)))
 	{
@@ -165,7 +167,7 @@ void FLoggerFileInfo::EnsureFile()
 	}
 }
 
-void FLoggerFileInfo::ResetFile()
+void FLoggerFileInfo::ResetFile() const
 {
 	if (bDoOutput)
 	{

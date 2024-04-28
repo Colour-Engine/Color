@@ -35,7 +35,7 @@ FSandboxApp::FSandboxApp(const FCommandLine& InCommandLine)
 		1, 2, 3
 	};
 
-	Texture = FTexture2D::New("Content/Textures/Engine_Logo_Wide.png");
+	Texture = FTexture2D::New("Content/Textures/T_Meme_Logo_Wide_D.png");
 	Texture->Bind(0);
 
 	int SamplerID = 1;

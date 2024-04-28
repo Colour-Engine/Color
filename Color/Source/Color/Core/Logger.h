@@ -41,8 +41,8 @@ struct FLoggerFileInfo
 	FLoggerFileInfo(const FString& InOutputFile, bool bDoOutput = true)
 		: OutputFile(InOutputFile), bDoOutput(bDoOutput) { }
 
-	void EnsureFile();
-	void ResetFile();
+	void EnsureFile() const;
+	void ResetFile() const;
 };
 
 class FLogger
@@ -58,19 +58,19 @@ public:
 		bool                   bUseColors = true
 	);
 
-	void LogTo(void* Stream, ELogLevel Level, const char* Format, va_list Arguments);
-	void LogTo(void* Stream, ELogLevel Level, const char* Format, ...);
+	void LogTo(void* Stream, ELogLevel Level, const char* Format, va_list Arguments) const;
+	void LogTo(void* Stream, ELogLevel Level, const char* Format, ...) const;
 
 	// Logs to stdout.
-	void Log(ELogLevel Level, const char* Format, va_list Arguments);
-	void Log(ELogLevel Level, const char* Format, ...);
+	void Log(ELogLevel Level, const char* Format, va_list Arguments) const;
+	void Log(ELogLevel Level, const char* Format, ...) const;
 
 	// All of these log to stdout.
-	void Trace(const char* Format, ...);
-	void Info(const char* Format, ...);
-	void Warn(const char* Format, ...);
-	void Error(const char* Format, ...);
-	void Fatal(const char* Format, ...);
+	void Trace(const char* Format, ...) const;
+	void Info(const char* Format, ...) const;
+	void Warn(const char* Format, ...) const;
+	void Error(const char* Format, ...) const;
+	void Fatal(const char* Format, ...) const;
 
 	void SetName(const FString& NewName);
 	void SetFileInfo(const FLoggerFileInfo& NewFileInfo);
