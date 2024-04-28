@@ -33,7 +33,7 @@ FApplication::FApplication(const FCommandLine& InCommandLine)
 
 	const FApplicationSpecification& Specification = GetApplicationSpecification();
 	{
-		if (!Specification.WorkingDir.IsEmpty() && Specification.WorkingDir == ".")
+		if (!Specification.WorkingDir.IsEmpty() && Specification.WorkingDir != ".")
 		{
 			CL_CORE_INFO("ApplicationSpecification requested a working directory change to the directory '%s'. The working directory will be changed.", *Specification.WorkingDir);
 			FFileSystem::SetWorkingDir(Specification.WorkingDir);
