@@ -456,7 +456,7 @@ public:
 
 	// Format Specifiers:
 	//   %% - Writes '%'.
-	//   %s - String.
+	//   %s - String (char*).
 	//   %i - Integer.
 	//   %d - Integer.
 	//   %c - Character.
@@ -532,7 +532,91 @@ public:
 	{
 		return FromDouble((double) Float, Precision);
 	}
-	
+
+	static int32 ToInteger(const T* String, SizeType Length)
+	{
+		int32 Parsed = 0;
+
+		for (int32 i = 0; i < Length; i++)
+		{
+			Parsed = (Parsed << 3) + (Parsed << 1) + (*String++) - '0';
+		}
+
+		return Parsed;
+	}
+
+	static int32 ToInteger(const T* String)
+	{
+		return ToInteger(String, (SizeType) StringUtility::Len(String));
+	}
+
+	int32 ToInteger() const
+	{
+		return TString::ToInteger(Data, Size);
+	}
+
+	static double ToDouble(const T* String, SizeType Length)
+	{
+		SizeType i = 0, j = 0, ModeFlag = 0;
+		double Parsed = 0.0;
+		T Char = 0;
+
+		while (i < Length)
+		{
+			Char = *(String + i);
+
+			if (Char != '.')
+			{
+				Parsed = Parsed * 10 + Char - '0';
+
+				if (ModeFlag == 1)
+				{
+					j--;
+				}
+			}
+			if (Char == '.')
+			{
+				if (ModeFlag == 1)
+				{
+					return 0.0;
+				}
+				else
+				{
+					ModeFlag = 1;
+				}
+			}
+			i++;
+		}
+		Parsed = Parsed * FMath::Pow(10.0, (double) j);
+
+		return Parsed;
+	}
+
+	static double ToDouble(const T* String)
+	{
+		return ToDouble(String, (SizeType) StringUtility::Len(String));
+	}
+
+	static float ToFloat(const T* String, SizeType Length)
+	{
+		return (float) ToDouble(String, Length);
+	}
+
+	static float ToFloat(const T* String)
+	{
+		return (float) ToDouble(String);
+	}
+
+	double ToDouble() const
+	{
+		return TString::ToDouble(Data, Size);
+	}
+
+	float ToFloat() const
+	{
+		return TString::ToFloat(Data, Size);
+	}
+
 	void Reverse()
 	{
 		SizeType MaxIndex = Size-1;
@@ -1143,6 +1227,11 @@ public:
 
 	const T& operator[](SizeType Index) const { return Data[Index]; }
 	T& operator[](SizeType Index) { return Data[Index]; }
+
+	bool operator==(const T* String) const
+	{
+		return Compare(String) == 0;
+	}
 
 	bool operator==(const TString& Other) const
 	{

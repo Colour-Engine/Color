@@ -9,6 +9,8 @@
 	#error "This platform doesn't support debugbreak!"
 #endif
 
+#define CL_BIT(X) (1 << X)
+
 #define CL_CONCAT_IMPL(L, R) L##R
 #define CL_CONCAT(L, R)      CL_CONCAT_IMPL(L, R)
 

@@ -24,4 +24,31 @@ struct FMath
 
 		return NumDigits;
 	}
+
+	CL_NODISCARD static constexpr double Pow(double A, double B)
+	{
+		int32 E = (int32) B;
+
+		union
+		{
+			double D;
+			int32 X[2];
+		} U = { A };
+
+		U.X[1] = (int32)((B - E) * (U.X[1] - 1072632447) + 1072632447);
+		U.X[0] = 0;
+
+		double R = 1.0;
+		while (E)
+		{
+			if (E & 1)
+			{
+				R *= A;
+			}
+			A *= A;
+			E >>= 1;
+		}
+
+		return R * U.D;
+	}
 };

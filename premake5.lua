@@ -11,10 +11,6 @@ workspace "Color"
 
 include "Paths.lua"
 
-group "Engine/Programs"
-	include "Color/Programs/ColorHeaderTool"
-group ""
-
 group "Engine/ThirdParty"
 	include "Color/ThirdParty/GLFW"
 	include "Color/ThirdParty/Glad"
