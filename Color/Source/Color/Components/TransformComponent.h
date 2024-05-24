@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Scene/Component.h"
+
 #include <glm/glm.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -7,22 +9,24 @@
 #undef GLM_ENABLE_EXPERIMENTAL
 
 // Structure representing the transform of an entity within a 3D world space.
-class FTransform
+class FTransformComponent : public FComponent
 {
 public:
-	FTransform();
-	FTransform(const FTransform&) = default;
-	FTransform& operator=(const FTransform&) = default;
+	FTransformComponent();
+	FTransformComponent(const FTransformComponent&) = default;
+	FTransformComponent& operator=(const FTransformComponent&) = default;
 
 	// All set 2D/3D constructors (3D has defaults since it can't have specialized constructors due to conflicting overloads)
-	FTransform(const glm::vec2& NewLocation, float NewRotation = 0.0f, const glm::vec2& NewScale = glm::vec2(1.0f));
-	FTransform(const glm::vec3& NewLocation, const glm::vec3& NewRotation = glm::vec3(0.0f), const glm::vec3& NewScale = glm::vec3(1.0f));
+	FTransformComponent(const glm::vec2& NewLocation, float NewRotation = 0.0f, const glm::vec2& NewScale = glm::vec2(1.0f));
+	FTransformComponent(const glm::vec3& NewLocation, const glm::vec3& NewRotation = glm::vec3(0.0f), const glm::vec3& NewScale = glm::vec3(1.0f));
 
 	// 2D Constructors
-	// FTransform(const glm::vec2& NewLocation, float NewRotation); /* FTransform-spec-ctor0 variant essentialy takes care of this... */
-	FTransform(const glm::vec2& NewLocation, const glm::vec2& NewScale);
-	FTransform(float NewRotation, const glm::vec2& NewScale);
+	// FTransformComponent(const glm::vec2& NewLocation, float NewRotation); /* FTransformComponent-spec-ctor0 variant essentialy takes care of this... */
+	FTransformComponent(const glm::vec2& NewLocation, const glm::vec2& NewScale);
+	FTransformComponent(float NewRotation, const glm::vec2& NewScale);
 
+	virtual FComponent* Clone() const override;
+		 
 	void SetAll2D(const glm::vec2& NewLocation, float NewRotation, const glm::vec2& NewScale);
 	void SetAll3D(const glm::vec3& NewLocation, const glm::vec3& NewRotation, const glm::vec3& NewScale);
 

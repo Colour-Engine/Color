@@ -4,6 +4,8 @@
 // Include this header in only one translation unit (.cpp file etc.) to avoid duplicate symbol errors.
 #include "Core/EntryPoint.h"
 
+#include "Components/TransformComponent.h"
+
 #include "Renderer/RenderCommand.h"
 #include "Renderer/UniformBuffer.h"
 #include "Renderer/VertexArray.h"
@@ -60,6 +62,19 @@ FSandboxApp::FSandboxApp(const FCommandLine& InCommandLine)
 
 	VertexArray->AddVertexBuffer(VertexBuffer);
 	VertexArray->SetIndexBuffer(IndexBuffer);
+
+	Sahne = MakeScope<FScene>();
+
+	FEntity Entity = Sahne->CreateEntity("Guten Tag");
+	FTransformComponent& Component = Entity.AddOrReplaceComponent<FTransformComponent>(glm::vec2(2.0f, 3.0f));
+	FEntity Duplicated = Sahne->DuplicateEntity(Entity);
+
+	CL_CORE_WARN("%f %f", Component.GetLocation2D().x, Component.GetLocation2D().y);
+	Sahne->DestroyEntity(Entity);
+	CL_CORE_WARN("%f %f", Component.GetLocation2D().x, Component.GetLocation2D().y); // should be gibberish since memory was freed
+
+	Component = Duplicated.GetComponent<FTransformComponent>();
+	CL_CORE_WARN("%f %f", Component.GetLocation2D().x, Component.GetLocation2D().y); // this shouldn't as it was duplicated
 }
 
 FSandboxApp::~FSandboxApp()
@@ -68,6 +83,9 @@ FSandboxApp::~FSandboxApp()
 
 void FSandboxApp::OnPreAppTick()
 {
+	// tick test
+	Sahne->TickScene(0.0f);
+
 	FRenderCommand::Clear();
 	FRenderCommand::DrawIndexed(VertexArray);
 }

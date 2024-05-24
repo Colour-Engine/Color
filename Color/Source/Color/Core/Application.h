@@ -26,7 +26,7 @@ public:
 	virtual ~FApplication();
 
 	virtual void OnPreAppTick() { }
-	virtual void ONpostAppTick() { }
+	virtual void OnPostAppTick() { }
 
 	// Starts the application loop.
 	void Run();

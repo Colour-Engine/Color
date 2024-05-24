@@ -10,3 +10,4 @@
 #include "Misc/CompilerInfo.h"
 #include "Misc/MiscDefines.h"
 #include "Misc/IntTypes.h"
+#include "Misc/Cast.h"

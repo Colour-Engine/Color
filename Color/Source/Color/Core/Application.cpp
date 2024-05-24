@@ -75,7 +75,7 @@ void FApplication::Run()
 	{
 		OnPreAppTick();
 		Window->Update();
-		ONpostAppTick();
+		OnPostAppTick();
 	}
 
 	CleanUp();
