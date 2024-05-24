@@ -2,6 +2,7 @@
 
 #include "Core/Base.h"
 #include "Core/Window.h"
+#include "Core/LayerStack.h"
 
 #include "Misc/CommandLine.h"
 #include "Misc/ExitCode.h"
@@ -25,17 +26,15 @@ public:
 	FApplication(const FCommandLine& InCommandLine);
 	virtual ~FApplication();
 
-	virtual void OnPreAppTick() { }
-	virtual void OnPostAppTick() { }
-
 	// Starts the application loop.
 	void Run();
-
 	// Sends a quit request to the application, which will make it quit on the next frame with proper clean up.
 	void Quit();
-
 	// Immediately exits the application without any clean up whatsoever.
 	void Exit(ExitCode::Type ExitCode);
+
+	void PushLayer(FLayer* Layer);
+	void PushOverlay(FLayer* Overlay);
 
 	const TScope<FWindow>& GetWindow() const { return Window; }
 	const FCommandLine& GetCommandLineArgs() const { return CommandLine; }
@@ -46,7 +45,11 @@ private:
 	void CleanUp();
 private:
 	TScope<FWindow> Window;
+
 	FCommandLine CommandLine;
+	FLayerStack LayerStack;
+
+	float LastFrameTime = 0.0f;
 	bool bRunning = false;
 private:
 	inline static FApplication* Instance = nullptr;

@@ -2,6 +2,8 @@
 #include "Application.h"
 
 #include "Renderer/Renderer.h"
+
+#include "Utils/PlatformUtils.h"
 #include "Utils/FileSystem.h"
 
 FApplication::FApplication(const FCommandLine& InCommandLine)
@@ -73,9 +75,16 @@ void FApplication::Run()
 
 	while (bRunning)
 	{
-		OnPreAppTick();
+		float Time = FPlatformUtils::GetTime();
+		float DeltaTime = Time - LastFrameTime;
+		LastFrameTime = Time;
+
+		for (FLayer* Layer : LayerStack)
+		{
+			Layer->OnTick(DeltaTime);
+		}
+
 		Window->Update();
-		OnPostAppTick();
 	}
 
 	CleanUp();
@@ -102,4 +111,16 @@ void FApplication::Exit(ExitCode::Type ExitCode)
 {
 	CL_CORE_WARN("An immediate exit request was sent to the application with the exitcode '%d'. Exiting...", (int32) ExitCode);
 	RtExit(ExitCode);
+}
+
+void FApplication::PushLayer(FLayer* Layer)
+{
+	LayerStack.PushLayer(Layer);
+	Layer->OnAttach();
+}
+
+void FApplication::PushOverlay(FLayer* Overlay)
+{
+	LayerStack.PushOverlay(Overlay);
+	Overlay->OnAttach();
 }

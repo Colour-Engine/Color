@@ -87,12 +87,23 @@ public:
 	void Reset()
 	{
 		Pointer = nullptr;
+
+		if ((--*Refs) == 0)
+		{
+			Destruct();
+		}
+
 		AllocNewRefs(0);
 	}
 
 	template <typename U>
 	void Reset(U* InPointer)
 	{
+		if ((--*Refs) == 0)
+		{
+			Destruct();
+		}
+
 		Pointer = InPointer;
 		AllocNewRefs(1);
 	}
