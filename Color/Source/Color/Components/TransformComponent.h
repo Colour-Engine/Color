@@ -96,9 +96,9 @@ public:
 	void SetScale(const glm::vec2& NewScale) { SetLocation2D(NewScale); }
 	void SetScale(const glm::vec3& NewScale) { SetLocation3D(NewScale); }
 
-	const glm::vec2& GetLocation2D() const { return Location; }
-	float GetRotation2D() const { return Location.z; }
-	const glm::vec3& GetScale2D() const { return Scale; }
+	glm::vec2 GetLocation2D() const { return { Location.x, Location.y }; }
+	float GetRotation2D() const { return Rotation.z; }
+	glm::vec2 GetScale2D() const { return { Scale.x, Scale.y }; }
 
 	const glm::vec3& GetLocation3D() const { return Location; }
 	const glm::vec3& GetRotation3D() const { return Rotation; }

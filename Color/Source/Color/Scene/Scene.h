@@ -31,6 +31,7 @@ public:
 	void DestroyEntity(FEntity Entity);
 	void DestroyEntity(EntityRef Ref);
 
+	FEntity FindPrimaryCameraEntity();
 	FEntity RetrieveFirstEntityByName(const FString& Name);
 	TArray<FEntity> RetrieveEntitiesByName(const FString& Name);
 	FEntity RetrieveEntity(EntityRef Ref);

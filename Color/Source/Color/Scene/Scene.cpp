@@ -2,6 +2,7 @@
 #include "Scene.h"
 
 #include "Components/TransformComponent.h"
+#include "Components/CameraComponent.h"
 
 FScene::FScene()
 {
@@ -114,6 +115,24 @@ void FScene::DestroyEntity(EntityRef Ref)
 
 	Entities[Ref].RemoveAllComponents();
 	Entities.erase(Ref);
+}
+
+FEntity FScene::FindPrimaryCameraEntity()
+{
+	for (auto&& [RefID, Entity] : Entities)
+	{
+		if (Entity.HasComponent<FCameraComponent>())
+		{
+			FCameraComponent& CameraComponent = Entity.GetComponent<FCameraComponent>();
+
+			if (CameraComponent.IsPrimary())
+			{
+				return { &Entity };
+			}
+		}
+	}
+
+	return { nullptr };
 }
 
 FEntity FScene::RetrieveFirstEntityByName(const FString& Name)

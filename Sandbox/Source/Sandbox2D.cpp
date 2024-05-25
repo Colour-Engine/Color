@@ -1,84 +1,65 @@
 #include "Sandbox2D.h"
 
+#include "Core/Application.h"
+
+#include "Components/SpriteRendererComponent.h"
 #include "Components/TransformComponent.h"
+#include "Components/CameraComponent.h"
 
 #include "Renderer/RenderCommand.h"
-#include "Renderer/UniformBuffer.h"
-#include "Renderer/VertexArray.h"
-#include "Renderer/Texture.h"
-#include "Renderer/Buffer.h"
-#include "Renderer/Shader.h"
-
-TRef<FUniformBuffer> UniformBuffer;
-TRef<FVertexArray>   VertexArray;
-TRef<FVertexBuffer>  VertexBuffer;
-TRef<FIndexBuffer>   IndexBuffer;
-TRef<FTexture2D>     Texture;
-TRef<FShader>        Shader;
+#include "Renderer/Renderer2D.h"
 
 void FSandbox2D::OnAttach()
 {
 	Scene = MakeScope<FScene>();
 
-	float Vertices[] =
+	FEntity CamEntity = Scene->CreateEntity("MainCamera");
+	FCameraComponent& CameraComponent = CamEntity.AddComponent<FCameraComponent>();
+
+	CameraComponent.GetCamera().SetViewportSize(FApplication::Get()->GetWindow()->GetWidth(), FApplication::Get()->GetWindow()->GetHeight());
+	CameraComponent.SetIsPrimary(true);
+
+	for (int i = 0; i < 2; i++)
 	{
-		 0.5f,  0.5f, 0.0f,    1.0f, 1.0f,
-		 0.5f, -0.5f, 0.0f,    1.0f, 0.0f,
-		-0.5f, -0.5f, 0.0f,    0.0f, 0.0f,
-		-0.5f,  0.5f, 0.0f,    0.0f, 1.0f
-	};
+		FEntity QuadEntity = Scene->CreateEntity(FString::Format("QuadEntity_%d", i));
+		FSpriteRendererComponent& SpriteRendererComponent = QuadEntity.AddComponent<FSpriteRendererComponent>();
+		FTransformComponent& TransformComponent = QuadEntity.GetComponent<FTransformComponent>();
 
-	uint32 Indices[] =
-	{
-		0, 1, 3,
-		1, 2, 3
-	};
+		if (i == 0)
+		{
+			SpriteRendererComponent.SetTexture(FTexture2D::New("Content/Textures/Engine_Logo_Wide_NoBG.png"));
+			TransformComponent.SetScale2D({ 10.0f, 6.0f });
+		}
+		else if (i == 1)
+		{
+			SpriteRendererComponent.SetTexture(FTexture2D::New("Content/Textures/Turkish_Star_and_Crescent.png"));
+			TransformComponent.SetLocation2D({ -6.0f, 3.0f });
+			TransformComponent.SetRotation2D(-25.0f);
+			TransformComponent.SetScale2D({ 5.0f, 5.0f });
+		}
+	}
 
-	Texture = FTexture2D::New("Content/Textures/Engine_Logo_Wide.png");
-	Texture->Bind(0);
+	FEntity CircleEntity = Scene->CreateEntity("CircleEntity");
+	FCircleRendererComponent& CircleRendererComponent = CircleEntity.AddComponent<FCircleRendererComponent>();
+	FTransformComponent& TransformComponent = CircleEntity.GetComponent<FTransformComponent>();
 
-	int SamplerID = 1;
-	UniformBuffer = FUniformBuffer::New(sizeof(int), 0);
-	UniformBuffer->SetData(&SamplerID, sizeof(int));
-
-	Shader = FShader::New("Content/Shaders/Textured.glsl");
-	Shader->Bind();
-
-	VertexArray = FVertexArray::New();
-	VertexArray->Bind();
-
-	VertexBuffer = FVertexBuffer::New(Vertices, sizeof(Vertices));
-	VertexBuffer->SetLayout
-	({
-		{ EShaderDataType::Float3, "a_Position" },
-		{ EShaderDataType::Float2, "a_TexCoord" }
-	});
-
-	IndexBuffer = FIndexBuffer::New(Indices, 6);
-	IndexBuffer->Bind();
-
-	VertexArray->AddVertexBuffer(VertexBuffer);
-	VertexArray->SetIndexBuffer(IndexBuffer);
-
-	FEntity Entity = Scene->CreateEntity("Guten Tag");
-	FTransformComponent& Component = Entity.AddOrReplaceComponent<FTransformComponent>(glm::vec2(2.0f, 3.0f));
-	FEntity Duplicated = Scene->DuplicateEntity(Entity);
+	CircleRendererComponent.SetColor({ 1.0f, 1.0f, 0.0f, 1.0f });
+	TransformComponent.SetLocation({ 6.0f, -3.0f });
+	TransformComponent.SetScale2D({ 2.0f, 2.0f });
 }
 
 void FSandbox2D::OnTick(float DeltaTime)
 {
-	Scene->TickScene(DeltaTime);
+	FEntity CameraEntity = Scene->FindPrimaryCameraEntity();
 
 	FRenderCommand::Clear();
-	FRenderCommand::DrawIndexed(VertexArray);
+	FRenderer2D::BeginScene(CameraEntity.GetComponent<FCameraComponent>().GetCamera(), CameraEntity.GetComponent<FTransformComponent>().GetTransformMatrix());
+
+	Scene->TickScene(DeltaTime);
+
+	FRenderer2D::EndScene();
 }
 
 void FSandbox2D::OnDetach()
 {
-	UniformBuffer.Reset();
-	VertexArray.Reset();
-	VertexBuffer.Reset();
-	IndexBuffer.Reset();
-	Texture.Reset();
-	Shader.Reset();
 }

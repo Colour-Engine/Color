@@ -92,6 +92,7 @@ void FApplication::Run()
 
 void FApplication::CleanUp()
 {
+	FRenderer::Shutdown();
 	Window->Destroy();
 }
 
