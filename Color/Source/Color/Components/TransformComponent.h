@@ -25,6 +25,8 @@ public:
 	FTransformComponent(const glm::vec2& NewLocation, const glm::vec2& NewScale);
 	FTransformComponent(float NewRotation, const glm::vec2& NewScale);
 
+	virtual FArchive Serialize() const override;
+	virtual bool Deserialize(const FArchive& Archive) override;
 	virtual FComponent* Clone() const override;
 		 
 	void SetAll2D(const glm::vec2& NewLocation, float NewRotation, const glm::vec2& NewScale);

@@ -9,6 +9,8 @@ public:
 	FCameraComponent() = default;
 	FCameraComponent(bool bPrimary, bool bFixedAspectRatio = false);
 
+	virtual FArchive Serialize() const override;
+	virtual bool Deserialize(const FArchive& Archive) override;
 	virtual FComponent* Clone() const override;
 
 	void SetIsPrimary(bool bPrimary);

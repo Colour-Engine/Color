@@ -1,6 +1,7 @@
 #include "ColorPCH.h"
 #include "TransformComponent.h"
 
+#include "Utils/ArchiveHelpers.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 FTransformComponent::FTransformComponent()
@@ -32,6 +33,28 @@ FTransformComponent::FTransformComponent(const glm::vec2& NewLocation, const glm
 FTransformComponent::FTransformComponent(float NewRotation, const glm::vec2& NewScale)
 {
 	SetRotationAndScale(NewRotation, NewScale);
+}
+
+FArchive FTransformComponent::Serialize() const
+{
+	SERIALIZESTART();
+
+	FArchiveHelpers::SetVec3Field(SerializeAr, "Location", Location);
+	FArchiveHelpers::SetVec3Field(SerializeAr, "Rotation", Rotation);
+	FArchiveHelpers::SetVec3Field(SerializeAr, "Scale", Scale);
+
+	SERIALIZEFINISH;
+}
+
+bool FTransformComponent::Deserialize(const FArchive& Archive)
+{
+	DESERIALIZESTART();
+
+	GetVecFieldChecked("Location", Vec3, Location);
+	GetVecFieldChecked("Rotation", Vec3, Rotation);
+	GetVecFieldChecked("Scale",    Vec3, Scale);
+
+	DESERIALIZEFINISH;
 }
 
 FComponent* FTransformComponent::Clone() const

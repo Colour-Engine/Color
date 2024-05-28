@@ -15,6 +15,7 @@
 
 #include <initializer_list>
 #include <stdarg.h>
+#include <map>
 
 #ifndef CL_SHIPPING
 	#define CL_TString_AttentionRequired(InExitCode) CL_PLATFORM_DEBUGBREAK()
@@ -1410,3 +1411,17 @@ public:
 		return HashValue;
 	}
 };
+
+namespace std
+{
+	// STL-support for FString hashing. Internally uses THash to generate the hash.
+	template <>
+	struct hash<FString>
+	{
+		size_t operator()(const FString& Value) const
+		{
+			THash<FString> Hasher;
+			return Hasher.Hash(Value);
+		}
+	};
+}

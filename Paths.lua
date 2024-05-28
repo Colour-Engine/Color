@@ -19,7 +19,7 @@ IncludeDir["GLFW"] = "%{ProjectDir.GLFW}/include"
 IncludeDir["Glad"] = "%{ProjectDir.Glad}/include"
 IncludeDir["stb"] = "%{ProjectDir.stb}/include"
 IncludeDir["glm"] = "%{ProjectDir.Color}/ThirdParty/glm"
-IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/include"
+IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
 
 SourceDir = { }
 SourceDir["Color"] = "%{ProjectDir.Color}/Source"

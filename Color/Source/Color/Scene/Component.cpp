@@ -1,6 +1,18 @@
 #include "ColorPCH.h"
 #include "Component.h"
 
+FArchive FComponent::Serialize() const
+{
+	SERIALIZESTART();
+	SERIALIZEFINISH;
+}
+
+bool FComponent::Deserialize(const FArchive& Archive)
+{
+	DESERIALIZESTART();
+	DESERIALIZEFINISH;
+}
+
 FComponent* FComponent::Clone() const
 {
 	FComponent* Copy = new FComponent();

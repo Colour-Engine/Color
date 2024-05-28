@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Base.h"
+#include "Core/Archive.h"
 
 #include <glm/glm.hpp>
 
@@ -10,6 +11,9 @@ public:
 	FCamera() = default;
 	FCamera(const glm::mat4& InProjection);
 	virtual ~FCamera() = default;
+
+	virtual FArchive Serialize() const;
+	virtual bool Deserialize(const FArchive& Archive);
 
 	const glm::mat4& GetProjection() const { return Projection; }
 protected:

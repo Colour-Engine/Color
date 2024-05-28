@@ -46,6 +46,15 @@ void FSandbox2D::OnAttach()
 	CircleRendererComponent.SetColor({ 1.0f, 1.0f, 0.0f, 1.0f });
 	TransformComponent.SetLocation({ 6.0f, -3.0f });
 	TransformComponent.SetScale2D({ 2.0f, 2.0f });
+
+	FArchive CRCAr = CircleRendererComponent.Serialize();
+	FArchive TCAr = TransformComponent.Serialize();
+
+	glm::vec4 Color;
+	FArchiveHelpers::GetVec4Field(CRCAr, "Color", Color);
+
+	glm::vec3 Location;
+	FArchiveHelpers::GetVec3Field(TCAr, "Location", Location);
 }
 
 void FSandbox2D::OnTick(float DeltaTime)

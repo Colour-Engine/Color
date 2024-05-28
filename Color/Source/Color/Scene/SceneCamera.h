@@ -14,6 +14,9 @@ public:
 	FSceneCamera();
 	virtual ~FSceneCamera() = default;
 
+	virtual FArchive Serialize() const override;
+	virtual bool Deserialize(const FArchive& Archive) override;
+
 	void SetPerspective(float VerticalFOV, float NearClip, float FarClip);
 	void SetOrthographic(float Size, float NearClip, float FarClip);
 	void SetViewportSize(uint32 Width, uint32 Height);

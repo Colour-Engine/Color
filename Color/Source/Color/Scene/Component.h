@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Archive.h"
+#include "Utils/ArchiveHelpers.h"
 #include "Scene/ECSTypes.h"
 
 #define Cloned __Clone_Cloned_Component
@@ -26,6 +28,8 @@ public:
 	FComponent& operator=(const FComponent&) = default;
 
 	virtual ~FComponent() = default;
+	virtual FArchive Serialize() const;
+	virtual bool Deserialize(const FArchive& Archive);
 	virtual FComponent* Clone() const;
 
 	virtual void OnAttach(bool bReplaced) { }

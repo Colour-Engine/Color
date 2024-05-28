@@ -1,11 +1,45 @@
 #include "ColorPCH.h"
 #include "SceneCamera.h"
 
+#include "Utils/ArchiveHelpers.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 
 FSceneCamera::FSceneCamera()
 {
 	RecalculateViewProjection();
+}
+
+FArchive FSceneCamera::Serialize() const
+{
+	FArchive Ar;
+
+	Ar.SetField("ProjectionType", (int32) ProjectionType);
+	Ar.SetField("PerspectiveFOV", PerspectiveFOV);
+	Ar.SetField("PerspectiveNear", PerspectiveNear);
+	Ar.SetField("PerspectiveFar", PerspectiveFar);
+	Ar.SetField("OrthographicSize", OrthographicSize);
+	Ar.SetField("OrthographicNear", OrthographicNear);
+	Ar.SetField("OrthographicFar", OrthographicFar);
+	Ar.SetField("AspectRatio", AspectRatio);
+
+	return Ar;
+}
+
+bool FSceneCamera::Deserialize(const FArchive& Archive)
+{
+	DESERIALIZESTART();
+
+	GetFieldChecked("ProjectionType", Integer, (int32&) ProjectionType);
+	GetFieldChecked("PerspectiveFOV", Float, PerspectiveFOV);
+	GetFieldChecked("PerspectiveNear", Float, PerspectiveNear);
+	GetFieldChecked("PerspectiveFar", Float, PerspectiveFar);
+	GetFieldChecked("OrthographicSize", Float, OrthographicSize);
+	GetFieldChecked("OrthographicNear", Float, OrthographicNear);
+	GetFieldChecked("OrthographicFar", Float, OrthographicFar);
+	GetFieldChecked("AspectRatio", Float, AspectRatio);
+
+	DESERIALIZEFINISH;
 }
 
 void FSceneCamera::SetPerspective(float VerticalFOV, float NearClip, float FarClip)

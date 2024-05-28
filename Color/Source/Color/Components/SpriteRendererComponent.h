@@ -14,6 +14,8 @@ public:
 	FSpriteRendererComponent(const TRef<FTexture2D>& Texture, float TilingFactor = 1.0f, const glm::vec4& Color = { 1.0f, 1.0f, 1.0f, 1.0f });
 	FSpriteRendererComponent(const glm::vec4& Color);
 
+	virtual FArchive Serialize() const override;
+	virtual bool Deserialize(const FArchive& Archive) override;
 	virtual FComponent* Clone() const override;
 	virtual void OnTick(float DeltaTime) override;
 
