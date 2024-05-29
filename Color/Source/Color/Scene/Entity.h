@@ -21,10 +21,10 @@ struct FEntityData
 
 	struct FComponentData
 	{
-		ComponentID TypeID = 0;
+		const char* IDName = nullptr;
 		FComponent* Data = nullptr;
 	};
-	std::unordered_map<ComponentID, FComponentData> Components;
+	std::unordered_map<const char*, FComponentData> Components;
 
 	template <typename T, typename... Args>
 	T& AddComponent(Args&&... Arguments)
@@ -40,57 +40,69 @@ struct FEntityData
 	template <typename T, typename... Args>
 	T& AddOrReplaceComponent(Args&&... Arguments)
 	{
-		ComponentID TypeID = GetComponentTypeID<T>();
+		const char* IDName = T::GetIDName();
 
 		bool bReplacing = false;
 		if (HasComponent<T>())
 		{
-			delete Components[TypeID].Data;
+			delete Components[IDName].Data;
 			bReplacing = true;
 		}
 
 		T* Component = new T(Forward<Args>(Arguments)...);
-		Components[TypeID] =
+		Components[IDName] =
 		{
-			TypeID,
+			IDName,
 			Component
 		};
 
-		Component->__Internal_init(RefID, Scene, TypeID);
+		Component->__Internal_init(RefID, Scene, IDName);
 		Component->OnAttach(bReplacing);
 
 		return *Component;
 	}
-	
-	void RemoveComponentWithTypeID(ComponentID TypeID)
+
+	void AddComponentViaPtr(const char* IDName, FComponent* Ptr)
 	{
-		if (!Components.contains(TypeID))
+		if (Components.contains(IDName))
 		{
-			CL_CORE_ERROR("An attempt to remove component with TypeID=%d on Entity with RefID=%d was made. Specified Component with that TypeID doesn't exist on the entity.", TypeID, RefID);
+			CL_CORE_ERROR("AddComponentViaPtr ERROR: Component with IDName '%s' already exists.", IDName);
 			return;
 		}
 
-		FComponentData& Data = Components[TypeID];
+		Components[IDName].IDName = IDName;
+		Components[IDName].Data = Ptr;
+	}
+	
+	void RemoveComponentWithIDName(const char* IDName)
+	{
+		if (!Components.contains(IDName))
+		{
+			CL_CORE_ERROR("An attempt to remove component with IDName=%s on Entity with RefID=%d was made. Specified Component with that TypeID doesn't exist on the entity.", *IDName, RefID);
+			return;
+		}
+
+		FComponentData& Data = Components[IDName];
 		FComponent* ComponentPtr = (FComponent*) Data.Data; // cast to generic FComponent for proper call to destructor
 		
 		ComponentPtr->OnDetach();
 		delete ComponentPtr;
 
-		Components.erase(TypeID);
+		Components.erase(IDName);
 	}
 
 	template <typename T>
 	void RemoveComponent()
 	{
-		ComponentID TypeID = GetComponentTypeID<T>();
-		RemoveComponentWithTypeID(TypeID);
+		const char* IDName = T::GetIDName();
+		RemoveComponentWithIDName(IDName);
 	}
 
 	void RemoveAllComponents()
 	{
 		while (!Components.empty())
 		{
-			RemoveComponentWithTypeID((*Components.begin()).second.TypeID);
+			RemoveComponentWithIDName((*Components.begin()).first);
 		}
 	}
 
@@ -110,21 +122,21 @@ struct FEntityData
 	template <typename T>
 	T& GetComponent()
 	{
-		ComponentID TypeID = GetComponentTypeID<T>();
+		const char* IDName = T::GetIDName();
 
 		if (!HasComponent<T>())
 		{
-			CL_CORE_FATAL("Failed to get component with TypeID=%d. Specified component doesn't exist.", TypeID);
+			CL_CORE_FATAL("Failed to get component with IDName=%s. Specified component doesn't exist.", *IDName);
 		}
 
-		return *(T*) Components[TypeID].Data;
+		return *(T*) Components[IDName].Data;
 	}
 
 	template <typename T>
 	bool HasComponent()
 	{
-		ComponentID TypeID = GetComponentTypeID<T>();
-		return Components.contains(TypeID);
+		const char* IDName = T::GetIDName();
+		return Components.contains(IDName);
 	}
 
 	static FEntityData* RetrieveData(EntityRef RefID, FScene* InScene);
@@ -180,12 +192,19 @@ public:
 		return Data->HasComponent<T>();
 	}
 
+	void SetName(const FString& NewName);
+
 	const FString& GetName() const { return Data->Name; }
 	EntityRef GetRef() const { return Data->RefID; }
 	FScene* GetScene() const { return Data->Scene; }
 
 	FEntityData* GetData() const { return Data; }
 	operator EntityRef() const { return GetRef(); }
+
+	// Checks if the entity has a valid entity data. Invalid entity handles returned by operations don't have one.
+	// This check also works after the entity has been destroyed since it also checks if the Ref of the data exists on the scene it belongs to.
+	// If the scene has been free'd from memory, the behavior is undefined.
+	bool IsValid() const;
 private:
 	FEntityData* Data = nullptr;
 };

@@ -23,31 +23,6 @@ FSpriteRendererComponent::FSpriteRendererComponent(const glm::vec4& Color)
 {
 }
 
-FArchive FSpriteRendererComponent::Serialize() const
-{
-	SERIALIZESTART();
-
-	SerializeAr.SetField("TexturePath", Texture->GetPath());
-	FArchiveHelpers::SetVec4Field(SerializeAr, "Color", Color);
-	SerializeAr.SetField("TilingFactor", TilingFactor);
-
-	SERIALIZEFINISH;
-}
-
-bool FSpriteRendererComponent::Deserialize(const FArchive& Archive)
-{
-	DESERIALIZESTART();
-	
-	FString TexturePath;
-	GetFieldChecked("TexturePath", String, TexturePath);
-	GetVecFieldChecked("Color", Vec4, Color);
-	GetFieldChecked("TilingFactor", Float, TilingFactor);
-
-	Texture = FTexture2D::New(TexturePath);
-
-	DESERIALIZEFINISH;
-}
-
 FComponent* FSpriteRendererComponent::Clone() const
 {
 	CLONESTART(FSpriteRendererComponent, FComponent);

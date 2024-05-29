@@ -11,28 +11,6 @@ FCircleRendererComponent::FCircleRendererComponent(const glm::vec4& Color, float
 {
 }
 
-FArchive FCircleRendererComponent::Serialize() const
-{
-	SERIALIZESTART();
-
-	FArchiveHelpers::SetVec4Field(SerializeAr, "Color", Color);
-	SerializeAr.SetField("Thickness", Thickness);
-	SerializeAr.SetField("Fade", Fade);
-
-	SERIALIZEFINISH;
-}
-
-bool FCircleRendererComponent::Deserialize(const FArchive& Archive)
-{
-	DESERIALIZESTART();
-
-	GetVecFieldChecked("Color", Vec4, Color);
-	GetFieldChecked("Thickness", Float, Thickness);
-	GetFieldChecked("Fade", Float, Fade);
-
-	DESERIALIZEFINISH;
-}
-
 FComponent* FCircleRendererComponent::Clone() const
 {
 	CLONESTART(FCircleRendererComponent, FComponent);

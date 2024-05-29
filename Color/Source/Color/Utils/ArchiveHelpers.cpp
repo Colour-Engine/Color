@@ -15,7 +15,7 @@ void FArchiveHelpers::SetVec2Field(FArchive& Archive, const FString& FieldName, 
 		}
 	});
 
-	return Archive.SetField(FieldName, MoveTemp(AFV));
+	Archive.SetField(FieldName, MoveTemp(AFV));
 }
 
 void FArchiveHelpers::SetVec3Field(FArchive& Archive, const FString& FieldName, const glm::vec3& Value)
@@ -36,7 +36,7 @@ void FArchiveHelpers::SetVec3Field(FArchive& Archive, const FString& FieldName, 
 		}
 	});
 
-	return Archive.SetField(FieldName, MoveTemp(AFV));
+	Archive.SetField(FieldName, MoveTemp(AFV));
 }
 
 void FArchiveHelpers::SetVec4Field(FArchive& Archive, const FString& FieldName, const glm::vec4& Value)
@@ -61,7 +61,7 @@ void FArchiveHelpers::SetVec4Field(FArchive& Archive, const FString& FieldName, 
 		}
 	});
 
-	return Archive.SetField(FieldName, MoveTemp(AFV));
+	Archive.SetField(FieldName, MoveTemp(AFV));
 }
 
 FArchiveHelpers::EGetResult FArchiveHelpers::GetVec2Field(const FArchive& Archive, const FString& FieldName, glm::vec2& OutValue)
@@ -98,7 +98,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec2Field(const FArchive& Archiv
 		NumFailures++;
 	}
 
-	return NumFailures == 0 ? EGetResult::TotalFailure : NumFailures == 2 ? EGetResult::TotalFailure : EGetResult::PartialSuccess;
+	return NumFailures == 0 ? EGetResult::TotalSuccess : NumFailures == 2 ? EGetResult::TotalFailure : EGetResult::PartialSuccess;
 }
 
 FArchiveHelpers::EGetResult FArchiveHelpers::GetVec3Field(const FArchive& Archive, const FString& FieldName, glm::vec3& OutValue)
@@ -144,7 +144,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec3Field(const FArchive& Archiv
 		NumFailures++;
 	}
 
-	return NumFailures == 0 ? EGetResult::TotalFailure : NumFailures == 3 ? EGetResult::TotalFailure : EGetResult::PartialSuccess;
+	return NumFailures == 0 ? EGetResult::TotalSuccess : NumFailures == 3 ? EGetResult::TotalFailure : EGetResult::PartialSuccess;
 }
 
 FArchiveHelpers::EGetResult FArchiveHelpers::GetVec4Field(const FArchive& Archive, const FString& FieldName, glm::vec4& OutValue)
@@ -199,5 +199,5 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec4Field(const FArchive& Archiv
 		NumFailures++;
 	}
 
-	return NumFailures == 0 ? EGetResult::TotalFailure : NumFailures == 4 ? EGetResult::TotalFailure : EGetResult::PartialSuccess;
+	return NumFailures == 0 ? EGetResult::TotalSuccess : NumFailures == 4 ? EGetResult::TotalFailure : EGetResult::PartialSuccess;
 }

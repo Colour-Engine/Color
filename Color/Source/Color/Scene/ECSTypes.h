@@ -9,7 +9,7 @@ EntityRef NextEntityRef();
 ComponentID NextComponentTypeID();
 
 template <typename T>
-ComponentID GetComponentTypeID()
+constexpr ComponentID GetComponentTypeID()
 {
 	static ComponentID TypeRef = NextComponentTypeID();
 	return TypeRef;

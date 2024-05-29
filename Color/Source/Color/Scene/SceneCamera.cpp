@@ -28,18 +28,19 @@ FArchive FSceneCamera::Serialize() const
 
 bool FSceneCamera::Deserialize(const FArchive& Archive)
 {
-	DESERIALIZESTART();
+	bool bSuccess = true;
 
-	GetFieldChecked("ProjectionType", Integer, (int32&) ProjectionType);
-	GetFieldChecked("PerspectiveFOV", Float, PerspectiveFOV);
-	GetFieldChecked("PerspectiveNear", Float, PerspectiveNear);
-	GetFieldChecked("PerspectiveFar", Float, PerspectiveFar);
-	GetFieldChecked("OrthographicSize", Float, OrthographicSize);
-	GetFieldChecked("OrthographicNear", Float, OrthographicNear);
-	GetFieldChecked("OrthographicFar", Float, OrthographicFar);
-	GetFieldChecked("AspectRatio", Float, AspectRatio);
+	GetFieldChecked(Archive, "ProjectionType", Integer, (int32&) ProjectionType, bSuccess);
+	GetFieldChecked(Archive, "PerspectiveFOV", Float, PerspectiveFOV, bSuccess);
+	GetFieldChecked(Archive, "PerspectiveNear", Float, PerspectiveNear, bSuccess);
+	GetFieldChecked(Archive, "PerspectiveFar", Float, PerspectiveFar, bSuccess);
+	GetFieldChecked(Archive, "OrthographicSize", Float, OrthographicSize, bSuccess);
+	GetFieldChecked(Archive, "OrthographicNear", Float, OrthographicNear, bSuccess);
+	GetFieldChecked(Archive, "OrthographicFar", Float, OrthographicFar, bSuccess);
+	GetFieldChecked(Archive, "AspectRatio", Float, AspectRatio, bSuccess);
 
-	DESERIALIZEFINISH;
+	RecalculateViewProjection();
+	return bSuccess;
 }
 
 void FSceneCamera::SetPerspective(float VerticalFOV, float NearClip, float FarClip)

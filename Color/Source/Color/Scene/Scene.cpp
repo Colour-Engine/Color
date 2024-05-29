@@ -14,19 +14,54 @@ FScene::~FScene()
 	{
 		Entity.RemoveAllComponents();
 	}
-
+	
 	Entities.clear();
+}
+
+void FScene::Start()
+{
+	bRunning = true;
+}
+
+void FScene::Puase()
+{
+	bPaused = true;
+}
+
+void FScene::Unpause()
+{
+	bPaused = false;
+}
+
+void FScene::SetPaused(bool bPaused)
+{
+	this->bPaused = bPaused;
+}
+
+void FScene::Stop()
+{
+	bRunning = false;
 }
 
 void FScene::TickScene(float DeltaTime)
 {
-	for (auto&& [Ref, Entity] : Entities)
+	if (bRunning)
 	{
-		for (auto&& [TypeID, Component] : Entity.Components)
+		for (auto&& [Ref, Entity] : Entities)
 		{
-			if (Component.Data->IsTickEnabled())
+			for (auto&& [TypeID, Component] : Entity.Components)
 			{
-				Component.Data->OnTick(DeltaTime);
+				if (Component.Data->IsTickEnabled())
+				{
+					if (bPaused)
+					{
+						Component.Data->OnPausedTick(DeltaTime);
+					}
+					else
+					{
+						Component.Data->OnTick(DeltaTime);
+					}
+				}
 			}
 		}
 	}
@@ -92,6 +127,14 @@ FEntity FScene::DuplicateEntity(EntityRef Ref)
 	}
 
 	return CloneEntityAb;
+}
+
+void FScene::DestroyAllEntities()
+{
+	while (!Entities.empty())
+	{
+		DestroyEntity((*Entities.begin()).first);
+	}
 }
 
 void FScene::DestroyEntity(FEntity Entity)

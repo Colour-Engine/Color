@@ -11,7 +11,8 @@
 
 void FSandbox2D::OnAttach()
 {
-	Scene = MakeScope<FScene>();
+	Scene = MakeRef<FScene>();
+	Scene->Start();
 
 	FEntity CamEntity = Scene->CreateEntity("MainCamera");
 	FCameraComponent& CameraComponent = CamEntity.AddComponent<FCameraComponent>();
@@ -47,14 +48,14 @@ void FSandbox2D::OnAttach()
 	TransformComponent.SetLocation({ 6.0f, -3.0f });
 	TransformComponent.SetScale2D({ 2.0f, 2.0f });
 
-	FArchive CRCAr = CircleRendererComponent.Serialize();
-	FArchive TCAr = TransformComponent.Serialize();
+	// Serialize the scene
+	FArchive SceneData = GetGlobalSerializationManager()->SerializeScene(Scene.Get());
 
-	glm::vec4 Color;
-	FArchiveHelpers::GetVec4Field(CRCAr, "Color", Color);
+	// Delete all entities and components
+	Scene->DestroyAllEntities();
 
-	glm::vec3 Location;
-	FArchiveHelpers::GetVec3Field(TCAr, "Location", Location);
+	// Reload all saved data via deserialization
+	GetGlobalSerializationManager()->DeserializeScene(Scene.Get(), SceneData);
 }
 
 void FSandbox2D::OnTick(float DeltaTime)
@@ -62,11 +63,15 @@ void FSandbox2D::OnTick(float DeltaTime)
 	FEntity CameraEntity = Scene->FindPrimaryCameraEntity();
 
 	FRenderCommand::Clear();
-	FRenderer2D::BeginScene(CameraEntity.GetComponent<FCameraComponent>().GetCamera(), CameraEntity.GetComponent<FTransformComponent>().GetTransformMatrix());
-
+	if (CameraEntity.IsValid())
+	{
+		FRenderer2D::BeginScene(CameraEntity.GetComponent<FCameraComponent>().GetCamera(), CameraEntity.GetComponent<FTransformComponent>().GetTransformMatrix());
+	}
 	Scene->TickScene(DeltaTime);
-
-	FRenderer2D::EndScene();
+	if (CameraEntity.IsValid())
+	{
+		FRenderer2D::EndScene();
+	}
 }
 
 void FSandbox2D::OnDetach()

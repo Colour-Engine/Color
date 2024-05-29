@@ -7,13 +7,13 @@
 class FCircleRendererComponent : public FComponent
 {
 public:
+	static const char* GetIDName() { return "FCircleRendererComponent"; }
+public:
 	FCircleRendererComponent() = default;
 	FCircleRendererComponent(const glm::vec4& Color, float Thickness = 1.0f, float Fade = 0.005f);
 
-	virtual FArchive Serialize() const override;
-	virtual bool Deserialize(const FArchive& Archive) override;
-	virtual FComponent* Clone() const override;
 	virtual void OnTick(float DeltaTime) override;
+	virtual FComponent* Clone() const override;
 
 	void SetColor(const glm::vec4& NewColor);
 	void SetThickness(float NewThickness);

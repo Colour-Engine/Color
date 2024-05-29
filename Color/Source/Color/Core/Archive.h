@@ -28,6 +28,12 @@ enum class EArchiveFieldValueType
 	Group
 };
 
+enum class EArchiveFormat
+{
+	// The special format of Color Engine. (CLAR stands for Color Archive and the standard extension is .clarchive)
+	CLAR
+};
+
 const char* ArchiveFieldValueTypeToString(EArchiveFieldValueType Type);
 
 class FArchiveFieldValue
@@ -42,15 +48,21 @@ public:
 		FArchiveFieldValueGroupValueType(const FArchiveFieldValueGroupValueType&) = default;
 		FArchiveFieldValueGroupValueType& operator=(const FArchiveFieldValueGroupValueType&) = default;
 
+		FArchiveFieldValueGroupValueType(const FArchiveFieldValue& GroupValue)
+		{
+			verifyf(GroupValue.Type == EArchiveFieldValueType::Group, "Expected Group type!");
+			Root = GroupValue.AsGroup().Root;
+		}
+
 		FArchiveFieldValueGroupValueType(std::initializer_list<std::pair<const FString, FArchiveFieldValue>> KVPs)
 			: Root(KVPs) { }
 
 		FArchiveFieldValueGroupValueType(ContainerType& InContainer)
 			: Root(InContainer) { }
 
-		void SetField(const FString& FieldName, const FArchiveFieldValue& Value)
+		FArchiveFieldValue& SetField(const FString& FieldName, const FArchiveFieldValue& Value)
 		{
-			Root[FieldName] = Value;
+			return Root[FieldName] = Value;
 		}
 
 		bool RemoveField(const FString& FieldName)
@@ -86,6 +98,48 @@ public:
 			verifyf(HasField(FieldName), "Field '%s' doesn't exist within the group!", *FieldName);
 			return Root.at(FieldName);
 		}
+
+		FArchiveFieldValue& operator[](const FString& FieldName)
+		{
+			if (!HasField(FieldName))
+			{
+				SetField(FieldName, FArchiveFieldValue(EArchiveFieldValueType::None));
+				return Root[FieldName];
+			}
+
+			return GetField(FieldName);
+		}
+
+		const FArchiveFieldValue& operator[](const FString& FieldName) const
+		{
+			return GetField(FieldName);
+		}
+
+		FString Convert(EArchiveFormat Format = EArchiveFormat::CLAR) const
+		{
+			switch (Format)
+			{
+			case EArchiveFormat::CLAR:
+				return ConvertToCLAR();
+			}
+
+			unreachable();
+			return "";
+		}
+
+		FString ConvertToCLAR() const
+		{
+			return "";
+
+		}
+
+		auto begin() { return Root.begin(); }
+		auto end() { return Root.end(); }
+		const auto begin() const { return Root.begin(); }
+		const auto end() const { return Root.end(); }
+
+		const auto cbegin() const { return Root.cbegin(); }
+		const auto cend() const { return Root.cend(); }
 	private:
 		ContainerType Root;
 	};
@@ -159,6 +213,21 @@ public:
 	DECLARE_AS_FN(FArrayType, Array);
 	DECLARE_AS_FN(FGroupType, Group);
 #undef DECLARE_AS_FN
+
+	// Only usable when the Type == Group!
+	const FArchiveFieldValue& operator[](const FString& FieldName) const
+	{
+		return AsGroup()[FieldName];
+	}
+
+	// Only usable when the Type == Group!
+	FArchiveFieldValue& operator[](const FString& FieldName)
+	{
+		return AsGroup()[FieldName];
+	}
+
+	operator const FGroupType&() const { return AsGroup(); }
+	operator FGroupType&() { return AsGroup(); }
 
 	EArchiveFieldValueType GetType() const { return Type; }
 private:

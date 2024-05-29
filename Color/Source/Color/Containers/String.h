@@ -1391,6 +1391,25 @@ typedef TString<char> FString;
 // UNSUPPORTED FOR NOW DUE TO wchar_t OVERLOAD OF TStringUtility NOT EXISTING!
 typedef TString<wchar_t> FWideString;
 
+// Hash specialization C strings
+template <>
+class THash<char*>
+{
+public:
+	uint_t Hash(const char* Value) const
+	{
+		uint_t HashValue = 0x1505;
+
+		char Char;
+		while (Char = *Value++)
+		{
+			HashValue = ((HashValue << 5) + HashValue) + Char;
+		}
+
+		return HashValue;
+	}
+};
+
 // Hash specialization for "FString"
 template <>
 class THash<FString>

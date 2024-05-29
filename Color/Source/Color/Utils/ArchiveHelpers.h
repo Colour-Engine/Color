@@ -9,16 +9,8 @@
 #define ARCHIVEHELPERS_VECFIELDS_Z "Z"
 #define ARCHIVEHELPERS_VECFIELDS_W "W"
 
-#define SerializeAr _Serialization_Archive
-#define SERIALIZESTART() ::FArchive SerializeAr
-#define SERIALIZEFINISH return SerializeAr
-
-#define bDeserializeResult _Serialization_Deserialize
-#define DESERIALIZESTART() SERIALIZESTART(); bool bDeserializeResult = true
-#define DESERIALIZEFINISH return bDeserializeResult
-
-#define GetFieldChecked(FieldName, AFVType, OutValue) if (Archive.HasField(FieldName)) { OutValue = Archive.GetField(FieldName).As##AFVType(); } else { bDeserializeResult = false; }
-#define GetVecFieldChecked(FieldName, VecType, OutValue) if (Archive.HasFieldWithType(FieldName, ::EArchiveFieldValueType::Group)) { bDeserializeResult = ::FArchiveHelpers::Get##VecType##Field(Archive, FieldName, OutValue) == ::FArchiveHelpers::EGetResult::TotalSuccess; } else { bDeserializeResult = false; }
+#define GetFieldChecked(Archive, FieldName, AFVType, OutValue, SuccessFlag) if (Archive.HasField(FieldName)) { OutValue = Archive.GetField(FieldName).As##AFVType(); } else { SuccessFlag = false; }
+#define GetVecFieldChecked(Archive, FieldName, VecType, OutValue, SuccessFlag) if (Archive.HasFieldWithType(FieldName, ::EArchiveFieldValueType::Group)) { SuccessFlag = SuccessFlag && ::FArchiveHelpers::Get##VecType##Field(Archive, FieldName, OutValue) == ::FArchiveHelpers::EGetResult::TotalSuccess; } else { SuccessFlag = false; }
 
 struct FArchiveHelpers
 {

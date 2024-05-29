@@ -9,15 +9,15 @@
 class FSpriteRendererComponent : public FComponent
 {
 public:
+	static const char* GetIDName() { return "FSpriteRendererComponent"; }
+public:
 	FSpriteRendererComponent() = default;
 	FSpriteRendererComponent(const TRef<FTexture2D>& Texture, const glm::vec4& Color = { 1.0f, 1.0f, 1.0f, 1.0f }, float TilingFactor = 1.0f);
 	FSpriteRendererComponent(const TRef<FTexture2D>& Texture, float TilingFactor = 1.0f, const glm::vec4& Color = { 1.0f, 1.0f, 1.0f, 1.0f });
 	FSpriteRendererComponent(const glm::vec4& Color);
 
-	virtual FArchive Serialize() const override;
-	virtual bool Deserialize(const FArchive& Archive) override;
-	virtual FComponent* Clone() const override;
 	virtual void OnTick(float DeltaTime) override;
+	virtual FComponent* Clone() const override;
 
 	void SetTexture(const TRef<FTexture2D>& Texture);
 	void SetColor(const glm::vec4& Color);

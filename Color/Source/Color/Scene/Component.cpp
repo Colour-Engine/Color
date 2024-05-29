@@ -1,22 +1,10 @@
 #include "ColorPCH.h"
 #include "Component.h"
 
-FArchive FComponent::Serialize() const
-{
-	SERIALIZESTART();
-	SERIALIZEFINISH;
-}
-
-bool FComponent::Deserialize(const FArchive& Archive)
-{
-	DESERIALIZESTART();
-	DESERIALIZEFINISH;
-}
-
 FComponent* FComponent::Clone() const
 {
 	FComponent* Copy = new FComponent();
-	Copy->__Internal_init(Owner, OwnerScene, TypeID);
+	Copy->__Internal_init(Owner, OwnerScene, IDName);
 
 	return Copy;
 }
@@ -26,9 +14,9 @@ void FComponent::SetEnableTick(bool bEnable)
 	bEnableTick = bEnable;
 }
 
-void FComponent::__Internal_init(EntityRef OwnerRefID, FScene* OwnersScene, ComponentID MyTypeID)
+void FComponent::__Internal_init(EntityRef OwnerRefID, FScene* OwnersScene, const char* IDName)
 {
-	Owner = OwnerRefID;
-	OwnerScene = OwnersScene;
-	TypeID = MyTypeID;
+	this->Owner = OwnerRefID;
+	this->OwnerScene = OwnersScene;
+	this->IDName = IDName;
 }

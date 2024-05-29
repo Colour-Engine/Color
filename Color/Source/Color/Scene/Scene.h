@@ -9,6 +9,12 @@ public:
 	FScene();
 	~FScene();
 
+	void Start();
+	void Puase();
+	void Unpause();
+	void SetPaused(bool bPaused);
+	void Stop();
+
 	void TickScene(float DeltaTime);
 
 	FEntity CreateEntityWithRefID(EntityRef RefID, const FString& Name = "Unnamed Entity");
@@ -28,6 +34,7 @@ public:
 	 */
 	FEntity DuplicateEntity(EntityRef Ref);
 
+	void DestroyAllEntities();
 	void DestroyEntity(FEntity Entity);
 	void DestroyEntity(EntityRef Ref);
 
@@ -41,10 +48,18 @@ public:
 
 	bool HasEntity(FEntity Entity);
 	bool HasEntity(EntityRef Ref);
+
+	bool IsRunning() const { return bRunning; }
+	bool IsPaused() const { return bPaused; }
+	
+	std::unordered_map<EntityRef, FEntityData>& GetEntities() { return Entities; }
 private:
 	bool Internal_ValidateEntityScene(FEntity Ref);
 private:
 	std::unordered_map<EntityRef, FEntityData> Entities;
+
+	bool bRunning = false;
+	bool bPaused = false;
 private:
 	friend struct FEntityData;
 };

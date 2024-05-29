@@ -18,3 +18,13 @@ FEntity::FEntity(FEntityData* InData)
 	: Data(InData)
 {
 }
+
+void FEntity::SetName(const FString& NewName)
+{
+	Data->Name = NewName;
+}
+
+bool FEntity::IsValid() const
+{
+	return Data != nullptr && Data->Scene->HasEntity(Data->RefID);
+}

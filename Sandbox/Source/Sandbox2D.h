@@ -10,5 +10,5 @@ public:
 	virtual void OnTick(float DeltaTime) override;
 	virtual void OnDetach() override;
 private:
-	TScope<FScene> Scene;
+	TRef<FScene> Scene;
 };

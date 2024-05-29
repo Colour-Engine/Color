@@ -12,6 +12,8 @@
 class FTransformComponent : public FComponent
 {
 public:
+	static const char* GetIDName() { return "FTransformComponent"; }
+public:
 	FTransformComponent();
 	FTransformComponent(const FTransformComponent&) = default;
 	FTransformComponent& operator=(const FTransformComponent&) = default;
@@ -25,8 +27,6 @@ public:
 	FTransformComponent(const glm::vec2& NewLocation, const glm::vec2& NewScale);
 	FTransformComponent(float NewRotation, const glm::vec2& NewScale);
 
-	virtual FArchive Serialize() const override;
-	virtual bool Deserialize(const FArchive& Archive) override;
 	virtual FComponent* Clone() const override;
 		 
 	void SetAll2D(const glm::vec2& NewLocation, float NewRotation, const glm::vec2& NewScale);
@@ -95,8 +95,8 @@ public:
 	void SetRotation(float NewRotation) { SetRotation2D(NewRotation); }
 	void SetRotation(const glm::vec3& NewRotation) { SetRotation3D(NewRotation); }
 
-	void SetScale(const glm::vec2& NewScale) { SetLocation2D(NewScale); }
-	void SetScale(const glm::vec3& NewScale) { SetLocation3D(NewScale); }
+	void SetScale(const glm::vec2& NewScale) { SetScale2D(NewScale); }
+	void SetScale(const glm::vec3& NewScale) { SetScale3D(NewScale); }
 
 	glm::vec2 GetLocation2D() const { return { Location.x, Location.y }; }
 	float GetRotation2D() const { return Rotation.z; }
