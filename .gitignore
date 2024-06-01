@@ -9,11 +9,16 @@ Binaries-Int/
 # Log Outputs
 *.log
 
+# Cached Things
+# Cache Directories
+Cache/
+
 # Cached Shaders
 *.cached_opengl.vert
 *.cached_opengl.frag
 *.cached_vulkan.vert
 *.cached_vulkan.frag
+# END of Cached Things
 
 # Project Files
 *.sln

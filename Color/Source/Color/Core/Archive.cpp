@@ -1,20 +1,39 @@
 #include "ColorPCH.h"
 #include "Archive.h"
 
+#include "Utils/CLARF.h"
+
 const char* ArchiveFieldValueTypeToString(EArchiveFieldValueType Type)
 {
 	switch (Type)
 	{
-	case EArchiveFieldValueType::None:    return "None";
-	case EArchiveFieldValueType::Integer: return "Integer";
-	case EArchiveFieldValueType::Float:   return "Float";
-	case EArchiveFieldValueType::String:  return "String";
-	case EArchiveFieldValueType::Array:   return "Array";
-	case EArchiveFieldValueType::Group:   return "Group";
+	case AFV_None:    return "None";
+	case AFV_Integer: return "Integer";
+	case AFV_Float:   return "Float";
+	case AFV_String:  return "String";
+	case AFV_Array:   return "Array";
+	case AFV_Group:   return "Group";
 	}
 
 	unreachable();
 	return nullptr;
+}
+
+FString FArchiveFieldValue::FGroupType::Convert(EArchiveFormat Format) const
+{
+	switch (Format)
+	{
+	case EArchiveFormat::CLARF:
+		return ConvertToCLARF();
+	}
+
+	unreachable();
+	return "";
+}
+
+FString FArchiveFieldValue::FGroupType::ConvertToCLARF() const
+{
+	return CLARF::Generate(*this);
 }
 
 FArchiveFieldValue::FArchiveFieldValue(const FArchiveFieldValue& Other)
@@ -31,13 +50,13 @@ FArchiveFieldValue::FArchiveFieldValue(EArchiveFieldValueType Type)
 {
 	switch (Type)
 	{
-	case EArchiveFieldValueType::None: break;
-	case EArchiveFieldValueType::Bool: SetBool(false); break;
-	case EArchiveFieldValueType::Integer: SetInteger(0); break;
-	case EArchiveFieldValueType::Float: SetFloat(0.0f); break;
-	case EArchiveFieldValueType::String: SetString(""); break;
-	case EArchiveFieldValueType::Array: SetArray({}); break;
-	case EArchiveFieldValueType::Group: SetGroup({}); break;
+	case AFV_None:                    break;
+	case AFV_Bool:    SetBool(false); break;
+	case AFV_Integer: SetInteger(0);  break;
+	case AFV_Float:   SetFloat(0.0f); break;
+	case AFV_String:  SetString("");  break;
+	case AFV_Array:   SetArray({});   break;
+	case AFV_Group:   SetGroup({});   break;
 	}
 }
 
@@ -128,7 +147,7 @@ bool FArchiveFieldValue::SetBool(const FBoolType& bBoolValue)
 {
 	Release();
 	Value = new FBoolType(bBoolValue);
-	Type = EArchiveFieldValueType::Bool;
+	Type = AFV_Bool;
 	return true;
 }
 
@@ -136,7 +155,7 @@ bool FArchiveFieldValue::SetInteger(const FIntegerType& IntegerValue)
 {
 	Release();
 	Value = new FIntegerType(IntegerValue);
-	Type = EArchiveFieldValueType::Integer;
+	Type = AFV_Integer;
 	return true;
 }
 
@@ -144,7 +163,7 @@ bool FArchiveFieldValue::SetFloat(const FFloatType& FloatValue)
 {
 	Release();
 	Value = new FFloatType(FloatValue);
-	Type = EArchiveFieldValueType::Float;
+	Type = AFV_Float;
 	return true;
 }
 
@@ -152,16 +171,16 @@ bool FArchiveFieldValue::SetString(const FStringType& StringValue)
 {
 	Release();
 	Value = new FStringType(StringValue);
-	Type = EArchiveFieldValueType::String;
+	Type = AFV_String;
 	return true;
 }
 
 bool FArchiveFieldValue::SetArray(const FArrayType& ArrayValue)
 {
-	EArchiveFieldValueType ArrayType = ArrayValue.Num() > 0 ? ArrayValue[0].Type : EArchiveFieldValueType::None;
-	verifyf(ArrayType != EArchiveFieldValueType::Array && ArrayType != EArchiveFieldValueType::Group, "Arrays may not contain array or group values!");
+	EArchiveFieldValueType ArrayType = ArrayValue.Num() > 0 ? ArrayValue[0].Type : AFV_None;
+	verifyf(ArrayType != AFV_Array && ArrayType != AFV_Group, "Arrays may not contain array or group values!");
 
-	if (ArrayType != EArchiveFieldValueType::None)
+	if (ArrayType != AFV_None)
 	{
 		for (const FArchiveFieldValue& AVF : ArrayValue)
 		{
@@ -175,7 +194,7 @@ bool FArchiveFieldValue::SetArray(const FArrayType& ArrayValue)
 
 	Release();
 	Value = new FArrayType(ArrayValue);
-	Type = EArchiveFieldValueType::Array;
+	Type = AFV_Array;
 	return true;
 }
 
@@ -183,7 +202,7 @@ bool FArchiveFieldValue::SetGroup(const FGroupType& GroupValue)
 {
 	Release();
 	Value = new FGroupType(GroupValue);
-	Type = EArchiveFieldValueType::Group;
+	Type = AFV_Group;
 	return true;
 }
 
@@ -191,7 +210,7 @@ void FArchiveFieldValue::Release()
 {
 	delete Value;
 	Value = nullptr;
-	Type = EArchiveFieldValueType::None;
+	Type = AFV_None;
 }
 
 void FArchiveFieldValue::Copy(const FArchiveFieldValue& Other)
@@ -200,33 +219,33 @@ void FArchiveFieldValue::Copy(const FArchiveFieldValue& Other)
 
 	switch (Other.Type)
 	{
-	case EArchiveFieldValueType::None: break;
-	case EArchiveFieldValueType::Bool:
+	case AFV_None: break;
+	case AFV_Bool:
 	{
 		Value = new FBoolType(Other.AsBool());
 		break;
 	}
-	case EArchiveFieldValueType::Integer:
+	case AFV_Integer:
 	{
 		Value = new FIntegerType(Other.AsInteger());
 		break;
 	}
-	case EArchiveFieldValueType::Float:
+	case AFV_Float:
 	{
 		Value = new FFloatType(Other.AsFloat());
 		break;
 	}
-	case EArchiveFieldValueType::String:
+	case AFV_String:
 	{
 		Value = new FString(Other.AsString());
 		break;
 	}
-	case EArchiveFieldValueType::Array:
+	case AFV_Array:
 	{
 		Value = new FArrayType(Other.AsArray());
 		break;
 	}
-	case EArchiveFieldValueType::Group:
+	case AFV_Group:
 	{
 		Value = new FGroupType(Other.AsGroup());
 		break;
@@ -244,5 +263,5 @@ void FArchiveFieldValue::Move(FArchiveFieldValue&& Other)
 	Type = Other.Type;
 
 	Other.Value = nullptr;
-	Other.Type = EArchiveFieldValueType::None;
+	Other.Type = AFV_None;
 }

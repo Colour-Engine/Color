@@ -12,7 +12,7 @@
 class FTransformComponent : public FComponent
 {
 public:
-	static const char* GetIDName() { return "FTransformComponent"; }
+	static const char* GetIDName() { return "TransformComponent"; }
 public:
 	FTransformComponent();
 	FTransformComponent(const FTransformComponent&) = default;

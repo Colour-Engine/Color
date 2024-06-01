@@ -4,34 +4,34 @@
 
 #include <unordered_map>
 
-enum class EArchiveFieldValueType
+enum EArchiveFieldValueType
 {
-	None = 0,
+	AFV_None = 0,
 
 	// Can be either "true" or "false".
-	Bool,
+	AFV_Bool,
 
 	// A signed 32-bit integer.
-	Integer,
+	AFV_Integer,
 
 	// A 32-bit floating point number.
-	Float,
+	AFV_Float,
 
 	// Sequence of characters.
-	String,
+	AFV_String,
 
 	// Sequence of elements of the same type except the "Group" and "Array" type. Those types aren't valid for arrays, only Bool, Integer, Float and String are.
-	Array,
+	AFV_Array,
 
 	// A group exists mostly for organization purposes.
 	// It can contain subvalues of any type.
-	Group
+	AFV_Group
 };
 
 enum class EArchiveFormat
 {
-	// The special format of Color Engine. (CLAR stands for Color Archive and the standard extension is .clarchive)
-	CLAR
+	// The special format of Color Engine. (CLARF stands for Color Archive Format and the standard extension is .clarf)
+	CLARF
 };
 
 const char* ArchiveFieldValueTypeToString(EArchiveFieldValueType Type);
@@ -39,25 +39,25 @@ const char* ArchiveFieldValueTypeToString(EArchiveFieldValueType Type);
 class FArchiveFieldValue
 {
 public:
-	class FArchiveFieldValueGroupValueType
+	class FGroupType
 	{
 	public:
 		using ContainerType = std::unordered_map<FString, FArchiveFieldValue>;
 	public:
-		FArchiveFieldValueGroupValueType() = default;
-		FArchiveFieldValueGroupValueType(const FArchiveFieldValueGroupValueType&) = default;
-		FArchiveFieldValueGroupValueType& operator=(const FArchiveFieldValueGroupValueType&) = default;
+		FGroupType() = default;
+		FGroupType(const FGroupType&) = default;
+		FGroupType& operator=(const FGroupType&) = default;
 
-		FArchiveFieldValueGroupValueType(const FArchiveFieldValue& GroupValue)
+		FGroupType(const FArchiveFieldValue& GroupValue)
 		{
-			verifyf(GroupValue.Type == EArchiveFieldValueType::Group, "Expected Group type!");
+			verifyf(GroupValue.Type == AFV_Group, "Expected Group type!");
 			Root = GroupValue.AsGroup().Root;
 		}
 
-		FArchiveFieldValueGroupValueType(std::initializer_list<std::pair<const FString, FArchiveFieldValue>> KVPs)
+		FGroupType(std::initializer_list<std::pair<const FString, FArchiveFieldValue>> KVPs)
 			: Root(KVPs) { }
 
-		FArchiveFieldValueGroupValueType(ContainerType& InContainer)
+		FGroupType(ContainerType& InContainer)
 			: Root(InContainer) { }
 
 		FArchiveFieldValue& SetField(const FString& FieldName, const FArchiveFieldValue& Value)
@@ -103,7 +103,7 @@ public:
 		{
 			if (!HasField(FieldName))
 			{
-				SetField(FieldName, FArchiveFieldValue(EArchiveFieldValueType::None));
+				SetField(FieldName, FArchiveFieldValue(AFV_None));
 				return Root[FieldName];
 			}
 
@@ -115,23 +115,10 @@ public:
 			return GetField(FieldName);
 		}
 
-		FString Convert(EArchiveFormat Format = EArchiveFormat::CLAR) const
-		{
-			switch (Format)
-			{
-			case EArchiveFormat::CLAR:
-				return ConvertToCLAR();
-			}
+		FString Convert(EArchiveFormat Format = EArchiveFormat::CLARF) const;
+		FString ConvertToCLARF() const;
 
-			unreachable();
-			return "";
-		}
-
-		FString ConvertToCLAR() const
-		{
-			return "";
-
-		}
+		uint_t Num() const { return Root.size(); }
 
 		auto begin() { return Root.begin(); }
 		auto end() { return Root.end(); }
@@ -149,7 +136,6 @@ public:
 	using FFloatType = float;
 	using FStringType = FString;
 	using FArrayType = TArray<FArchiveFieldValue>;
-	using FGroupType = FArchiveFieldValueGroupValueType;
 public:
 	FArchiveFieldValue() = default;
 	FArchiveFieldValue(const FArchiveFieldValue& Other);
@@ -196,12 +182,12 @@ public:
 	template <> \
 	const DataType& As<DataType>() const \
 	{ \
-		return Unsafe_As<DataType>(EArchiveFieldValueType::##AFVType); \
+		return Unsafe_As<DataType>(AFV_##AFVType); \
 	} \
 	template <> \
 	DataType& As<DataType>() \
 	{ \
-		return Unsafe_As<DataType>(EArchiveFieldValueType::##AFVType); \
+		return Unsafe_As<DataType>(AFV_##AFVType); \
 	} \
 	const DataType& As##AFVType() const { return As<DataType>(); } \
 	DataType& As##AFVType() { return As<DataType>(); }
@@ -229,6 +215,16 @@ public:
 	operator const FGroupType&() const { return AsGroup(); }
 	operator FGroupType&() { return AsGroup(); }
 
+	EArchiveFieldValueType GetArrayType() const
+	{
+		if (Type != AFV_Array || AsArray().Num() == 0)
+		{
+			return AFV_None;
+		}
+
+		return AsArray().First().GetType();
+	}
+
 	EArchiveFieldValueType GetType() const { return Type; }
 private:
 	void Release();
@@ -240,7 +236,7 @@ private:
 	{
 		verifyf
 		(
-			this->Type != EArchiveFieldValueType::None && Type != EArchiveFieldValueType::None,
+			this->Type != AFV_None && Type != AFV_None,
 			"Invalid access request to an archive data value! Neither the actual type of the value nor the requested type can be None."
 		);
 
@@ -248,8 +244,8 @@ private:
 		(
 			this->Type == Type,
 			"Invalid interpretation of archive data value! Actual field value type is different than the requested type. Requested: %s, got: %s",
-			*ArchiveFieldValueTypeToString(Type),
-			*ArchiveFieldValueTypeToString(this->Type)
+			ArchiveFieldValueTypeToString(Type),
+			ArchiveFieldValueTypeToString(this->Type)
 		);
 		verifyf(Value, "Invalid access request to an archive data value! The Value hasn't been initialized and data pointer is NULL!");
 
@@ -261,7 +257,7 @@ private:
 	{
 		verifyf
 		(
-			this->Type != EArchiveFieldValueType::None && Type != EArchiveFieldValueType::None,
+			this->Type != AFV_None && Type != AFV_None,
 			"Invalid access request to an archive data value! Neither the actual type of the value nor the requested type can be None."
 		);
 
@@ -269,15 +265,15 @@ private:
 		(
 			this->Type == Type,
 			"Invalid interpretation of archive data value! Actual field value type is different than the requested type. Requested: %s, got: %s",
-			*ArchiveFieldValueTypeToString(Type),
-			*ArchiveFieldValueTypeToString(this->Type)
+			ArchiveFieldValueTypeToString(Type),
+			ArchiveFieldValueTypeToString(this->Type)
 		);
 		verifyf(Value, "Invalid access request to an archive data value! The Value hasn't been initialized and data pointer is NULL!");
 
 		return *(T*) Value;
 	}
 private:
-	EArchiveFieldValueType Type = EArchiveFieldValueType::None;
+	EArchiveFieldValueType Type = AFV_None;
 	void* Value = nullptr;
 };
 

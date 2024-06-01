@@ -15,13 +15,13 @@ static uint_t CRC_HASH = Hasher.Hash(FCircleRendererComponent::GetIDName());
 FArchive FGlobalSerializationManager::SerializeScene(FScene* Scene)
 {
 	FArchive Ar;
-	FArchive& Entities = Ar.SetField("Entities", EArchiveFieldValueType::Group);
+	FArchive& Entities = Ar.SetField("Entities", AFV_Group);
 
 	for (auto&& [RefID, Entity] : Scene->GetEntities())
 	{
-		FArchive& EntityGroup = Entities.SetField(FString::FromInt((int32) Entity.RefID), FArchiveFieldValue(EArchiveFieldValueType::Group));
+		FArchive& EntityGroup = Entities.SetField(FString::FromInt((int32) Entity.RefID), FArchiveFieldValue(AFV_Group));
 		EntityGroup.SetField("Name", Entity.Name);
-		FArchive& ComponentsGroup = EntityGroup.SetField("Components", EArchiveFieldValueType::Group);
+		FArchive& ComponentsGroup = EntityGroup.SetField("Components", AFV_Group);
 
 		for (auto&& [IDName, Component] : Entity.Components)
 		{
@@ -34,7 +34,7 @@ FArchive FGlobalSerializationManager::SerializeScene(FScene* Scene)
 				continue;
 			}
 
-			FArchive& ComponentGroup = ComponentsGroup.SetField(Component.IDName, FArchiveFieldValue(EArchiveFieldValueType::Group));
+			FArchive& ComponentGroup = ComponentsGroup.SetField(Component.IDName, FArchiveFieldValue(AFV_Group));
 			for (auto&& [K, V] : ComponentAr)
 			{
 				ComponentGroup.SetField(K, V);
@@ -52,13 +52,13 @@ bool FGlobalSerializationManager::DeserializeScene(FScene* Scene, const FArchive
 
 	bool bResult = true;
 
-	if (Ar.HasFieldWithType("Entities", EArchiveFieldValueType::Group))
+	if (Ar.HasFieldWithType("Entities", AFV_Group))
 	{
 		const FArchive& Entities = Ar["Entities"];
 
 		for (auto&& [EntityRefID, EntityDataValue] : Entities)
 		{
-			verifyf(EntityDataValue.GetType() == EArchiveFieldValueType::Group, "EntityData must be of type 'Group'!");
+			verifyf(EntityDataValue.GetType() == AFV_Group, "EntityData must be of type 'Group'!");
 			const FArchive& EntityData = EntityDataValue;
 
 			FString EntityName = "";
@@ -73,7 +73,7 @@ bool FGlobalSerializationManager::DeserializeScene(FScene* Scene, const FArchive
 			const FArchive& Components = EntityData["Components"];
 			for (auto&& [ComponentIDName, ComponentDataValue] : Components)
 			{
-				verifyf(ComponentDataValue.GetType() == EArchiveFieldValueType::Group, "ComponentData must be of type 'Group'!");
+				verifyf(ComponentDataValue.GetType() == AFV_Group, "ComponentData must be of type 'Group'!");
 				const FArchive& ComponentData = ComponentDataValue;
 
 				bResult = DeserializeComponent(*ComponentIDName, ComponentData, Entity);
@@ -155,7 +155,7 @@ bool FGlobalSerializationManager::DeserializeComponent(const char* IDName, const
 	{
 		FCameraComponent& CameraComponent = Entity.GetOrAddComponent<FCameraComponent>();
 
-		if (Ar.HasFieldWithType("Camera", EArchiveFieldValueType::Group))
+		if (Ar.HasFieldWithType("Camera", AFV_Group))
 		{
 			CameraComponent.GetCamera().Deserialize(Ar["Camera"]);
 		}

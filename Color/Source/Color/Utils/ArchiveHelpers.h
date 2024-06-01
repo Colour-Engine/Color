@@ -10,7 +10,7 @@
 #define ARCHIVEHELPERS_VECFIELDS_W "W"
 
 #define GetFieldChecked(Archive, FieldName, AFVType, OutValue, SuccessFlag) if (Archive.HasField(FieldName)) { OutValue = Archive.GetField(FieldName).As##AFVType(); } else { SuccessFlag = false; }
-#define GetVecFieldChecked(Archive, FieldName, VecType, OutValue, SuccessFlag) if (Archive.HasFieldWithType(FieldName, ::EArchiveFieldValueType::Group)) { SuccessFlag = SuccessFlag && ::FArchiveHelpers::Get##VecType##Field(Archive, FieldName, OutValue) == ::FArchiveHelpers::EGetResult::TotalSuccess; } else { SuccessFlag = false; }
+#define GetVecFieldChecked(Archive, FieldName, VecType, OutValue, SuccessFlag) if (Archive.HasFieldWithType(FieldName, AFV_##Group)) { SuccessFlag = SuccessFlag && ::FArchiveHelpers::Get##VecType##Field(Archive, FieldName, OutValue) == ::FArchiveHelpers::EGetResult::TotalSuccess; } else { SuccessFlag = false; }
 
 struct FArchiveHelpers
 {

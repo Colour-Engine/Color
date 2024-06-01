@@ -7,7 +7,7 @@
 class FCircleRendererComponent : public FComponent
 {
 public:
-	static const char* GetIDName() { return "FCircleRendererComponent"; }
+	static const char* GetIDName() { return "CircleRendererComponent"; }
 public:
 	FCircleRendererComponent() = default;
 	FCircleRendererComponent(const glm::vec4& Color, float Thickness = 1.0f, float Fade = 0.005f);

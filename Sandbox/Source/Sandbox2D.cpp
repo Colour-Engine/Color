@@ -9,6 +9,8 @@
 #include "Renderer/RenderCommand.h"
 #include "Renderer/Renderer2D.h"
 
+#include "Utils/FileSystem.h"
+
 void FSandbox2D::OnAttach()
 {
 	Scene = MakeRef<FScene>();
@@ -56,6 +58,10 @@ void FSandbox2D::OnAttach()
 
 	// Reload all saved data via deserialization
 	GetGlobalSerializationManager()->DeserializeScene(Scene.Get(), SceneData);
+
+	// Save the scene data to disk to load later
+	FFileSystem::CreateDirectories("Cache/SerialData");
+	FFileSystem::WriteToFile("Cache/SerialData/SceneData.clarf", *SceneData.ConvertToCLARF());
 }
 
 void FSandbox2D::OnTick(float DeltaTime)

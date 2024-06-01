@@ -6,7 +6,7 @@
 class FCameraComponent : public FComponent
 {
 public:
-	static const char* GetIDName() { return "FCameraComponent"; }
+	static const char* GetIDName() { return "CameraComponent"; }
 public:
 	FCameraComponent() = default;
 	FCameraComponent(bool bPrimary, bool bFixedAspectRatio = false);

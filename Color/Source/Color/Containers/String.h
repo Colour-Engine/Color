@@ -515,6 +515,8 @@ public:
 
 	static TString FromDouble(double Double, int32 Precision = 1000)
 	{
+		const bool bNegative = Double < 0.0;
+
 		int32 IntegerPart = (int32) Double;
 		int32 FractionPart = ((int32)(Double * Precision) % Precision);
 
@@ -522,9 +524,13 @@ public:
 		int32 DigitsFrc = FMath::GetNumDigitsOfInt(FractionPart);
 
 		SizeType Length = DigitsInt + DigitsFrc;
+		if (bNegative)
+		{
+			Length++;
+		}
+
 		TString Result(NO_INIT);
 		Result.Allocate(Length);
-
 		Result += TString::FromInt(IntegerPart) + '.' + TString::FromInt(FractionPart);
 		return Result;
 	}

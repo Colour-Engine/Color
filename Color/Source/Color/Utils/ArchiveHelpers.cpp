@@ -72,7 +72,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec2Field(const FArchive& Archiv
 	}
 
 	const FArchiveFieldValue& Value = Archive.GetField(FieldName);
-	if (Value.GetType() != EArchiveFieldValueType::Group)
+	if (Value.GetType() != AFV_Group)
 	{
 		return EGetResult::TotalFailure;
 	}
@@ -80,7 +80,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec2Field(const FArchive& Archiv
 	const FArchiveFieldValue::FGroupType& Group = Value.AsGroup();
 	int32 NumFailures = 0;
 
-	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_X, EArchiveFieldValueType::Float))
+	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_X, AFV_Float))
 	{
 		OutValue.x = Group.GetField(ARCHIVEHELPERS_VECFIELDS_X).AsFloat();
 	}
@@ -89,7 +89,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec2Field(const FArchive& Archiv
 		NumFailures++;
 	}
 
-	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_Y, EArchiveFieldValueType::Float))
+	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_Y, AFV_Float))
 	{
 		OutValue.y = Group.GetField(ARCHIVEHELPERS_VECFIELDS_Y).AsFloat();
 	}
@@ -109,7 +109,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec3Field(const FArchive& Archiv
 	}
 
 	const FArchiveFieldValue& Value = Archive.GetField(FieldName);
-	if (Value.GetType() != EArchiveFieldValueType::Group)
+	if (Value.GetType() != AFV_Group)
 	{
 		return EGetResult::TotalFailure;
 	}
@@ -117,7 +117,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec3Field(const FArchive& Archiv
 	const FArchiveFieldValue::FGroupType& Group = Value.AsGroup();
 	int32 NumFailures = 0;
 
-	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_X, EArchiveFieldValueType::Float))
+	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_X, AFV_Float))
 	{
 		OutValue.x = Group.GetField(ARCHIVEHELPERS_VECFIELDS_X).AsFloat();
 	}
@@ -126,7 +126,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec3Field(const FArchive& Archiv
 		NumFailures++;
 	}
 
-	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_Y, EArchiveFieldValueType::Float))
+	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_Y, AFV_Float))
 	{
 		OutValue.y = Group.GetField(ARCHIVEHELPERS_VECFIELDS_Y).AsFloat();
 	}
@@ -135,7 +135,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec3Field(const FArchive& Archiv
 		NumFailures++;
 	}
 
-	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_Z, EArchiveFieldValueType::Float))
+	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_Z, AFV_Float))
 	{
 		OutValue.z = Group.GetField(ARCHIVEHELPERS_VECFIELDS_Z).AsFloat();
 	}
@@ -155,7 +155,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec4Field(const FArchive& Archiv
 	}
 
 	const FArchiveFieldValue& Value = Archive.GetField(FieldName);
-	if (Value.GetType() != EArchiveFieldValueType::Group)
+	if (Value.GetType() != AFV_Group)
 	{
 		return EGetResult::TotalFailure;
 	}
@@ -163,7 +163,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec4Field(const FArchive& Archiv
 	const FArchiveFieldValue::FGroupType& Group = Value.AsGroup();
 	int32 NumFailures = 0;
 
-	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_X, EArchiveFieldValueType::Float))
+	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_X, AFV_Float))
 	{
 		OutValue.x = Group.GetField(ARCHIVEHELPERS_VECFIELDS_X).AsFloat();
 	}
@@ -172,7 +172,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec4Field(const FArchive& Archiv
 		NumFailures++;
 	}
 
-	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_Y, EArchiveFieldValueType::Float))
+	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_Y, AFV_Float))
 	{
 		OutValue.y = Group.GetField(ARCHIVEHELPERS_VECFIELDS_Y).AsFloat();
 	}
@@ -181,7 +181,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec4Field(const FArchive& Archiv
 		NumFailures++;
 	}
 
-	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_Z, EArchiveFieldValueType::Float))
+	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_Z, AFV_Float))
 	{
 		OutValue.z = Group.GetField(ARCHIVEHELPERS_VECFIELDS_Z).AsFloat();
 	}
@@ -190,7 +190,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec4Field(const FArchive& Archiv
 		NumFailures++;
 	}
 
-	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_W, EArchiveFieldValueType::Float))
+	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_W, AFV_Float))
 	{
 		OutValue.w = Group.GetField(ARCHIVEHELPERS_VECFIELDS_W).AsFloat();
 	}
