@@ -25,7 +25,7 @@ FSpriteRendererComponent::FSpriteRendererComponent(const glm::vec4& Color)
 
 FComponent* FSpriteRendererComponent::Clone() const
 {
-	CLONESTART(FSpriteRendererComponent, FComponent);
+	CLONESTART(FSpriteRendererComponent);
 
 	Cloned->Texture = Texture;
 	Cloned->TilingFactor = TilingFactor;

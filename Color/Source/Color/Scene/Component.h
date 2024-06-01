@@ -5,17 +5,22 @@
 #include "Scene/ECSTypes.h"
 
 #define Cloned __Clone_Cloned_Component
-#define CLONESTART(ThisClass, BaseComponent) \
+#define CLONESTART(ThisClass) \
 ThisClass* Cloned = new ThisClass(); \
 { \
-	BaseComponent* ParentCopy = BaseComponent::Clone(); \
-	Cloned->BaseComponent::operator=(*ParentCopy); \
+	FComponent* ParentCopy = FComponent::Clone(); \
+	Cloned->FComponent::operator=(*ParentCopy); \
 	delete ParentCopy; \
 }
 #define CLONEFINISH return Cloned
 
 class FScene;
 
+// Every component inheriting from this one must provide a method as specified below:
+//   static const char* GetIDName()
+// That method must return a unique string for each component type.
+// Also, component inheritence isn't supported. Once a class is derived from FComponent,
+// never create a component that derives from that derived class. The behavior is undefined if done do.
 class FComponent
 {
 public:

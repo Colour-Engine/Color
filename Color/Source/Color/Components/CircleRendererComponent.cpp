@@ -13,7 +13,7 @@ FCircleRendererComponent::FCircleRendererComponent(const glm::vec4& Color, float
 
 FComponent* FCircleRendererComponent::Clone() const
 {
-	CLONESTART(FCircleRendererComponent, FComponent);
+	CLONESTART(FCircleRendererComponent);
 
 	Cloned->Color = Color;
 	Cloned->Thickness = Thickness;

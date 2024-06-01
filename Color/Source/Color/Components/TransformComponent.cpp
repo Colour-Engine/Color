@@ -37,7 +37,7 @@ FTransformComponent::FTransformComponent(float NewRotation, const glm::vec2& New
 
 FComponent* FTransformComponent::Clone() const
 {
-	CLONESTART(FTransformComponent, FComponent);
+	CLONESTART(FTransformComponent);
 
 	Cloned->Location = Location;
 	Cloned->Rotation = Rotation;

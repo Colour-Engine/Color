@@ -8,7 +8,7 @@ FCameraComponent::FCameraComponent(bool bPrimary, bool bFixedAspectRatio)
 
 FComponent* FCameraComponent::Clone() const
 {
-	CLONESTART(FCameraComponent, FComponent);
+	CLONESTART(FCameraComponent);
 
 	Cloned->Camera = Camera;
 	Cloned->bPrimary = bPrimary;
