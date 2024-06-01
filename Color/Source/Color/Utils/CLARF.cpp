@@ -69,11 +69,19 @@ void CLARF::WriteBasicField(FString& Result, const FString& Name, const FArchive
 
 void CLARF::WriteArrayField(FString& Result, const FString& Name, const FArchiveFieldValue& Field, int32& ScopeDepth, bool bExpectMore)
 {
-	Result += FString::Format("\"%s\"<%s>: [ ", *Name, AFVTypeIdentifiers[AFV_Array]);
+	if (Field.GetArrayType() == AFV_Array || Field.GetArrayType() == AFV_Group)
+	{
+		CL_CORE_ERROR("CLARF doesn't support arrays of arrays or arrays of groups!");
+		return;
+	}
+	Result += FString::Format("\"%s\"<%s<%s>>: [ ", *Name, AFVTypeIdentifiers[AFV_Array], AFVTypeIdentifiers[Field.GetArrayType()]);
 
 	const TArray<FArchiveFieldValue>& Array = Field.AsArray();
+	int32 i = 0;
+
 	for (const FArchiveFieldValue& Element : Array)
 	{
+		const bool bIsLastElement = i == Array.Num() - 1;
 		if (Element.GetType() != Field.GetArrayType())
 		{
 			CL_CORE_ERROR("Array conversion to CLARF failure! Element type was different than the array type!");
@@ -89,14 +97,21 @@ void CLARF::WriteArrayField(FString& Result, const FString& Name, const FArchive
 		default: break;
 		}
 
-		if (bExpectMore)
+		if (!bIsLastElement)
 		{
-			Result += " ],\n";
+			Result += ", ";
 		}
-		else
-		{
-			Result += " ]\n";
-		}
+
+		i++;
+	}
+
+	if (bExpectMore)
+	{
+		Result += " ],\n";
+	}
+	else
+	{
+		Result += " ]\n";
 	}
 }
 
