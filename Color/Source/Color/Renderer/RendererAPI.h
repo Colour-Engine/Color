@@ -11,6 +11,12 @@ enum class ERendererAPI
 	OpenGL // OpenGL 4.5/4.6
 };
 
+enum class ERenderMode
+{
+	Solid,
+	Wireframe
+};
+
 class FRendererAPI
 {
 public:
@@ -20,6 +26,7 @@ public:
 	virtual void SetViewport(uint32 X, uint32 Y, uint32 Width, uint32 Height) = 0;
 	virtual void SetClearColor(const glm::vec4& Color) = 0;
 	virtual void SetLineWidth(float Width) = 0;
+	virtual void SetRenderMode(ERenderMode Mode) = 0;
 	virtual void Clear() = 0;
 
 	virtual void DrawIndexed(const TRef<FVertexArray>& VertexArray, uint32 IndexCount = 0) = 0;

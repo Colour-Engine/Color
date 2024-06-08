@@ -25,6 +25,11 @@ public:
 		API->SetLineWidth(Width);
 	}
 
+	static void SetRenderMode(ERenderMode Mode)
+	{
+		API->SetRenderMode(Mode);
+	}
+
 	static void Clear()
 	{
 		API->Clear();

@@ -57,6 +57,19 @@ void FOpenGLRendererAPI::SetLineWidth(float Width)
 	glLineWidth(Width);
 }
 
+void FOpenGLRendererAPI::SetRenderMode(ERenderMode Mode)
+{
+	GLenum GLMode = 0x0;
+
+	switch (Mode)
+	{
+	case ERenderMode::Solid: GLMode = GL_FILL; break;
+	case ERenderMode::Wireframe: GLMode = GL_LINE; break;
+	}
+
+	glPolygonMode(GL_FRONT_AND_BACK, GLMode);
+}
+
 void FOpenGLRendererAPI::Clear()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -1,6 +1,7 @@
 #include "Sandbox2D.h"
 
 #include "Core/Application.h"
+#include "Input/Input.h"
 
 #include "Components/SpriteRendererComponent.h"
 #include "Components/TransformComponent.h"
@@ -67,6 +68,15 @@ void FSandbox2D::OnAttach()
 void FSandbox2D::OnTick(float DeltaTime)
 {
 	FEntity CameraEntity = Scene->FindPrimaryCameraEntity();
+
+	if (FInput::IsKeyPressed(Key::V) || FInput::IsMouseButtonPressed(Mouse::ButtonLeft))
+	{
+		FRenderCommand::SetRenderMode(ERenderMode::Wireframe);
+	}
+	else
+	{
+		FRenderCommand::SetRenderMode(ERenderMode::Solid);
+	}
 
 	FRenderCommand::Clear();
 	if (CameraEntity.IsValid())
