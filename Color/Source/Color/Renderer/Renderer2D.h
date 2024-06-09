@@ -17,6 +17,9 @@ public:
 	static void EndScene();
 	static void Flush();
 
+	// Gets rid of all draw data currently submitted.
+	static void Discard();
+
 	static void DrawQuad(const glm::vec2& Location, const glm::vec2& Scale, const glm::vec4& Color);
 	static void DrawQuad(const glm::vec3& Location, const glm::vec2& Scale, const glm::vec4& Color);
 	static void DrawQuad(const glm::vec2& Location, const glm::vec2& Scale, const TRef<FTexture2D>& Texture, float TilingFactor = 1.0f, const glm::vec4& TintColor = glm::vec4(1.0f));

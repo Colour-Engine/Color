@@ -272,6 +272,12 @@ void FRenderer2D::Flush()
 	}
 }
 
+void FRenderer2D::Discard()
+{
+	// Start a new batch (will discard current batch)
+	StartBatch();
+}
+
 void FRenderer2D::NextBatch()
 {
 	Flush();

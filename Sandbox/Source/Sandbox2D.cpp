@@ -88,6 +88,10 @@ void FSandbox2D::OnTick(float DeltaTime)
 	{
 		FRenderer2D::EndScene();
 	}
+	else
+	{
+		FRenderer2D::Discard();
+	}
 }
 
 void FSandbox2D::OnDetach()
