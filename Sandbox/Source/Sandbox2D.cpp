@@ -10,6 +10,7 @@
 #include "Renderer/RenderCommand.h"
 #include "Renderer/Renderer2D.h"
 
+#include "Utils/CLARFInternals/Lexer.h"
 #include "Utils/FileSystem.h"
 
 void FSandbox2D::OnAttach()
@@ -53,6 +54,7 @@ void FSandbox2D::OnAttach()
 
 	// Serialize the scene
 	FArchive SceneData = GetGlobalSerializationManager()->SerializeScene(Scene.Get());
+	FString  CLARFData = SceneData.ConvertToCLARF();
 
 	// Delete all entities and components
 	Scene->DestroyAllEntities();
@@ -62,7 +64,15 @@ void FSandbox2D::OnAttach()
 
 	// Save the scene data to disk to load later
 	FFileSystem::CreateDirectories("Cache/SerialData");
-	FFileSystem::WriteToFile("Cache/SerialData/SceneData.clarf", *SceneData.ConvertToCLARF());
+	FFileSystem::WriteToFile("Cache/SerialData/SceneData.clarf", CLARFData);
+
+	CLARF::FLexer Lexer(CLARFData);
+	CLARF::FToken Token;
+
+	while ((Token = Lexer.Lexe()).Type != CLARF::ETokenType::EoS)
+	{
+		CL_INFO("Token:%s", *Token.Format());
+	}
 }
 
 void FSandbox2D::OnTick(float DeltaTime)

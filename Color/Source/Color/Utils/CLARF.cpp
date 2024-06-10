@@ -12,7 +12,7 @@ static std::unordered_map<EArchiveFieldValueType, const char*> AFVTypeIdentifier
 	{ AFV_Group,   "GRP" }
 };
 
-FString CLARF::Generate(const FArchive& Ar)
+FString FCLARF::Generate(const FArchive& Ar)
 {
 	FString Result;
 	int32 ScopeDepth = 0;
@@ -21,7 +21,7 @@ FString CLARF::Generate(const FArchive& Ar)
 	return Result;
 }
 
-void CLARF::Indent(FString& Result, int32 ScopeDepth)
+void FCLARF::Indent(FString& Result, int32 ScopeDepth)
 {
 	for (int32 i = 0; i < ScopeDepth; i++)
 	{
@@ -29,7 +29,7 @@ void CLARF::Indent(FString& Result, int32 ScopeDepth)
 	}
 }
 
-void CLARF::WriteField(FString& Result, const FString& Name, const FArchiveFieldValue& Field, int32& ScopeDepth, bool bExpectMore)
+void FCLARF::WriteField(FString& Result, const FString& Name, const FArchiveFieldValue& Field, int32& ScopeDepth, bool bExpectMore)
 {
 	Indent(Result, ScopeDepth);
 
@@ -45,7 +45,7 @@ void CLARF::WriteField(FString& Result, const FString& Name, const FArchiveField
 	}
 }
 
-void CLARF::WriteBasicField(FString& Result, const FString& Name, const FArchiveFieldValue& Field, int32& ScopeDepth, bool bExpectMore)
+void FCLARF::WriteBasicField(FString& Result, const FString& Name, const FArchiveFieldValue& Field, int32& ScopeDepth, bool bExpectMore)
 {
 	Result += FString::Format("\"%s\"<%s>: ", *Name, AFVTypeIdentifiers[Field.GetType()]);
 
@@ -67,11 +67,11 @@ void CLARF::WriteBasicField(FString& Result, const FString& Name, const FArchive
 	}
 }
 
-void CLARF::WriteArrayField(FString& Result, const FString& Name, const FArchiveFieldValue& Field, int32& ScopeDepth, bool bExpectMore)
+void FCLARF::WriteArrayField(FString& Result, const FString& Name, const FArchiveFieldValue& Field, int32& ScopeDepth, bool bExpectMore)
 {
 	if (Field.GetArrayType() == AFV_Array || Field.GetArrayType() == AFV_Group)
 	{
-		CL_CORE_ERROR("CLARF doesn't support arrays of arrays or arrays of groups!");
+		CL_CORE_ERROR("FCLARF doesn't support arrays of arrays or arrays of groups!");
 		return;
 	}
 	Result += FString::Format("\"%s\"<%s<%s>>: [ ", *Name, AFVTypeIdentifiers[AFV_Array], AFVTypeIdentifiers[Field.GetArrayType()]);
@@ -84,7 +84,7 @@ void CLARF::WriteArrayField(FString& Result, const FString& Name, const FArchive
 		const bool bIsLastElement = i == Array.Num() - 1;
 		if (Element.GetType() != Field.GetArrayType())
 		{
-			CL_CORE_ERROR("Array conversion to CLARF failure! Element type was different than the array type!");
+			CL_CORE_ERROR("Array conversion to FCLARF failure! Element type was different than the array type!");
 			continue;
 		}
 
@@ -115,7 +115,7 @@ void CLARF::WriteArrayField(FString& Result, const FString& Name, const FArchive
 	}
 }
 
-void CLARF::WriteGroupField(FString& Result, const FString& Name, const FArchiveFieldValue& Field, int32& ScopeDepth, bool bExpectMore)
+void FCLARF::WriteGroupField(FString& Result, const FString& Name, const FArchiveFieldValue& Field, int32& ScopeDepth, bool bExpectMore)
 {
 	ScopeDepth++;
 	Result += FString::Format("\"%s\"<%s>: {\n", *Name, AFVTypeIdentifiers[AFV_Group]);

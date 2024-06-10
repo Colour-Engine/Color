@@ -33,7 +33,7 @@ FString FArchiveFieldValue::FGroupType::Convert(EArchiveFormat Format) const
 
 FString FArchiveFieldValue::FGroupType::ConvertToCLARF() const
 {
-	return CLARF::Generate(*this);
+	return FCLARF::Generate(*this);
 }
 
 FArchiveFieldValue::FArchiveFieldValue(const FArchiveFieldValue& Other)

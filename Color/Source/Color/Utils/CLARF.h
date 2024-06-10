@@ -2,7 +2,7 @@
 
 #include "Core/Archive.h"
 
-struct CLARF
+struct FCLARF
 {
 	static FString Generate(const FArchive& Ar);
 private:
