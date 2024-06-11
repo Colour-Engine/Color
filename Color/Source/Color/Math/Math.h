@@ -51,4 +51,27 @@ struct FMath
 
 		return R * U.D;
 	}
+
+	template <typename T>
+	CL_NODISCARD static constexpr T Abs(T X)
+	{
+		return X < (T) 0 ? -X : X;
+	}
+
+	template <typename IntType = int32, typename FpType>
+	CL_NODISCARD static constexpr IntType Round(FpType Fp)
+	{
+		FpType Op = (Fp - (IntType) Fp);
+
+		if (Op >= (FpType) 0.5)
+		{
+			return (IntType) Fp + 1;
+		}
+		else
+		{
+			return (IntType) Fp;
+		}
+
+		return IntType{};
+	}
 };

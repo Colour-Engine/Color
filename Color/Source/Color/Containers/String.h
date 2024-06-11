@@ -290,6 +290,20 @@ public:
 		InsertNullTerminator();
 	}
 
+	void PushFront(T Char)
+	{
+		GrowIfNecessary();
+
+		Size++;
+		for (SizeType i = Size - 1; i > 0; i--)
+		{
+			Data[i] = Data[i - 1];
+		}
+		Data[0] = Char;
+
+		InsertNullTerminator();
+	}
+
 	bool RemoveAt(SizeType Index)
 	{
 		if (!IsValidIndex(Index))
@@ -513,31 +527,16 @@ public:
 		return Result;
 	}
 
-	static TString FromDouble(double Double, int32 Precision = 1000)
+	static TString FromDouble(double Double)
 	{
-		const bool bNegative = Double < 0.0;
-
-		int32 IntegerPart = (int32) Double;
-		int32 FractionPart = ((int32)(Double * Precision) % Precision);
-
-		int32 DigitsInt = FMath::GetNumDigitsOfInt(IntegerPart);
-		int32 DigitsFrc = FMath::GetNumDigitsOfInt(FractionPart);
-
-		SizeType Length = DigitsInt + DigitsFrc;
-		if (bNegative)
-		{
-			Length++;
-		}
-
-		TString Result(NO_INIT);
-		Result.Allocate(Length);
-		Result += TString::FromInt(IntegerPart) + '.' + TString::FromInt(FractionPart);
-		return Result;
+		char Buffer[1000];
+		sprintf(Buffer, "%f", Double);
+		return Buffer;
 	}
 
-	static TString FromFloat(float Float, int32 Precision = 1000)
+	static TString FromFloat(float Float)
 	{
-		return FromDouble((double) Float, Precision);
+		return FromDouble((double) Float);
 	}
 
 	static int32 ToInteger(const T* String, SizeType Length)
@@ -564,39 +563,35 @@ public:
 
 	static double ToDouble(const T* String, SizeType Length)
 	{
-		SizeType i = 0, j = 0, ModeFlag = 0;
-		double Parsed = 0.0;
-		T Char = 0;
+		double Rez = 0, Fact = 1;
 
-		while (i < Length)
+		if (*String == '-')
 		{
-			Char = *(String + i);
+			String++;
+			Fact = -1;
+		};
 
-			if (Char != '.')
+		for (int Flag = 0; *String; String++)
+		{
+			if (*String == '.')
 			{
-				Parsed = Parsed * 10 + Char - '0';
+				Flag = 1;
+				continue;
+			};
 
-				if (ModeFlag == 1)
-				{
-					j--;
-				}
-			}
-			if (Char == '.')
+			int Digit = *String - '0';
+			if (Digit >= 0 && Digit <= 9)
 			{
-				if (ModeFlag == 1)
+				if (Flag)
 				{
-					return 0.0;
+					Fact /= 10.0f;
 				}
-				else
-				{
-					ModeFlag = 1;
-				}
-			}
-			i++;
-		}
-		Parsed = Parsed * FMath::Pow(10.0, (double) j);
 
-		return Parsed;
+				Rez = Rez * 10.0 + (double) Digit;
+			};
+		};
+
+		return Rez * Fact;
 	}
 
 	static double ToDouble(const T* String)

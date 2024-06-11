@@ -10,8 +10,8 @@
 #include "Renderer/RenderCommand.h"
 #include "Renderer/Renderer2D.h"
 
-#include "Utils/CLARFInternals/Lexer.h"
 #include "Utils/FileSystem.h"
+#include "Utils/CLARF.h"
 
 void FSandbox2D::OnAttach()
 {
@@ -52,27 +52,24 @@ void FSandbox2D::OnAttach()
 	TransformComponent.SetLocation({ 6.0f, -3.0f });
 	TransformComponent.SetScale2D({ 2.0f, 2.0f });
 
-	// Serialize the scene
-	FArchive SceneData = GetGlobalSerializationManager()->SerializeScene(Scene.Get());
-	FString  CLARFData = SceneData.ConvertToCLARF();
-
-	// Delete all entities and components
-	Scene->DestroyAllEntities();
-
-	// Reload all saved data via deserialization
-	GetGlobalSerializationManager()->DeserializeScene(Scene.Get(), SceneData);
-
-	// Save the scene data to disk to load later
-	FFileSystem::CreateDirectories("Cache/SerialData");
-	FFileSystem::WriteToFile("Cache/SerialData/SceneData.clarf", CLARFData);
-
-	CLARF::FLexer Lexer(CLARFData);
-	CLARF::FToken Token;
-
-	while ((Token = Lexer.Lexe()).Type != CLARF::ETokenType::EoS)
 	{
-		CL_INFO("Token:%s", *Token.Format());
+		// Serialize the scene
+		FArchive SceneData = GetGlobalSerializationManager()->SerializeScene(Scene.Get());
+		FString  CLARFData = SceneData.ConvertToCLARF();
+
+		// Delete all entities and components
+		Scene->DestroyAllEntities();
+
+		// Save the scene data to disk to load later
+		FFileSystem::CreateDirectories("Cache/SerialData");
+		FFileSystem::WriteToFile("Cache/SerialData/SceneData.clarf", CLARFData);
 	}
+
+	FString CLARFData;
+	FFileSystem::ReadFile("Cache/SerialData/SceneData.clarf", CLARFData);
+
+	FArchive SceneData = FCLARF::Load(CLARFData);
+	GetGlobalSerializationManager()->DeserializeScene(Scene.Get(), SceneData);
 }
 
 void FSandbox2D::OnTick(float DeltaTime)

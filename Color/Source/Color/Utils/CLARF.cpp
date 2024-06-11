@@ -1,6 +1,8 @@
 #include "ColorPCH.h"
 #include "CLARF.h"
 
+#define EAT(ExpectedType) if (!Eat(Context, CLARF::ETokenType::##ExpectedType)) { return {}; }
+
 static std::unordered_map<EArchiveFieldValueType, const char*> AFVTypeIdentifiers =
 {
 	{ AFV_None,    "NAN" },
@@ -18,6 +20,215 @@ FString FCLARF::Generate(const FArchive& Ar)
 	int32 ScopeDepth = 0;
 
 	WriteField(Result, "Root", Ar, ScopeDepth, false);
+	return Result;
+}
+
+FArchive FCLARF::Load(const FString& Data)
+{
+	FLoadContext Context(Data);
+
+	// Validate the "Root" group declbegin. Every archive has a "Root" field (type of Group) that contains all subfields.
+	if (!ValidateRootIntegrity(Context))
+	{
+		CL_CORE_ERROR("Validation of the integrity of the \"Root\" field has failed.");
+		return {};
+	}
+
+	Context.Ar = ReadGroupField(Context, "Root");
+	return Context.Ar;
+}
+
+void FCLARF::Lexe(FLoadContext& Context)
+{
+	Context.PrevToken = Context.Token;
+	Context.Token = Context.Lexer.Lexe();
+}
+
+bool FCLARF::ValidateRootIntegrity(FLoadContext& Context)
+{
+	if (Context.Token.Value != "Root")
+	{
+		CL_CORE_ERROR("CLARF Loading Error: Serialized data doesn't begin with the declaration of the \"Root\" field, which is a common field all Archives in Color Engine share.");
+		return false;
+	}
+	Lexe(Context);
+
+	if (Context.Token.Type != CLARF::ETokenType::LeftAngleBracket)
+	{
+		CL_CORE_ERROR("CLARF Loading Error: Root field declaration error. Field name wasn't followed with a left angle bracket.");
+		return false;
+	}
+	Lexe(Context);
+
+	if (Context.Token.Value != AFVTypeIdentifiers[AFV_Group])
+	{
+		CL_CORE_ERROR("CLARF Loading Error: Root field declaration error. Type begin declarator (left angle bracket) wasn't followed by appropriate field value type for the \"Root\" field, which is AFV_Group (%s in data).", AFVTypeIdentifiers[AFV_Group]);
+		return false;
+	}
+	Lexe(Context);
+
+	if (Context.Token.Type != CLARF::ETokenType::RightAngleBracket)
+	{
+		CL_CORE_ERROR("CLARF Loading Error: Root field declaration error. Type declaration wasn't followed by a right angle bracket.");
+		return false;
+	}
+	Lexe(Context);
+
+	if (Context.Token.Type != CLARF::ETokenType::Colon)
+	{
+		CL_CORE_ERROR("CLARF Loading Error: Root field declaration error. Type declaration signature wasn't followed by a colon.");
+		return false;
+	}
+	Lexe(Context);
+
+	return true;
+}
+
+bool FCLARF::Eat(FLoadContext& Context, CLARF::ETokenType ExpectedType)
+{
+	if (Context.Token.Type == ExpectedType)
+	{
+		Lexe(Context);
+		return true;
+	}
+	else
+	{
+		CL_CORE_ERROR("CLARF Loading Error. Expected token '%s', got '%s'. (Lexer position = %d)", TokenTypeToString(ExpectedType), TokenTypeToString(Context.Token.Type));
+		return false;
+	}
+}
+
+FArchiveFieldValue FCLARF::ReadField(FLoadContext& Context, const FString& FieldName, const FString& Type, const FString& ArrayType)
+{
+	if
+	(
+		Type == AFVTypeIdentifiers[AFV_Bool]    ||
+		Type == AFVTypeIdentifiers[AFV_Integer] ||
+		Type == AFVTypeIdentifiers[AFV_Float]   ||
+		Type == AFVTypeIdentifiers[AFV_String]
+	)
+	{
+		return ReadBasicField(Context, Type);
+	}
+	else if (Type == AFVTypeIdentifiers[AFV_Array])
+	{
+		return ReadArrayField(Context, ArrayType);
+	}
+	else if (Type == AFVTypeIdentifiers[AFV_Group])
+	{
+		return ReadGroupField(Context, FieldName);
+	}
+	else
+	{
+		CL_CORE_ERROR("CLARF Loading Error. Unknown field type '%s'.", *Type);
+	}
+
+	return {};
+}
+
+FArchiveFieldValue FCLARF::ReadBasicField(FLoadContext& Context, const FString& Type)
+{
+	FArchiveFieldValue Result;
+
+	if (Type == AFVTypeIdentifiers[AFV_Bool])
+	{
+		FString Value = MoveTemp(Context.Token.Value);
+		EAT(Identifier);
+
+		Result.SetBool(Value == "true" ? true : false);
+	}
+	else if (Type == AFVTypeIdentifiers[AFV_Integer])
+	{
+		FString Value = MoveTemp(Context.Token.Value);
+		EAT(Integer);
+
+		Result.SetInteger(Value.ToInteger());
+	}
+	else if (Type == AFVTypeIdentifiers[AFV_Float])
+	{
+		FString Value = MoveTemp(Context.Token.Value);
+		EAT(Float);
+
+		Result.SetFloat(Value.ToFloat());
+	}
+	else if (Type == AFVTypeIdentifiers[AFV_String])
+	{
+		FString Value = MoveTemp(Context.Token.Value);
+		EAT(String);
+
+		Result.SetString(Value);
+	}
+	else
+	{
+		CL_CORE_FATAL("Invalid call to ReadBasicField. Given type ('%s') is not considered a basic field.", *Type);
+	}
+
+	return Result;
+}
+
+FArchiveFieldValue FCLARF::ReadArrayField(FLoadContext& Context, const FString& ElementsType)
+{
+	FArchiveFieldValue Result(AFV_Array);
+	EAT(LeftSquareBracket);
+
+	do
+	{
+		// FOR do-while initial run TYPE != COMMA so don't try to EAT.
+		if (Context.Token.Type == CLARF::ETokenType::Comma)
+		{
+			EAT(Comma);
+		}
+
+		Result.AsArray().Add(ReadBasicField(Context, ElementsType));
+	} while (Context.Token.Type == CLARF::ETokenType::Comma);
+
+	EAT(RightSquareBracket);
+	return Result;
+}
+
+FArchiveFieldValue FCLARF::ReadGroupField(FLoadContext& Context, const FString& FieldName)
+{
+	EAT(LeftCurlyBracket);
+
+	FArchiveFieldValue& Result = Context.Scope->Ar.SetField(FieldName, FArchiveFieldValue(AFV_Group));
+	TRef<FLoadContext::FScope> NewScope = MakeRef<FLoadContext::FScope>(Result, Context.Scope);
+	Context.Scope = NewScope;
+
+	while (true)
+	{
+		FString FieldName = MoveTemp(Context.Token.Value);
+		EAT(String);
+
+		EAT(LeftAngleBracket);
+		FString Type = MoveTemp(Context.Token.Value);
+		EAT(Identifier);
+
+		FString ArrayType;
+		if (Type == AFVTypeIdentifiers[AFV_Array])
+		{
+			EAT(LeftAngleBracket);
+			ArrayType = MoveTemp(Context.Token.Value);
+			EAT(Identifier);
+			EAT(RightAngleBracket);
+		}
+
+		EAT(RightAngleBracket);
+		EAT(Colon);
+
+		Context.Scope->Ar.SetField(FieldName, ReadField(Context, FieldName, Type, ArrayType));
+
+		if (Context.Token.Type == CLARF::ETokenType::Comma)
+		{
+			EAT(Comma);
+			continue;
+		}
+
+		EAT(RightCurlyBracket);
+		Context.Scope = Context.Scope->Prev;
+
+		break;
+	}
+
 	return Result;
 }
 

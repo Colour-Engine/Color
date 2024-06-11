@@ -142,6 +142,11 @@ namespace CLARF
 			Advance();
 		}
 
+		if (bNegativeStart)
+		{
+			Result.Value.PushFront('-');
+		}
+
 		return Result;
 	}
 
