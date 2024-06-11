@@ -35,6 +35,8 @@ FArchive FCLARF::Load(const FString& Data)
 	}
 
 	Context.Ar = ReadGroupField(Context, "Root");
+	delete Context.Scope;
+
 	return Context.Ar;
 }
 
@@ -191,7 +193,7 @@ FArchiveFieldValue FCLARF::ReadGroupField(FLoadContext& Context, const FString& 
 	EAT(LeftCurlyBracket);
 
 	FArchiveFieldValue& Result = Context.Scope->Ar.SetField(FieldName, FArchiveFieldValue(AFV_Group));
-	TRef<FLoadContext::FScope> NewScope = MakeRef<FLoadContext::FScope>(Result, Context.Scope);
+	FLoadContext::FScope* NewScope = new FLoadContext::FScope(Result, Context.Scope);
 	Context.Scope = NewScope;
 
 	while (true)
@@ -222,9 +224,11 @@ FArchiveFieldValue FCLARF::ReadGroupField(FLoadContext& Context, const FString& 
 			EAT(Comma);
 			continue;
 		}
-
 		EAT(RightCurlyBracket);
-		Context.Scope = Context.Scope->Prev;
+
+		FLoadContext::FScope* Temp = Context.Scope->Prev;
+		delete Context.Scope;
+		Context.Scope = Temp;
 
 		break;
 	}

@@ -26,12 +26,16 @@ private:
 		struct FScope
 		{
 			FArchive& Ar;
-			TRef<FScope> Prev = nullptr;
+			FScope* Prev = nullptr;
 
-			FScope(FArchive& InAr, const TRef<FScope>& InPrev = nullptr)
+			FScope(FArchive& InAr, FScope* InPrev = nullptr)
 				: Ar(InAr), Prev(InPrev) { }
+
+			~FScope()
+			{
+			}
 		};
-		TRef<FScope> Scope;
+		FScope* Scope;
 
 		CLARF::FLexer Lexer;
 		CLARF::FToken PrevToken, Token;
@@ -39,7 +43,7 @@ private:
 		FLoadContext(const FString& Data)
 			: Lexer(Data)
 		{
-			Scope = MakeRef<FScope>(Ar);
+			Scope = new FScope(Ar);
 			PrevToken = Token = Lexer.Lexe();
 		}
 	};

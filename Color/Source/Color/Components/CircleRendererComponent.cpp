@@ -32,7 +32,7 @@ void FCircleRendererComponent::OnTick(float DeltaTime)
 		FTransformComponent& TransformComponent = Owner.GetComponent<FTransformComponent>();
 
 		glm::mat4 Transform = glm::translate(glm::mat4(1.0f), TransformComponent.GetLocation()) *
-						      glm::rotate(glm::mat4(1.0f), glm::radians(TransformComponent.GetRotation2D()), { 0.0f, 0.0f, 1.0f }) *
+						      //glm::rotate(glm::mat4(1.0f), glm::radians(TransformComponent.GetRotation2D()), { 0.0f, 0.0f, 1.0f }) *
 						      glm::scale(glm::mat4(1.0f), { TransformComponent.GetScale2D().x, TransformComponent.GetScale2D().y, 1.0f });
 
 		FRenderer2D::DrawCircle(Transform, *this, (int) GetOwnerRef());

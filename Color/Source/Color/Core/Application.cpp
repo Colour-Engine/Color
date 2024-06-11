@@ -49,7 +49,13 @@ FApplication::FApplication(const FCommandLine& InCommandLine)
 		return;
 	}
 	Window->OnClose.Bind(CALL_ON_OBJ(this, Quit));
-	CL_CORE_TRACE("Created the application window.");
+
+	// Center the window
+	glm::ivec2 MonitorSize = FPlatformUtils::GetMonitorSize();
+	glm::ivec2 WindowSize = Window->GetSize();
+	Window->SetPos({ MonitorSize.x / 2 - WindowSize.x / 2, MonitorSize.y / 2 - WindowSize.y / 2 });
+
+	CL_CORE_TRACE("Setted the application window up.");
 
 	FRenderer::Init();
 	CL_CORE_TRACE("Initialized the Renderer.");

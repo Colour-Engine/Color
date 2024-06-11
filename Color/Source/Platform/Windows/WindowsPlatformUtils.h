@@ -4,4 +4,6 @@
 
 class FWindowsPlatformUtils : public FGenericPlatformUtils
 {
+public:
+	virtual glm::ivec2 GetMonitorSize_Impl() const override;
 };

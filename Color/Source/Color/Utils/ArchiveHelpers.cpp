@@ -3,63 +3,33 @@
 
 void FArchiveHelpers::SetVec2Field(FArchive& Archive, const FString& FieldName, const glm::vec2& Value)
 {
-	FArchiveFieldValue AFV
-	({
-		{
-			ARCHIVEHELPERS_VECFIELDS_X,
-			Value.x
-		},
-		{
-			ARCHIVEHELPERS_VECFIELDS_Y,
-			Value.y
-		}
-	});
+	FArchiveFieldValue AFV(AFV_Group);
+
+	AFV.AsGroup().SetField(ARCHIVEHELPERS_VECFIELDS_X, Value.x);
+	AFV.AsGroup().SetField(ARCHIVEHELPERS_VECFIELDS_Y, Value.y);
 
 	Archive.SetField(FieldName, MoveTemp(AFV));
 }
 
 void FArchiveHelpers::SetVec3Field(FArchive& Archive, const FString& FieldName, const glm::vec3& Value)
 {
-	FArchiveFieldValue AFV
-	({
-		{
-			ARCHIVEHELPERS_VECFIELDS_X,
-			Value.x
-		},
-		{
-			ARCHIVEHELPERS_VECFIELDS_Y,
-			Value.y
-		},
-		{
-			ARCHIVEHELPERS_VECFIELDS_Z,
-			Value.z
-		}
-	});
+	FArchiveFieldValue AFV(AFV_Group);
+
+	AFV.AsGroup().SetField(ARCHIVEHELPERS_VECFIELDS_X, Value.x);
+	AFV.AsGroup().SetField(ARCHIVEHELPERS_VECFIELDS_Y, Value.y);
+	AFV.AsGroup().SetField(ARCHIVEHELPERS_VECFIELDS_Z, Value.z);
 
 	Archive.SetField(FieldName, MoveTemp(AFV));
 }
 
 void FArchiveHelpers::SetVec4Field(FArchive& Archive, const FString& FieldName, const glm::vec4& Value)
 {
-	FArchiveFieldValue AFV
-	({
-		{
-			ARCHIVEHELPERS_VECFIELDS_X,
-			Value.x
-		},
-		{
-			ARCHIVEHELPERS_VECFIELDS_Y,
-			Value.y
-		},
-		{
-			ARCHIVEHELPERS_VECFIELDS_Z,
-			Value.z
-		},
-		{
-			ARCHIVEHELPERS_VECFIELDS_W,
-			Value.w
-		}
-	});
+	FArchiveFieldValue AFV(AFV_Group);
+
+	AFV.AsGroup().SetField(ARCHIVEHELPERS_VECFIELDS_X, Value.x);
+	AFV.AsGroup().SetField(ARCHIVEHELPERS_VECFIELDS_Y, Value.y);
+	AFV.AsGroup().SetField(ARCHIVEHELPERS_VECFIELDS_Z, Value.z);
+	AFV.AsGroup().SetField(ARCHIVEHELPERS_VECFIELDS_W, Value.w);
 
 	Archive.SetField(FieldName, MoveTemp(AFV));
 }

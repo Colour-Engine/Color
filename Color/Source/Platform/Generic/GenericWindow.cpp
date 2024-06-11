@@ -249,6 +249,11 @@ void FGenericWindow::SetHeight(uint32 NewHeight)
 	SetSize(Data.Width, NewHeight);
 }
 
+void FGenericWindow::SetPos(const glm::ivec2& NewPosition)
+{
+	glfwSetWindowPos(Handle, NewPosition.x, NewPosition.y);
+}
+
 void FGenericWindow::SetVSync(bool bNewVSync)
 {
 	Data.bVSync = bNewVSync;

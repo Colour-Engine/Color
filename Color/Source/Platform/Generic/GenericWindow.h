@@ -20,10 +20,12 @@ public:
 	virtual void SetSize(uint32 NewWidth, uint32 NewHeight) override;
 	virtual void SetWidth(uint32 NewWidth) override;
 	virtual void SetHeight(uint32 NewHeight) override;
+	virtual void SetPos(const glm::ivec2& NewPosition) override;
 	virtual void SetVSync(bool bNewVSync) override;
 	virtual void Focus() override;
 
 	virtual const FString& GetTitle() const override { return Data.Title; }
+	virtual glm::ivec2 GetSize() const override { return { Data.Width, Data.Height }; }
 	virtual uint32 GetWidth() const override { return Data.Width; }
 	virtual uint32 GetHeight() const override { return Data.Height; }
 	virtual glm::ivec2 GetPos() const override;

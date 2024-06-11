@@ -530,7 +530,7 @@ public:
 	static TString FromDouble(double Double)
 	{
 		char Buffer[1000];
-		sprintf(Buffer, "%f", Double);
+		sprintf(Buffer, "%lf", Double);
 		return Buffer;
 	}
 
@@ -563,35 +563,38 @@ public:
 
 	static double ToDouble(const T* String, SizeType Length)
 	{
-		double Rez = 0, Fact = 1;
+	//	double Rez = 0, Fact = 1;
+	//
+	//	if (*String == '-')
+	//	{
+	//		String++;
+	//		Fact = -1;
+	//	};
+	//
+	//	for (int Flag = 0; *String; String++)
+	//	{
+	//		if (*String == '.')
+	//		{
+	//			Flag = 1;
+	//			continue;
+	//		};
+	//
+	//		int Digit = *String - '0';
+	//		if (Digit >= 0 && Digit <= 9)
+	//		{
+	//			if (Flag)
+	//			{
+	//				Fact /= 10.0f;
+	//			}
+	//
+	//			Rez = Rez * 10.0 + (double) Digit;
+	//		};
+	//	};
+	//
+	//	return Rez * Fact;
 
-		if (*String == '-')
-		{
-			String++;
-			Fact = -1;
-		};
-
-		for (int Flag = 0; *String; String++)
-		{
-			if (*String == '.')
-			{
-				Flag = 1;
-				continue;
-			};
-
-			int Digit = *String - '0';
-			if (Digit >= 0 && Digit <= 9)
-			{
-				if (Flag)
-				{
-					Fact /= 10.0f;
-				}
-
-				Rez = Rez * 10.0 + (double) Digit;
-			};
-		};
-
-		return Rez * Fact;
+		char* EndPos = nullptr;
+		return strtod(String, &EndPos);
 	}
 
 	static double ToDouble(const T* String)

@@ -10,3 +10,18 @@ float FPlatformUtils::GetTime()
 {
 	return Instance->GetTime_Impl();
 }
+
+glm::ivec2 FPlatformUtils::GetMonitorSize()
+{
+	return Instance->GetMonitorSize_Impl();
+}
+
+int32 FPlatformUtils::GetMonitorWidth()
+{
+	return GetMonitorSize().x;
+}
+
+int32 FPlatformUtils::GetMonitorHeight()
+{
+	return GetMonitorSize().y;
+}

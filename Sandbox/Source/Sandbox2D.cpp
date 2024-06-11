@@ -56,18 +56,18 @@ void FSandbox2D::OnAttach()
 		// Serialize the scene
 		FArchive SceneData = GetGlobalSerializationManager()->SerializeScene(Scene.Get());
 		FString  CLARFData = SceneData.ConvertToCLARF();
-
+	
 		// Delete all entities and components
 		Scene->DestroyAllEntities();
-
+	
 		// Save the scene data to disk to load later
 		FFileSystem::CreateDirectories("Cache/SerialData");
 		FFileSystem::WriteToFile("Cache/SerialData/SceneData.clarf", CLARFData);
 	}
-
+	
 	FString CLARFData;
 	FFileSystem::ReadFile("Cache/SerialData/SceneData.clarf", CLARFData);
-
+	
 	FArchive SceneData = FCLARF::Load(CLARFData);
 	GetGlobalSerializationManager()->DeserializeScene(Scene.Get(), SceneData);
 }
@@ -76,7 +76,7 @@ void FSandbox2D::OnTick(float DeltaTime)
 {
 	FEntity CameraEntity = Scene->FindPrimaryCameraEntity();
 
-	if (FInput::IsKeyPressed(Key::V) || FInput::IsMouseButtonPressed(Mouse::ButtonLeft))
+	if (FInput::IsKeyPressed(Key::V))
 	{
 		FRenderCommand::SetRenderMode(ERenderMode::Wireframe);
 	}

@@ -64,10 +64,12 @@ public:
 	virtual void SetSize(uint32 NewWidth, uint32 NewHeight) = 0;
 	virtual void SetWidth(uint32 NewWidth) = 0;
 	virtual void SetHeight(uint32 NewHeight) = 0;
+	virtual void SetPos(const glm::ivec2& NewPosition) = 0;
 	virtual void SetVSync(bool bNewVSync) = 0;
 	virtual void Focus() = 0;
 
 	virtual const FString& GetTitle() const = 0;
+	virtual glm::ivec2 GetSize() const = 0;
 	virtual uint32 GetWidth() const = 0;
 	virtual uint32 GetHeight() const = 0;
 	virtual glm::ivec2 GetPos() const = 0;
