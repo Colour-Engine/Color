@@ -14,17 +14,22 @@ FEntityData* FEntityData::RetrieveData(EntityRef RefID, FScene* InScene)
 	return &InScene->Entities.at(RefID);
 }
 
-FEntity::FEntity(FEntityData* InData)
-	: Data(InData)
+FEntity::FEntity(EntityRef RefID, FScene* Scene)
+	: RefID(RefID), Scene(Scene)
 {
 }
 
 void FEntity::SetName(const FString& NewName)
 {
-	Data->Name = NewName;
+	GetData()->Name = NewName;
+}
+
+FEntityData* FEntity::GetData() const
+{
+	return FEntityData::RetrieveData(RefID, Scene);
 }
 
 bool FEntity::IsValid() const
 {
-	return Data != nullptr && Data->Scene->HasEntity(Data->RefID);
+	return Scene != nullptr && GetData()->Scene->HasEntity(RefID);
 }

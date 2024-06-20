@@ -37,6 +37,7 @@ void FSandbox2D::OnAttach()
 		}
 		else if (i == 1)
 		{
+			CrescentEntity = QuadEntity;
 			SpriteRendererComponent.SetTexture(FTexture2D::New("Content/Textures/Turkish_Star_and_Crescent.png"));
 			TransformComponent.SetLocation2D({ -6.0f, 3.0f });
 			TransformComponent.SetRotation2D(-25.0f);
@@ -70,6 +71,10 @@ void FSandbox2D::OnAttach()
 	
 	FArchive SceneData = FCLARF::Load(CLARFData);
 	GetGlobalSerializationManager()->DeserializeScene(Scene.Get(), SceneData);
+
+	// Unnecessary because FGlobalDeserializationManager::DeserializeScene loads the entites with the same RefID they were serialized with.
+	// Before the commit that added this "deserialize with the same RefID" feature, the code line below would be necessary.
+	CrescentEntity = Scene->RetrieveFirstEntityByName("QuadEntity_1");
 }
 
 void FSandbox2D::OnTick(float DeltaTime)
@@ -84,6 +89,34 @@ void FSandbox2D::OnTick(float DeltaTime)
 	{
 		FRenderCommand::SetRenderMode(ERenderMode::Solid);
 	}
+
+	const float Speed = 5.0f;
+	const float RotFactor = 250.0f;
+
+	const bool bUpKeyDown = FInput::IsKeyPressed(Key::W);
+	const bool bDownKeyDown = FInput::IsKeyPressed(Key::S);
+	const bool bLeftKeyDown = FInput::IsKeyPressed(Key::A);
+	const bool bRightKeyDown = FInput::IsKeyPressed(Key::D);
+
+	const bool bLeftArrowDown = FInput::IsKeyPressed(Key::Left);
+	const bool bRightArrowDown = FInput::IsKeyPressed(Key::Right);
+
+	float VerticalMovement = (((bUpKeyDown && bDownKeyDown) || (!bUpKeyDown && !bDownKeyDown)) ? 0.0f : bUpKeyDown ? 1.0f : bDownKeyDown ? -1.0f : 0.0f) * Speed;
+	float HorizontalMovement = (((bLeftKeyDown && bRightKeyDown) || (!bLeftKeyDown && !bRightKeyDown)) ? 0.0f : bLeftKeyDown ? -1.0f : bRightKeyDown ? 1.0f : 0.0f) * Speed;
+
+	FTransformComponent& TC = CrescentEntity.GetTransform();
+	TC.SetLocation2D(TC.GetLocation2D() + glm::vec2 { HorizontalMovement, VerticalMovement } * DeltaTime);
+
+	float TickRotation = 0.0f;
+	if (bLeftArrowDown)
+	{
+		TickRotation += RotFactor;
+	}
+	if (bRightArrowDown)
+	{
+		TickRotation += -RotFactor;
+	}
+	TC.SetRotation2D(TC.GetRotation2D() + TickRotation * DeltaTime);
 
 	FRenderCommand::Clear();
 	if (CameraEntity.IsValid())

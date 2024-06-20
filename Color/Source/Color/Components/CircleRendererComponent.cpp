@@ -6,6 +6,11 @@
 #include "Renderer/Renderer2D.h"
 #include "Scene/Scene.h"
 
+FCircleRendererComponent::FCircleRendererComponent()
+{
+	SetTickWhenPaused(true);
+}
+
 FCircleRendererComponent::FCircleRendererComponent(const glm::vec4& Color, float Thickness, float Fade)
 	: Color(Color), Thickness(Thickness), Fade(Fade)
 {

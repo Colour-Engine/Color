@@ -11,4 +11,5 @@ public:
 	virtual void OnDetach() override;
 private:
 	TRef<FScene> Scene;
+	FEntity CrescentEntity;
 };

@@ -9,6 +9,9 @@ public:
 	virtual void SetWorkingDir(const FString& WorkingDir) = 0;
 	virtual FString GetWorkingDir() const = 0;
 
+	virtual FString Abs(const FString& Path) const = 0;
+	virtual FString Rel(const FString& Path) const = 0;
+
 	virtual bool CreateNewDirectory(const FString& Path) = 0;
 	virtual bool DoesDirectoryExist(const FString& Path) const = 0;
 
@@ -30,6 +33,9 @@ public:
 
 	static void SetWorkingDir(const FString& WorkingDir);
 	static FString GetWorkingDir();
+
+	static FString Abs(const FString& Path);
+	static FString Rel(const FString& Path);
 
 	static bool CreateNewDirectory(const FString& Path);
 	static bool CreateDirectories(const FString& Path);

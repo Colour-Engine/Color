@@ -6,6 +6,8 @@
 #include "Scene/Component.h"
 #include "Scene/ECSTypes.h"
 
+#include "Components/TransformComponent.h"
+
 #include <unordered_map>
 
 class FScene;
@@ -146,59 +148,67 @@ struct FEntityData
 class FEntity
 {
 public:
-	FEntity() = delete;
+	FEntity() = default;
 	FEntity(const FEntity&) = default;
 	FEntity& operator=(const FEntity&) = default;
-	FEntity(FEntityData* InData);
+	FEntity(EntityRef RefID, FScene* Scene);
 
 	template <typename T, typename... Args>
 	T& AddComponent(Args&&... Arguments)
 	{
-		return Data->AddComponent<T>(Forward<Args>(Arguments)...);
+		return GetData()->AddComponent<T>(Forward<Args>(Arguments)...);
 	}
 
 	template <typename T, typename... Args>
 	T& AddOrReplaceComponent(Args&&... Arguments)
 	{
-		return Data->AddOrReplaceComponent<T>(Forward<Args>(Arguments)...);
+		return GetData()->AddOrReplaceComponent<T>(Forward<Args>(Arguments)...);
 	}
 
 	template <typename T>
 	void RemoveComponent()
 	{
-		Data->RemoveComponent<T>();
+		GetData()->RemoveComponent<T>();
 	}
 
 	void RemoveAllComponents()
 	{
-		Data->RemoveAllComponents();
+		GetData()->RemoveAllComponents();
 	}
 
 	template <typename T, typename... Args>
 	T& GetOrAddComponent(Args&&... Arguments)
 	{
-		return Data->GetOrAddComponent<T>(Forward<Args>(Arguments)...);
+		return GetData()->GetOrAddComponent<T>(Forward<Args>(Arguments)...);
 	}
 
 	template <typename T>
 	T& GetComponent()
 	{
-		return Data->GetComponent<T>();
+		return GetData()->GetComponent<T>();
 	}
 
 	template <typename T>
 	bool HasComponent()
 	{
-		return Data->HasComponent<T>();
+		return GetData()->HasComponent<T>();
+	}
+
+	// Special case getter for the TransformComponent.
+	// Only exists because TransformComponent is so common.
+	FTransformComponent& GetTransform()
+	{
+		checkf(HasComponent<FTransformComponent>(), "Entity has no TransformComponent!");
+		return GetComponent<FTransformComponent>();
 	}
 
 	void SetName(const FString& NewName);
 
-	const FString& GetName() const { return Data->Name; }
-	EntityRef GetRef() const { return Data->RefID; }
-	FScene* GetScene() const { return Data->Scene; }
+	const FString& GetName() const { return GetData()->Name; }
+	EntityRef GetRef() const { return RefID; }
+	FScene* GetScene() const { return Scene; }
 
-	FEntityData* GetData() const { return Data; }
+	FEntityData* GetData() const;
 	operator EntityRef() const { return GetRef(); }
 
 	// Checks if the entity has a valid entity data. Invalid entity handles returned by operations don't have one.
@@ -206,5 +216,6 @@ public:
 	// If the scene has been free'd from memory, the behavior is undefined.
 	bool IsValid() const;
 private:
-	FEntityData* Data = nullptr;
+	EntityRef RefID = 0;
+	FScene* Scene = nullptr;
 };

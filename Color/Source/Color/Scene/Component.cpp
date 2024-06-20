@@ -14,6 +14,11 @@ void FComponent::SetEnableTick(bool bEnable)
 	bEnableTick = bEnable;
 }
 
+void FComponent::SetTickWhenPaused(bool bTick)
+{
+	bTickWhenPaused = bTick;
+}
+
 void FComponent::__Internal_init(EntityRef OwnerRefID, FScene* OwnersScene, const char* IDName)
 {
 	this->Owner = OwnerRefID;

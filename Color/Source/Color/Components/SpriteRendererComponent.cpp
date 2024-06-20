@@ -8,6 +8,11 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+FSpriteRendererComponent::FSpriteRendererComponent()
+{
+	SetTickWhenPaused(true);
+}
+
 FSpriteRendererComponent::FSpriteRendererComponent(const TRef<FTexture2D>& Texture, const glm::vec4& Color, float TilingFactor)
 	: Texture(Texture), Color(Color), TilingFactor(TilingFactor)
 {

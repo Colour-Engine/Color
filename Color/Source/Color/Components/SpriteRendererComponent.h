@@ -11,7 +11,7 @@ class FSpriteRendererComponent : public FComponent
 public:
 	static const char* GetIDName() { return "SpriteRendererComponent"; }
 public:
-	FSpriteRendererComponent() = default;
+	FSpriteRendererComponent();
 	FSpriteRendererComponent(const TRef<FTexture2D>& Texture, const glm::vec4& Color = { 1.0f, 1.0f, 1.0f, 1.0f }, float TilingFactor = 1.0f);
 	FSpriteRendererComponent(const TRef<FTexture2D>& Texture, float TilingFactor = 1.0f, const glm::vec4& Color = { 1.0f, 1.0f, 1.0f, 1.0f });
 	FSpriteRendererComponent(const glm::vec4& Color);

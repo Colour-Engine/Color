@@ -24,12 +24,13 @@ project "Sandbox"
 	{
 		"Color"
 	}
-	
+
 	filter "system:windows"
 		systemversion "latest"
 		defines
 		{
-			"CL_PLATFORM_WINDOWS"
+			"CL_PLATFORM_WINDOWS",
+			"_CRT_SECURE_NO_WARNINGS"
 		}
 		
 	filter "system:linux"

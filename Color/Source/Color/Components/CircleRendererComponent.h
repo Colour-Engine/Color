@@ -9,7 +9,7 @@ class FCircleRendererComponent : public FComponent
 public:
 	static const char* GetIDName() { return "CircleRendererComponent"; }
 public:
-	FCircleRendererComponent() = default;
+	FCircleRendererComponent();
 	FCircleRendererComponent(const glm::vec4& Color, float Thickness = 1.0f, float Fade = 0.005f);
 
 	virtual void OnTick(float DeltaTime) override;

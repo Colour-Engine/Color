@@ -39,12 +39,13 @@ public:
 
 	virtual void OnAttach(bool bReplaced) { }
 	virtual void OnTick(float DeltaTime) { }
-	// This tick function is called while the Scene is paused, contrary to OnTick() which doesn't gel called when the Scene is paused.
-	virtual void OnPausedTick(float DeltaTime) { }
 	virtual void OnDetach() { }
 
 	void SetEnableTick(bool bEnable);
+	void SetTickWhenPaused(bool bTick);
+
 	bool IsTickEnabled() const { return bEnableTick; }
+	bool DoesTickWhenPaused() const { return bTickWhenPaused; }
 
 	FScene* GetOwnerScene() const { return OwnerScene; }
 	EntityRef GetOwnerRef() const { return Owner; }
@@ -54,6 +55,7 @@ public:
 	void __Internal_init(EntityRef OwnerRefID, FScene* OwnersScene, const char* IDName);
 private:
 	bool bEnableTick = true;
+	bool bTickWhenPaused = false;
 private:
 	// Reference to the Owner Entity.
 	EntityRef Owner;

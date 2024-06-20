@@ -4,6 +4,8 @@
 #include "Platform/Windows/WindowsFileSystem.h"
 #include "Platform/Linux/LinuxFileSystem.h"
 
+#include <stdlib.h>
+
 TScope<FNativeFileSystem> FFileSystem::Instance = MakeScope<ConcatWithPlatformNameDef(NativeFileSystem)>();
 
 void FFileSystem::InitFS()
@@ -31,6 +33,16 @@ void FFileSystem::SetWorkingDir(const FString& WorkingDir)
 FString FFileSystem::GetWorkingDir()
 {
 	return Instance->GetWorkingDir();
+}
+
+FString FFileSystem::Abs(const FString& Path)
+{
+	return Instance->Abs(Path);
+}
+
+FString FFileSystem::Rel(const FString& Path)
+{
+	return Instance->Rel(Path);
 }
 
 bool FFileSystem::CreateNewDirectory(const FString& Path)

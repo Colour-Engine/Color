@@ -52,11 +52,11 @@ public:
 	bool IsRunning() const { return bRunning; }
 	bool IsPaused() const { return bPaused; }
 	
-	std::unordered_map<EntityRef, FEntityData>& GetEntities() { return Entities; }
+	std::map<EntityRef, FEntityData>& GetEntities() { return Entities; }
 private:
 	bool Internal_ValidateEntityScene(FEntity Ref);
 private:
-	std::unordered_map<EntityRef, FEntityData> Entities;
+	std::map<EntityRef, FEntityData> Entities;
 
 	bool bRunning = false;
 	bool bPaused = false;

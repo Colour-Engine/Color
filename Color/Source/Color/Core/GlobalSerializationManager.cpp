@@ -64,7 +64,7 @@ bool FGlobalSerializationManager::DeserializeScene(FScene* Scene, const FArchive
 			FString EntityName = "";
 			GetFieldChecked(EntityData, "Name", String, EntityName, bResult);
 
-			FEntity Entity = Scene->CreateEntity(EntityName);
+			FEntity Entity = Scene->CreateEntityWithRefID(EntityRefID.ToInteger(), EntityName);
 			if (!bResult)
 			{
 				CL_CORE_ERROR("No string 'Name' property was found for Entity (SerialData RefID=%d)", EntityRefID);

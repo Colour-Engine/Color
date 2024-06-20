@@ -16,6 +16,27 @@ FString FWindowsNativeFileSystem::GetWorkingDir() const
 	return Buffer;
 }
 
+FString FWindowsNativeFileSystem::Abs(const FString& Path) const
+{
+	char Buffer[MAX_PATH];
+	char** LppPart = { nullptr };
+
+	GetFullPathNameA(*Path, MAX_PATH, Buffer, LppPart);
+	return Buffer;
+}
+
+FString FWindowsNativeFileSystem::Rel(const FString& Path) const
+{
+	char Buffer[MAX_PATH];
+
+	if (_fullpath(Buffer, *Path, MAX_PATH))
+	{
+		return Buffer;
+	}
+
+	return Path;
+}
+
 bool FWindowsNativeFileSystem::CreateNewDirectory(const FString& Path)
 {
 	return CreateDirectoryA(*Path, NULL);

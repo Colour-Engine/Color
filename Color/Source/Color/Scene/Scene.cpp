@@ -51,16 +51,9 @@ void FScene::TickScene(float DeltaTime)
 		{
 			for (auto&& [TypeID, Component] : Entity.Components)
 			{
-				if (Component.Data->IsTickEnabled())
+				if (Component.Data->IsTickEnabled() && (!bPaused || Component.Data->DoesTickWhenPaused()))
 				{
-					if (bPaused)
-					{
-						Component.Data->OnPausedTick(DeltaTime);
-					}
-					else
-					{
-						Component.Data->OnTick(DeltaTime);
-					}
+					Component.Data->OnTick(DeltaTime);
 				}
 			}
 		}
@@ -72,7 +65,7 @@ FEntity FScene::CreateEntityWithRefID(EntityRef RefID, const FString& Name)
 	if (Entities.contains(RefID))
 	{
 		CL_CORE_ERROR("Failed to create entity '%s' with the RefID: %d, another entity with that ID already exists.", *Name, RefID);
-		return { nullptr };
+		return { };
 	}
 
 	Entities[RefID] =
@@ -85,7 +78,7 @@ FEntity FScene::CreateEntityWithRefID(EntityRef RefID, const FString& Name)
 	};
 	Entities[RefID].AddComponent<FTransformComponent>();
 
-	return { &Entities[RefID] };
+	return { RefID, this };
 }
 
 FEntity FScene::CreateEntity(const FString& Name)
@@ -98,7 +91,7 @@ FEntity FScene::DuplicateEntity(FEntity Entity)
 	if (!Internal_ValidateEntityScene(Entity))
 	{
 		CL_CORE_ERROR("Tried to duplicate an entity that didn't belong to that scene.", Entity.GetRef());
-		return { nullptr };
+		return { };
 	}
 
 	return DuplicateEntity(Entity.GetRef());
@@ -109,7 +102,7 @@ FEntity FScene::DuplicateEntity(EntityRef Ref)
 	if (!Entities.contains(Ref))
 	{
 		CL_CORE_ERROR("Tried to duplicate a non-existent entity within the scene with RefID=%d", Ref);
-		return { nullptr };
+		return { };
 	}
 
 	FEntityData& OriginalData = Entities[Ref];
@@ -170,12 +163,12 @@ FEntity FScene::FindPrimaryCameraEntity()
 
 			if (CameraComponent.IsPrimary())
 			{
-				return { &Entity };
+				return { RefID, this };
 			}
 		}
 	}
 
-	return { nullptr };
+	return { };
 }
 
 FEntity FScene::RetrieveFirstEntityByName(const FString& Name)
@@ -184,11 +177,11 @@ FEntity FScene::RetrieveFirstEntityByName(const FString& Name)
 	{
 		if (Entity.Name == Name)
 		{
-			return { &Entities.at(RefID) };
+			return { RefID, this };
 		}
 	}
 
-	return { nullptr };
+	return { };
 }
 
 TArray<FEntity> FScene::RetrieveEntitiesByName(const FString& Name)
@@ -199,7 +192,7 @@ TArray<FEntity> FScene::RetrieveEntitiesByName(const FString& Name)
 	{
 		if (Entity.Name == Name)
 		{
-			RetrieveEntities.Emplace(&Entity);
+			RetrieveEntities.Emplace(RefID, this);
 		}
 	}
 
@@ -211,11 +204,10 @@ FEntity FScene::RetrieveEntity(EntityRef Ref)
 	if (!Entities.contains(Ref))
 	{
 		CL_CORE_ERROR("Failed to retrieve entity with the RefID: %d, no entity exists on the Scene with that RefID.", Ref);
-		return { nullptr };
+		return { };
 	}
 
-	FEntityData& Entity = Entities.at(Ref);
-	return { &Entity };
+	return { Ref, this };
 }
 
 FString FScene::GetEntityName(FEntity Entity)
