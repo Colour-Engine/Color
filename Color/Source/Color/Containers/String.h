@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Allocators/DefaultAllocator.h"
+#include "Templates/TypeTraits/IsUnsigned.h" // Used in FromInt
 #include "Templates/NumericLimits.h"
 #include "Templates/Hash.h"
 
@@ -393,8 +394,10 @@ public:
 	// Format Specifiers:
 	//   %% - Writes '%'.
 	//   %s - String (char*).
-	//   %i - Integer.
-	//   %d - Integer.
+	//   %d OR %i - Signed integer (max 32-bit).
+	//   %u - Unsigned integer (max 32-bit).
+	//   %l - Signed integer (64-bit specific).
+	//   %e - Unsigned integer (64-bit specific).
 	//   %c - Character.
 	//   %b - Boolean.
 	//   %f - Float or Double.
@@ -435,6 +438,24 @@ public:
 					Result += TString::FromInt(Integer);
 					break;
 				}
+				case 'u':
+				{
+					uint32 Integer = va_arg(Args, uint32);
+					Result += TString::FromInt(Integer);
+					break;
+				}
+				case 'l':
+				{
+					int64 Integer = va_arg(Args, int64);
+					Result += TString::FromInt(Integer);
+					break;
+				}
+				case 'e':
+				{
+					uint64 Integer = va_arg(Args, uint64);
+					Result += TString::FromInt(Integer);
+					break;
+				}
 				case 'c':
 				{
 					int32 Char = va_arg(Args, int32);
@@ -472,8 +493,10 @@ public:
 	// Format Specifiers:
 	//   %% - Writes '%'.
 	//   %s - String (char*).
-	//   %i - Integer.
-	//   %d - Integer.
+	//   %d OR %i - Signed integer (max 32-bit).
+	//   %u - Unsigned integer (max 32-bit).
+	//   %l - Signed integer (64-bit specific).
+	//   %e - Unsigned integer (64-bit specific).
 	//   %c - Character.
 	//   %b - Boolean.
 	//   %f - Float or Double.
@@ -502,10 +525,13 @@ public:
 		Result.Size = Length;
 
 		bool bNegative = false;
-		if (Integer < 0 && Base == FMath::BaseDecimal)
+		if constexpr (!VIsUnsigned<TInt>) // This if check is here to shut compiler warnings up. Also, unsigned integers can never be negative, so the cheks below are useless.
 		{
-			bNegative = true;
-			Integer = -Integer;
+			if (Integer < 0 && Base == FMath::BaseDecimal)
+			{
+				bNegative = true;
+				Integer = -Integer;
+			}
 		}
 
 		SizeType i = 0;

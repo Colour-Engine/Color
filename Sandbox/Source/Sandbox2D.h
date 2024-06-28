@@ -12,4 +12,7 @@ public:
 private:
 	TRef<FScene> Scene;
 	FEntity CrescentEntity;
+
+	const float GenDelay = 1.0f;
+	float TimeSinceGen = GenDelay;
 };

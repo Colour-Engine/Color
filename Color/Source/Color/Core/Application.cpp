@@ -2,6 +2,7 @@
 #include "Application.h"
 
 #include "Renderer/Renderer.h"
+#include "Misc/Random.h"
 
 #include "Utils/PlatformUtils.h"
 #include "Utils/FileSystem.h"
@@ -27,6 +28,9 @@ FApplication::FApplication(const FCommandLine& InCommandLine)
 
 	InitLog();
 	CL_CORE_INFO("Initialized logging.");
+
+	GRandom = FRandomGenerator<uint64>::SeededWithTime();
+	CL_CORE_INFO("Initialized GRandom with the seed being the current time");
 
 	CL_CORE_INFO("Engine Build Info:");
 	CL_CORE_INFO("  Compiler:   %s (%s)", CCompiler.Name, CCompiler.Abbreviation);

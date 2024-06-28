@@ -13,6 +13,8 @@
 #include "Utils/FileSystem.h"
 #include "Utils/CLARF.h"
 
+#include "Misc/Random.h"
+
 void FSandbox2D::OnAttach()
 {
 	Scene = MakeRef<FScene>();
@@ -131,6 +133,14 @@ void FSandbox2D::OnTick(float DeltaTime)
 	else
 	{
 		FRenderer2D::Discard();
+	}
+
+	TimeSinceGen += DeltaTime;
+	if (TimeSinceGen >= GenDelay)
+	{
+		TimeSinceGen = 0.0f;
+
+		CL_INFO("'oi! Have a random 64-bit (signed) integer between -50 and 100 from mi!> %l", GRandom.Range<int64>(-50, 100));
 	}
 }
 
