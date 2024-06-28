@@ -24,25 +24,25 @@ namespace randomalg
 }
 
 template <typename TSeedType = uint64>
-class FRandomGenerator
+class TRandomGenerator
 {
 public:
 	static_assert(VIsSame<TSeedType, uint32> || VIsSame<TSeedType, uint64>, "Only 32-bit and 64-bit unsigned seeds are supported!");
 	using SeedType = TSeedType;
 public:
-	FRandomGenerator() { }
-	FRandomGenerator(SeedType InSeed) : Seed(InSeed) { }
+	TRandomGenerator() { }
+	TRandomGenerator(SeedType InSeed) : Seed(InSeed) { }
 
-	FRandomGenerator(const FRandomGenerator&) = default;
-	FRandomGenerator& operator=(const FRandomGenerator&) = default;
-	~FRandomGenerator() = default;
+	TRandomGenerator(const TRandomGenerator&) = default;
+	TRandomGenerator& operator=(const TRandomGenerator&) = default;
+	~TRandomGenerator() = default;
 
-	static FRandomGenerator SeededWithTime()
+	static TRandomGenerator SeededWithTime()
 	{
 		time_t Time;
 		time(&Time);
 
-		return FRandomGenerator(Time);
+		return TRandomGenerator(Time);
 	}
 
 	// Generates a random integral type number within a range.
@@ -95,15 +95,23 @@ public:
 	int8   Int8()  { return Range<int8>(); }
 	int16  Int16() { return Range<int16>(); }
 	int32  Int32() { return Range<int32>(); }
+
+	template <TEnableIf<VIsSame<SeedType, uint64>, void*> = nullptr>
 	int64  Int64() { return Range<int64>(); }
 	
 	uint8  UInt8()  { return Range<uint8>(); }
 	uint16 UInt16() { return Range<uint16>(); }
 	uint32 UInt32() { return Range<uint32>(); }
+
+	template <TEnableIf<VIsSame<SeedType, uint64>, void*> = nullptr>
 	uint64 UInt64() { return Range<uint64>(); }
 
 	float       Float()      { return Range<float>(); }
+
+	template <TEnableIf<VIsSame<SeedType, uint64>, void*> = nullptr>
 	double      Double()     { return Range<double>(); }
+
+	template <TEnableIf<VIsSame<SeedType, uint64>, void*> = nullptr>
 	long double LongDouble() { return Range<long double>(); }
 
 	void SetSeed(SeedType NewSeed) { Seed = NewSeed; }
@@ -127,6 +135,10 @@ private:
 	SeedType Seed = 0;
 };
 
+using FRandomGenerator32 = TRandomGenerator<uint32>;
+using FRandomGenerator64 = TRandomGenerator<uint64>;
+
 // The default global random generator, use this if you don't need to create your own FRandomGenerator.
+// Initialized by the FApplication instance when it is constructed in the entry point.
 // Uses a 64-bit seed, may not be preferable on 32-bit machines, where you could create your own generator with a 32-bit seed.
-extern FRandomGenerator<uint64> GRandom;
+extern FRandomGenerator64 GRandom;

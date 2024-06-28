@@ -29,7 +29,7 @@ FApplication::FApplication(const FCommandLine& InCommandLine)
 	InitLog();
 	CL_CORE_INFO("Initialized logging.");
 
-	GRandom = FRandomGenerator<uint64>::SeededWithTime();
+	GRandom = FRandomGenerator64::SeededWithTime();
 	CL_CORE_INFO("Initialized GRandom with the seed being the current time");
 
 	CL_CORE_INFO("Engine Build Info:");

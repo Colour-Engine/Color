@@ -1,7 +1,7 @@
 #include "ColorPCH.h"
 #include "Random.h"
 
-FRandomGenerator<uint64> GRandom;
+FRandomGenerator64 GRandom;
 
 namespace randomalg
 {
