@@ -1,0 +1,6 @@
+"Root"<GRP>: {
+	"Name"<STR>: "Sandbox",
+	"CacheDirectory"<STR>: "Cache",
+	"AssetDirectory"<STR>: "Assets",
+	"AssetRegistryPath"<STR>: ".classetreg"
+}

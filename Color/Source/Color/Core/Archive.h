@@ -60,6 +60,9 @@ public:
 		FGroupType(ContainerType& InContainer)
 			: Root(InContainer) { }
 
+		static FGroupType From(const FString& Data, EArchiveFormat Format = EArchiveFormat::CLARF);
+		static FGroupType FromCLARF(const FString& Data);
+
 		FArchiveFieldValue& SetField(const FString& FieldName, const FArchiveFieldValue& Value)
 		{
 			return Root[FieldName] = Value;

@@ -19,6 +19,23 @@ const char* ArchiveFieldValueTypeToString(EArchiveFieldValueType Type)
 	return nullptr;
 }
 
+FArchiveFieldValue::FGroupType FArchiveFieldValue::FGroupType::From(const FString& Data, EArchiveFormat Format)
+{
+	switch (Format)
+	{
+	case EArchiveFormat::CLARF:
+		return FromCLARF(Data);
+	}
+
+	unreachable();
+	return {};
+}
+
+FArchiveFieldValue::FGroupType FArchiveFieldValue::FGroupType::FromCLARF(const FString& Data)
+{
+	return FCLARF::Load(Data);
+}
+
 FString FArchiveFieldValue::FGroupType::Convert(EArchiveFormat Format) const
 {
 	switch (Format)

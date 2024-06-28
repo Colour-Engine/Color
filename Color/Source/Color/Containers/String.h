@@ -233,7 +233,7 @@ public:
 
 	TString Appended(std::initializer_list<T> InitList) const
 	{
-		return Appended(InitList.begin(), (SizeType)InitList.size());
+		return Appended(InitList.begin(), (SizeType) InitList.size());
 	}
 
 	// Appends a char N amount of times.
@@ -305,6 +305,33 @@ public:
 		InsertNullTerminator();
 	}
 
+	// Concates all given strings at once, the most performant way for concating multiple strings at once.
+	// Strings must match to Sizes! i.e. length of the string at Strings[0] must be equal to Sizes[0] and so on and so forth.
+	static TString BulkConcate(const T** Strings, uint_t* Sizes, uint_t NumStrings)
+	{
+		uint_t TotalSize = 0;
+
+		for (uint_t i = 0; i < NumStrings; i++)
+		{
+			TotalSize += Sizes[i];
+		}
+
+		TString Result(NO_INIT);
+		Result.Allocate(TotalSize);
+
+		uint_t Position = 0;
+		for (uint_t i = 0; i < NumStrings; i++)
+		{
+			FMemory::Copy(Result.Data + Position, Strings[i], Sizes[i]);
+			Position += Sizes[i];
+		}
+		
+		Result.Size = TotalSize;
+		Result.InsertNullTerminator();
+
+		return Result;
+	}
+
 	bool RemoveAt(SizeType Index)
 	{
 		if (!IsValidIndex(Index))
@@ -327,6 +354,20 @@ public:
 		if (Size > 0)
 		{
 			Data[--Size] = 0;
+		}
+	}
+
+	void PopFront()
+	{
+		if (Size > 0)
+		{
+			// This operation will pull the null terminator back by one char, since we don't change Size yet.
+			for (SizeType i = 0; i < Size; i++)
+			{
+				Data[i] = Data[i + 1];
+			}
+
+			Size--;
 		}
 	}
 

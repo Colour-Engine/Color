@@ -11,7 +11,8 @@ namespace ExitCode
 		Failure             = 1,
 		FatalLog            = 2,
 		AssertFail          = 3,
-		StrIndexOutOfBounds = 4
+		StrIndexOutOfBounds = 4,
+		ProjectLoadFailure  = 5
 	};
 }
 

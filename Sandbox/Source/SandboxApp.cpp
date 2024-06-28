@@ -7,6 +7,8 @@
 #include "Sandbox2D.h"
 #include "SandboxGlobalSerializationManager.h"
 
+#include "Project/Project.h"
+
 FSandboxApp::FSandboxApp(const FCommandLine& InCommandLine)
 	: FApplication(InCommandLine)
 {
@@ -21,6 +23,7 @@ IMPLEMENT_SPECIFICATION
 (
 	"Sandbox", // Application name
 	".",       // Working directory
+	true,      // Auto load project file flag
 	{          // Window properties
 		"Sandbox", // Title
 		 1600,     // Width

@@ -30,6 +30,10 @@ public:
 
 	static FString GetLeadingDirectories(const FString& Filepath);
 	static FString ExtractFilenameFromFilepath(const FString& Filepath);
+	static FString ExtractExtensionFromFilepath(const FString& Filepath);
+
+	static FString AppendPath(const FString& Path, const FString& PathToAppend);
+	static FString RemoveFilenameFromFilepath(const FString& Filepath);
 
 	static void SetWorkingDir(const FString& WorkingDir);
 	static FString GetWorkingDir();

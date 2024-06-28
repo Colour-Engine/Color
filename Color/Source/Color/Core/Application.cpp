@@ -4,6 +4,9 @@
 #include "Renderer/Renderer.h"
 #include "Misc/Random.h"
 
+#include "Project/Project.h"
+#include "Misc/MessageDialog.h"
+
 #include "Utils/PlatformUtils.h"
 #include "Utils/FileSystem.h"
 
@@ -30,7 +33,7 @@ FApplication::FApplication(const FCommandLine& InCommandLine)
 	CL_CORE_INFO("Initialized logging.");
 
 	GRandom = FRandomGenerator64::SeededWithTime();
-	CL_CORE_INFO("Initialized GRandom with the seed being the current time");
+	CL_CORE_INFO("Initialized GRandom with the seed being the current time.");
 
 	CL_CORE_INFO("Engine Build Info:");
 	CL_CORE_INFO("  Compiler:   %s (%s)", CCompiler.Name, CCompiler.Abbreviation);
@@ -43,6 +46,64 @@ FApplication::FApplication(const FCommandLine& InCommandLine)
 		{
 			CL_CORE_INFO("ApplicationSpecification requested a working directory change to the directory '%s'. The working directory will be changed.", *Specification.WorkingDir);
 			FFileSystem::SetWorkingDir(Specification.WorkingDir);
+		}
+	}
+
+	if (Specification.bAutoLoadProject)
+	{
+		FString ProjectFilepath = Specification.Name + COLOR_PROJECT_FILE_EXTENSION;
+		CL_CORE_TRACE("Auto load project flag was set, trying to load project '%s'...", *ProjectFilepath);
+
+		if (FProject::Load(ProjectFilepath))
+		{
+			CL_CORE_INFO("Successfully loaded the desired project file! Name of the loaded project (coming from the ProjectInfo) is '%s'", *FProject::GetActive()->GetProjectInfo().Name);
+		}
+		else
+		{
+			CL_CORE_ERROR("Failed to load project from file '%s'!", *ProjectFilepath);
+
+			TScope<FMessageDialog> Dialog = FMessageDialog::New
+			(
+				"Failed to load project!",
+				FString(
+				"The application specification specified that the project file shall get automatically loaded. "
+				"The engine tried to load the project file ") + ProjectFilepath + ", but the process failed. "
+				"Would you like for the application to continue execution? Project-specific settings and directories/paths won't be set correctly, "
+				"and will be left to the engine defaults. The application may even crash after this point in execution.",
+				EDialogControls::YesNo,
+				EDialogIcon::Error
+			);
+			
+			EDialogResult Result = Dialog->CreateAndAwait();
+			if (Result == EDialogResult::No)
+			{
+				Exit(ExitCode::ProjectLoadFailure);
+			}
+
+			CL_CORE_INFO("The user chose yes, resuming execution without a project...");
+		}
+	}
+	else
+	{
+		CL_CORE_TRACE("Specification.bAutoLoadProject flag was set to false, calling HandleNoAutoLoadProject()...");
+		HandleNoAutoLoadProject();
+
+		if (FProject::GetActive())
+		{
+			CL_CORE_INFO("HandleNoAutoLoadProject seems to have successfully loaded/set an active project!");
+		}
+		else
+		{
+			if (!__Flg_nowarn_projectnull)
+			{
+				CL_CORE_WARN
+				(
+					"The application specification specified explicit project loading, but after the execution of HandleNoAutoLoadProject(), "
+					"FProject::GetActive() still returned nullptr! Please refer to the comment section of FApplicationSpecification::bAutoLoadProject "
+					"if you're unsure what this warning is about. You can ignore this if having no project loaded is your desired behavior. "
+					"You can suppress this warning by setting the global \"__Flg_nowarn_projectnull\" boolean variable to true."
+				);
+			}
 		}
 	}
 

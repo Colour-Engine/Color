@@ -34,13 +34,13 @@ void FSandbox2D::OnAttach()
 
 		if (i == 0)
 		{
-			SpriteRendererComponent.SetTexture(FTexture2D::New("Content/Textures/Engine_Logo_Wide_NoBG.png"));
+			SpriteRendererComponent.SetTexture(FTexture2D::New("Assets/Textures/Engine_Logo_Wide_NoBG.png"));
 			TransformComponent.SetScale2D({ 10.0f, 6.0f });
 		}
 		else if (i == 1)
 		{
 			CrescentEntity = QuadEntity;
-			SpriteRendererComponent.SetTexture(FTexture2D::New("Content/Textures/Turkish_Star_and_Crescent.png"));
+			SpriteRendererComponent.SetTexture(FTexture2D::New("Assets/Textures/Turkish_Star_and_Crescent.png"));
 			TransformComponent.SetLocation2D({ -6.0f, 3.0f });
 			TransformComponent.SetRotation2D(-25.0f);
 			TransformComponent.SetScale2D({ 5.0f, 5.0f });
@@ -76,7 +76,7 @@ void FSandbox2D::OnAttach()
 
 	// Unnecessary because FGlobalDeserializationManager::DeserializeScene loads the entites with the same RefID they were serialized with.
 	// Before the commit that added this "deserialize with the same RefID" feature, the code line below would be necessary.
-	CrescentEntity = Scene->RetrieveFirstEntityByName("QuadEntity_1");
+	// CrescentEntity = Scene->RetrieveFirstEntityByName("QuadEntity_1");
 }
 
 void FSandbox2D::OnTick(float DeltaTime)
@@ -135,13 +135,13 @@ void FSandbox2D::OnTick(float DeltaTime)
 		FRenderer2D::Discard();
 	}
 
-	TimeSinceGen += DeltaTime;
-	if (TimeSinceGen >= GenDelay)
-	{
-		TimeSinceGen = 0.0f;
-
-		CL_INFO("'oi! Have a random 64-bit (signed) integer between -50 and 100 from mi!> %l", GRandom.Range<int64>(-50, 100));
-	}
+	//TimeSinceGen += DeltaTime;
+	//if (TimeSinceGen >= GenDelay)
+	//{
+	//	TimeSinceGen = 0.0f;
+	//
+	//	CL_INFO("'oi! Have a random 64-bit (signed) integer between -50 and 100 from mi!> %l", GRandom.Range<int64>(-50, 100));
+	//}
 }
 
 void FSandbox2D::OnDetach()

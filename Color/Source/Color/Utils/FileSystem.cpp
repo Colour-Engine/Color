@@ -25,6 +25,60 @@ FString FFileSystem::ExtractFilenameFromFilepath(const FString& Filepath)
 	return LastSlash != FString::Npos ? Filepath.Sub(LastSlash+1) : Filepath;
 }
 
+FString FFileSystem::ExtractExtensionFromFilepath(const FString& Filepath)
+{
+	uint_t LastDot = Filepath.Rfind('.');
+	return LastDot == FString::Npos || LastDot == Filepath.Len() - 1 ? "" : Filepath.Sub(LastDot + 1);
+}
+
+FString FFileSystem::AppendPath(const FString& Path, const FString& PathToAppend)
+{
+	FString Result = Path;
+	FString AppendPath = PathToAppend;
+
+	while (Result.Last() == '/' || Result.Last() == '\\')
+	{
+		Result.Pop();
+	}
+
+	// Quick hack to see if the base path is empty so we see if we can just return the second part.
+	// Also without this we'd have a leading seperator in our result if the logic below all ran (after this if statement)
+	if (Result.IsEmpty())
+	{
+		return AppendPath;
+	}
+
+	while (AppendPath.Front() == '/' || AppendPath.Front() == '\\')
+	{
+		AppendPath.PopFront();
+	}
+
+	uint_t FirstSeperator = Result.FindFirstOf("/\\");
+	char SeperatorType = FirstSeperator != FString::Npos ? Result[FirstSeperator] : '/';
+
+	const char* Strings[3] =
+	{
+		Result.Get(),
+		&SeperatorType,
+		AppendPath.Get()
+	};
+
+	uint_t Sizes[3] =
+	{
+		Result.Len(),
+		1,
+		AppendPath.Len()
+	};
+
+	return FString::BulkConcate(Strings, Sizes, 3);
+}
+
+FString FFileSystem::RemoveFilenameFromFilepath(const FString& Filepath)
+{
+	uint_t LastSeperator = Filepath.Rfind("/\\");
+	return LastSeperator == FString::Npos ? "" : Filepath.Sub(0, LastSeperator);
+}
+
 void FFileSystem::SetWorkingDir(const FString& WorkingDir)
 {
 	Instance->SetWorkingDir(WorkingDir);
