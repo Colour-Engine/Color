@@ -6,8 +6,7 @@
 class FOpenGLTexture2D : public FTexture2D
 {
 public:
-	FOpenGLTexture2D(const FTextureSpecification& InSpecification);
-	FOpenGLTexture2D(const FString& InPath);
+	FOpenGLTexture2D(const FTextureSpecification& InSpecification, FBuffer Buffer);
 	~FOpenGLTexture2D() override;
 
 	virtual void Bind(uint32 Slot = 0) const override;
@@ -26,6 +25,7 @@ public:
 	}
 private:
 	void CreateOnRenderer(const uint8* Data = nullptr);
+	virtual void SetPath(const FString& NewPath) override { Path = NewPath; }
 private:
 	FTextureSpecification Specification;
 	FString Path;

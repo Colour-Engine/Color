@@ -14,7 +14,7 @@ FArchive FSceneCamera::Serialize() const
 {
 	FArchive Ar;
 
-	Ar.SetField("ProjectionType", (int32) ProjectionType);
+	Ar.SetField("ProjectionType", (ArTypes::Integer) ProjectionType);
 	Ar.SetField("PerspectiveFOV", PerspectiveFOV);
 	Ar.SetField("PerspectiveNear", PerspectiveNear);
 	Ar.SetField("PerspectiveFar", PerspectiveFar);
@@ -30,7 +30,7 @@ bool FSceneCamera::Deserialize(const FArchive& Archive)
 {
 	bool bSuccess = true;
 
-	GetFieldChecked(Archive, "ProjectionType", Integer, (int32&) ProjectionType, bSuccess);
+	GetFieldChecked(Archive, "ProjectionType", Integer, (ArTypes::Integer&) ProjectionType, bSuccess);
 	GetFieldChecked(Archive, "PerspectiveFOV", Float, PerspectiveFOV, bSuccess);
 	GetFieldChecked(Archive, "PerspectiveNear", Float, PerspectiveNear, bSuccess);
 	GetFieldChecked(Archive, "PerspectiveFar", Float, PerspectiveFar, bSuccess);

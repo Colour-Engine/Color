@@ -18,6 +18,7 @@ namespace CLARF
 		Colon,
 		Comma,
 		Integer,
+		UInteger,
 		Float,
 		EoS // End of Source
 	};

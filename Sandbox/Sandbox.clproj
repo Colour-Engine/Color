@@ -1,5 +1,7 @@
 "Root"<GRP>: {
 	"Name"<STR>: "Sandbox",
+	"RuntimeStartupScene"<U64>: 0,
+	"EditorStartupScene"<U64>: 0,
 	"CacheDirectory"<STR>: "Cache",
 	"AssetDirectory"<STR>: "Assets",
 	"AssetRegistryPath"<STR>: ".classetreg"

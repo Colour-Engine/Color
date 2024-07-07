@@ -3,15 +3,27 @@
 
 #define EAT(ExpectedType) if (!Eat(Context, CLARF::ETokenType::##ExpectedType)) { return {}; }
 
+#define IDNAN "NAN"
+#define IDBIT "BIT"
+#define IDINT "INT"
+#define IDU64 "U64"
+#define IDFLT "FLT"
+#define IDDBL "DBL"
+#define IDSTR "STR"
+#define IDARR "ARR"
+#define IDGRP "GRP"
+
 static std::unordered_map<EArchiveFieldValueType, const char*> AFVTypeIdentifiers =
 {
-	{ AFV_None,    "NAN" },
-	{ AFV_Bool,    "BIT" },
-	{ AFV_Integer, "INT" },
-	{ AFV_Float,   "FLT" },
-	{ AFV_String,  "STR" },
-	{ AFV_Array,   "ARR" },
-	{ AFV_Group,   "GRP" }
+	{ AFV_None,     IDNAN },
+	{ AFV_Bool,     IDBIT },
+	{ AFV_Integer,  IDINT },
+	{ AFV_UInteger, IDU64 },
+	{ AFV_Float,    IDFLT },
+	{ AFV_Double,   IDDBL },
+	{ AFV_String,   IDSTR },
+	{ AFV_Array,    IDARR },
+	{ AFV_Group,    IDGRP }
 };
 
 FString FCLARF::Generate(const FArchive& Ar)
@@ -104,9 +116,11 @@ FArchiveFieldValue FCLARF::ReadField(FLoadContext& Context, const FString& Field
 {
 	if
 	(
-		Type == AFVTypeIdentifiers[AFV_Bool]    ||
-		Type == AFVTypeIdentifiers[AFV_Integer] ||
-		Type == AFVTypeIdentifiers[AFV_Float]   ||
+		Type == AFVTypeIdentifiers[AFV_Bool]     ||
+		Type == AFVTypeIdentifiers[AFV_Integer]  ||
+		Type == AFVTypeIdentifiers[AFV_UInteger] ||
+		Type == AFVTypeIdentifiers[AFV_Float]    ||
+		Type == AFVTypeIdentifiers[AFV_Double]   ||
 		Type == AFVTypeIdentifiers[AFV_String]
 	)
 	{
@@ -142,9 +156,24 @@ FArchiveFieldValue FCLARF::ReadBasicField(FLoadContext& Context, const FString& 
 	else if (Type == AFVTypeIdentifiers[AFV_Integer])
 	{
 		FString Value = MoveTemp(Context.Token.Value);
-		EAT(Integer);
+	
+		if (Context.Token.Type == CLARF::ETokenType::Integer || Context.Token.Type == CLARF::ETokenType::UInteger)
+		{
+			Lexe(Context);
+		}
+		else
+		{
+			CL_CORE_ERROR("CLARF Loading Error. Expected token '%s' or '%s', got '%s'. (Lexer position = %d)", TokenTypeToString(CLARF::ETokenType::Integer), TokenTypeToString(CLARF::ETokenType::UInteger), TokenTypeToString(Context.Token.Type));
+		}
 
-		Result.SetInteger(Value.ToInteger());
+		Result.SetInteger(Value.ToInteger<int64>());
+	}
+	else if (Type == AFVTypeIdentifiers[AFV_UInteger])
+	{
+		FString Value = MoveTemp(Context.Token.Value);
+		EAT(UInteger);
+
+		Result.SetUInteger(Value.ToInteger<uint64>());
 	}
 	else if (Type == AFVTypeIdentifiers[AFV_Float])
 	{
@@ -152,6 +181,13 @@ FArchiveFieldValue FCLARF::ReadBasicField(FLoadContext& Context, const FString& 
 		EAT(Float);
 
 		Result.SetFloat(Value.ToFloat());
+	}
+	else if (Type == AFVTypeIdentifiers[AFV_Double])
+	{
+		FString Value = MoveTemp(Context.Token.Value);
+		EAT(Float);
+
+		Result.SetDouble(Value.ToDouble());
 	}
 	else if (Type == AFVTypeIdentifiers[AFV_String])
 	{
@@ -250,13 +286,15 @@ void FCLARF::WriteField(FString& Result, const FString& Name, const FArchiveFiel
 
 	switch (Field.GetType())
 	{
-	case AFV_None:                                                                   break;
-	case AFV_Bool:    WriteBasicField(Result, Name, Field, ScopeDepth, bExpectMore); break;
-	case AFV_Integer: WriteBasicField(Result, Name, Field, ScopeDepth, bExpectMore); break;
-	case AFV_Float:   WriteBasicField(Result, Name, Field, ScopeDepth, bExpectMore); break;
-	case AFV_String:  WriteBasicField(Result, Name, Field, ScopeDepth, bExpectMore); break;
-	case AFV_Array:   WriteArrayField(Result, Name, Field, ScopeDepth, bExpectMore); break;
-	case AFV_Group:   WriteGroupField(Result, Name, Field, ScopeDepth, bExpectMore); break;
+	case AFV_None:                                                                    break;
+	case AFV_Bool:     WriteBasicField(Result, Name, Field, ScopeDepth, bExpectMore); break;
+	case AFV_Integer:  WriteBasicField(Result, Name, Field, ScopeDepth, bExpectMore); break;
+	case AFV_UInteger: WriteBasicField(Result, Name, Field, ScopeDepth, bExpectMore); break;
+	case AFV_Float:    WriteBasicField(Result, Name, Field, ScopeDepth, bExpectMore); break;
+	case AFV_Double:   WriteBasicField(Result, Name, Field, ScopeDepth, bExpectMore); break;
+	case AFV_String:   WriteBasicField(Result, Name, Field, ScopeDepth, bExpectMore); break;
+	case AFV_Array:    WriteArrayField(Result, Name, Field, ScopeDepth, bExpectMore); break;
+	case AFV_Group:    WriteGroupField(Result, Name, Field, ScopeDepth, bExpectMore); break;
 	}
 }
 
@@ -266,10 +304,12 @@ void FCLARF::WriteBasicField(FString& Result, const FString& Name, const FArchiv
 
 	switch (Field.GetType())
 	{
-	case AFV_Bool:    Result += Field.AsBool() ? "true" : "false"; break;
-	case AFV_Integer: Result += FString::FromInt(Field.AsInteger()); break;
-	case AFV_Float:   Result += FString::FromFloat(Field.AsFloat()); break;
-	case AFV_String:  Result += FString::Format("\"%s\"", *Field.AsString()); break;
+	case AFV_Bool:     Result += Field.AsBool() ? "true" : "false"; break;
+	case AFV_Integer:  Result += FString::FromInt(Field.AsInteger()); break;
+	case AFV_UInteger: Result += FString::FromInt(Field.AsUInteger()); break;
+	case AFV_Float:    Result += FString::FromFloat(Field.AsFloat()); break;
+	case AFV_Double:   Result += FString::FromDouble(Field.AsDouble()); break;
+	case AFV_String:   Result += FString::Format("\"%s\"", *Field.AsString()); break;
 	}
 
 	if (bExpectMore)
@@ -286,7 +326,7 @@ void FCLARF::WriteArrayField(FString& Result, const FString& Name, const FArchiv
 {
 	if (Field.GetArrayType() == AFV_Array || Field.GetArrayType() == AFV_Group)
 	{
-		CL_CORE_ERROR("FCLARF doesn't support arrays of arrays or arrays of groups!");
+		CL_CORE_ERROR("CLARF doesn't support arrays of arrays or arrays of groups!");
 		return;
 	}
 	Result += FString::Format("\"%s\"<%s<%s>>: [ ", *Name, AFVTypeIdentifiers[AFV_Array], AFVTypeIdentifiers[Field.GetArrayType()]);
@@ -299,16 +339,18 @@ void FCLARF::WriteArrayField(FString& Result, const FString& Name, const FArchiv
 		const bool bIsLastElement = i == Array.Num() - 1;
 		if (Element.GetType() != Field.GetArrayType())
 		{
-			CL_CORE_ERROR("Array conversion to FCLARF failure! Element type was different than the array type!");
+			CL_CORE_ERROR("Array conversion to CLARF failure! Element type was different than the array type!");
 			continue;
 		}
 
 		switch (Element.GetType())
 		{
-		case AFV_Bool:    Result += Element.AsBool() ? "true" : "false"; break;
-		case AFV_Integer: Result += FString::FromInt(Element.AsInteger()); break;
-		case AFV_Float:   Result += FString::FromFloat(Element.AsFloat()); break;
-		case AFV_String:  Result += FString::Format("\"%s\"", *Element.AsString()); break;
+		case AFV_Bool:     Result += Element.AsBool() ? "true" : "false"; break;
+		case AFV_Integer:  Result += FString::FromInt(Element.AsInteger()); break;
+		case AFV_UInteger: Result += FString::FromInt(Element.AsUInteger()); break;
+		case AFV_Float:    Result += FString::FromFloat(Element.AsFloat()); break;
+		case AFV_Double:   Result += FString::FromDouble(Element.AsDouble()); break;
+		case AFV_String:   Result += FString::Format("\"%s\"", *Element.AsString()); break;
 		default: break;
 		}
 
@@ -345,13 +387,15 @@ void FCLARF::WriteGroupField(FString& Result, const FString& Name, const FArchiv
 
 		switch (FieldValue.GetType())
 		{
-		case AFV_None:                                                                                  break;
-		case AFV_Bool:    WriteBasicField(Result, FieldName, FieldValue, ScopeDepth, bHasMoreElements); break;
-		case AFV_Integer: WriteBasicField(Result, FieldName, FieldValue, ScopeDepth, bHasMoreElements); break;
-		case AFV_Float:   WriteBasicField(Result, FieldName, FieldValue, ScopeDepth, bHasMoreElements); break;
-		case AFV_String:  WriteBasicField(Result, FieldName, FieldValue, ScopeDepth, bHasMoreElements); break;
-		case AFV_Array:   WriteArrayField(Result, FieldName, FieldValue, ScopeDepth, bHasMoreElements); break;
-		case AFV_Group:   WriteGroupField(Result, FieldName, FieldValue, ScopeDepth, bHasMoreElements); break;
+		case AFV_None:                                                                                   break;
+		case AFV_Bool:     WriteBasicField(Result, FieldName, FieldValue, ScopeDepth, bHasMoreElements); break;
+		case AFV_Integer:  WriteBasicField(Result, FieldName, FieldValue, ScopeDepth, bHasMoreElements); break;
+		case AFV_UInteger: WriteBasicField(Result, FieldName, FieldValue, ScopeDepth, bHasMoreElements); break;
+		case AFV_Float:    WriteBasicField(Result, FieldName, FieldValue, ScopeDepth, bHasMoreElements); break;
+		case AFV_Double:   WriteBasicField(Result, FieldName, FieldValue, ScopeDepth, bHasMoreElements); break;
+		case AFV_String:   WriteBasicField(Result, FieldName, FieldValue, ScopeDepth, bHasMoreElements); break;
+		case AFV_Array:    WriteArrayField(Result, FieldName, FieldValue, ScopeDepth, bHasMoreElements); break;
+		case AFV_Group:    WriteGroupField(Result, FieldName, FieldValue, ScopeDepth, bHasMoreElements); break;
 		}
 
 		i++;

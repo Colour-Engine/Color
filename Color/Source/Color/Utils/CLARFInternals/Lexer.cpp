@@ -127,14 +127,14 @@ namespace CLARF
 	FToken FLexer::LexeNumber(bool bNegativeStart)
 	{
 		// Start off as an Integer, if we encounter a dot whilst processing an integer, we'll switch to Float.
-		FToken Result("", ETokenType::Integer);
+		FToken Result("", bNegativeStart ? ETokenType::Integer : ETokenType::UInteger);
 
 		/* Logic loop */
 		while (isdigit(Current) || Current == '.')
 		{
 			Result.Value += Current;
 
-			if (Current == '.' && Result.Type == ETokenType::Integer)
+			if (Current == '.' && (Result.Type == ETokenType::Integer || Result.Type == ETokenType::UInteger))
 			{
 				Result.Type = ETokenType::Float;
 			}

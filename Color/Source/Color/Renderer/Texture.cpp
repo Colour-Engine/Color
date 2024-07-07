@@ -4,24 +4,12 @@
 #include "Renderer/RendererAPI.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
 
-TRef<FTexture2D> FTexture2D::New(const FTextureSpecification& InSpecification)
+TRef<FTexture2D> FTexture2D::New(const FTextureSpecification& InSpecification, FBuffer Buffer)
 {
 	switch (FRendererAPI::GetAPI())
 	{
 	case ERendererAPI::None:   CL_CORE_ERROR("ERendererAPI::None is not a valid Renderer API!"); return nullptr;
-	case ERendererAPI::OpenGL: return MakeRef<FOpenGLTexture2D>(InSpecification);
-	}
-
-	unreachable();
-	return nullptr;
-}
-
-TRef<FTexture2D> FTexture2D::New(const FString& InPath)
-{
-	switch (FRendererAPI::GetAPI())
-	{
-	case ERendererAPI::None:   CL_CORE_ERROR("ERendererAPI::None is not a valid Renderer API!"); return nullptr;
-	case ERendererAPI::OpenGL: return MakeRef<FOpenGLTexture2D>(InPath);
+	case ERendererAPI::OpenGL: return MakeRef<FOpenGLTexture2D>(InSpecification, Buffer);
 	}
 
 	unreachable();

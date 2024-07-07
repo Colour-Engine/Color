@@ -19,6 +19,7 @@ namespace CLARF
 		case ETokenType::Colon:              return "Colon";
 		case ETokenType::Comma:              return "Comma";
 		case ETokenType::Integer:            return "Integer";
+		case ETokenType::UInteger:           return "UInteger";
 		case ETokenType::Float:              return "Float";
 		case ETokenType::EoS:                return "EoS (End of Source)";
 		}

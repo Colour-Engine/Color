@@ -7,6 +7,9 @@
 #include "Components/TransformComponent.h"
 #include "Components/CameraComponent.h"
 
+#include "Project/Project.h"
+#include "Asset/Importers/TextureImporter.h"
+
 #include "Renderer/RenderCommand.h"
 #include "Renderer/Renderer2D.h"
 
@@ -34,13 +37,13 @@ void FSandbox2D::OnAttach()
 
 		if (i == 0)
 		{
-			SpriteRendererComponent.SetTexture(FTexture2D::New("Assets/Textures/Engine_Logo_Wide_NoBG.png"));
+			SpriteRendererComponent.SetTexture(FTextureImporter::LoadTexture2D("Assets/Textures/Engine_Logo_Wide_NoBG.png"));
 			TransformComponent.SetScale2D({ 10.0f, 6.0f });
 		}
 		else if (i == 1)
 		{
 			CrescentEntity = QuadEntity;
-			SpriteRendererComponent.SetTexture(FTexture2D::New("Assets/Textures/Turkish_Star_and_Crescent.png"));
+			SpriteRendererComponent.SetTexture(FTextureImporter::LoadTexture2D("Assets/Textures/Turkish_Star_and_Crescent.png"));
 			TransformComponent.SetLocation2D({ -6.0f, 3.0f });
 			TransformComponent.SetRotation2D(-25.0f);
 			TransformComponent.SetScale2D({ 5.0f, 5.0f });

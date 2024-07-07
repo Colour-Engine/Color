@@ -87,9 +87,19 @@ FArchiveFieldValue::FArchiveFieldValue(const FIntegerType& IntegerValue)
 	SetInteger(IntegerValue);
 }
 
+FArchiveFieldValue::FArchiveFieldValue(const FUIntegerType& UIntegerValue)
+{
+	SetUInteger(UIntegerValue);
+}
+
 FArchiveFieldValue::FArchiveFieldValue(const FFloatType& FloatValue)
 {
 	SetFloat(FloatValue);
+}
+
+FArchiveFieldValue::FArchiveFieldValue(const FDoubleType& DoubleValue)
+{
+	SetDouble(DoubleValue);
 }
 
 FArchiveFieldValue::FArchiveFieldValue(const FStringType& StringValue)
@@ -136,9 +146,21 @@ FArchiveFieldValue& FArchiveFieldValue::operator=(const FIntegerType& IntegerVal
 	return *this;
 }
 
+FArchiveFieldValue& FArchiveFieldValue::operator=(const FUIntegerType& UIntegerValue)
+{
+	SetUInteger(UIntegerValue);
+	return *this;
+}
+
 FArchiveFieldValue& FArchiveFieldValue::operator=(const FFloatType& FloatValue)
 {
 	SetFloat(FloatValue);
+	return *this;
+}
+
+FArchiveFieldValue& FArchiveFieldValue::operator=(const FDoubleType& DoubleValue)
+{
+	SetDouble(DoubleValue);
 	return *this;
 }
 
@@ -176,11 +198,27 @@ bool FArchiveFieldValue::SetInteger(const FIntegerType& IntegerValue)
 	return true;
 }
 
+bool FArchiveFieldValue::SetUInteger(const FUIntegerType& UIntegerValue)
+{
+	Release();
+	Value = new FUIntegerType(UIntegerValue);
+	Type = AFV_UInteger;
+	return true;
+}
+
 bool FArchiveFieldValue::SetFloat(const FFloatType& FloatValue)
 {
 	Release();
 	Value = new FFloatType(FloatValue);
 	Type = AFV_Float;
+	return true;
+}
+
+bool FArchiveFieldValue::SetDouble(const FDoubleType& DoubleValue)
+{
+	Release();
+	Value = new FDoubleType(DoubleValue);
+	Type = AFV_Double;
 	return true;
 }
 
@@ -247,9 +285,19 @@ void FArchiveFieldValue::Copy(const FArchiveFieldValue& Other)
 		Value = new FIntegerType(Other.AsInteger());
 		break;
 	}
+	case AFV_UInteger:
+	{
+		Value = new FUIntegerType(Other.AsUInteger());
+		break;
+	}
 	case AFV_Float:
 	{
 		Value = new FFloatType(Other.AsFloat());
+		break;
+	}
+	case AFV_Double:
+	{
+		Value = new FDoubleType(Other.AsDouble());
 		break;
 	}
 	case AFV_String:

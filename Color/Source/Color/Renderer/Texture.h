@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Core/Base.h"
+#include "Core/Memory.h"
+#include "Asset/Asset.h"
 
 enum class EImageFormat
 {
@@ -28,7 +29,7 @@ public:
 
 	virtual void Bind(uint32 Slot = 0) const = 0;
 	virtual void SetData(const void* Data, uint32 Size) = 0;
-	
+
 	virtual const FTextureSpecification& GetSpecification() const = 0;
 	virtual const FString& GetPath() const = 0;
 	virtual bool IsLoaded() const = 0;
@@ -39,9 +40,13 @@ public:
 	virtual bool operator==(const FTexture& Other) const = 0;
 };
 
-class FTexture2D : public FTexture
+class FTexture2D : public FTexture, public FAsset
 {
 public:
-	static TRef<FTexture2D> New(const FTextureSpecification& InSpecification);
-	static TRef<FTexture2D> New(const FString& InPath);
+	IMPLEMENT_ASSET(Texture2D);
+public:
+	static TRef<FTexture2D> New(const FTextureSpecification& InSpecification, FBuffer Data = {});
+private:
+	virtual void SetPath(const FString& NewPath) = 0;
+	friend class FTextureImporter;
 };

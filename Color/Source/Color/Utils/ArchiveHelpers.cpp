@@ -52,7 +52,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec2Field(const FArchive& Archiv
 
 	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_X, AFV_Float))
 	{
-		OutValue.x = Group.GetField(ARCHIVEHELPERS_VECFIELDS_X).AsFloat();
+		OutValue.x = (float) Group.GetField(ARCHIVEHELPERS_VECFIELDS_X).AsFloat();
 	}
 	else
 	{
@@ -61,7 +61,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec2Field(const FArchive& Archiv
 
 	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_Y, AFV_Float))
 	{
-		OutValue.y = Group.GetField(ARCHIVEHELPERS_VECFIELDS_Y).AsFloat();
+		OutValue.y = (float) Group.GetField(ARCHIVEHELPERS_VECFIELDS_Y).AsFloat();
 	}
 	else
 	{
@@ -89,7 +89,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec3Field(const FArchive& Archiv
 
 	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_X, AFV_Float))
 	{
-		OutValue.x = Group.GetField(ARCHIVEHELPERS_VECFIELDS_X).AsFloat();
+		OutValue.x = (float) Group.GetField(ARCHIVEHELPERS_VECFIELDS_X).AsFloat();
 	}
 	else
 	{
@@ -98,7 +98,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec3Field(const FArchive& Archiv
 
 	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_Y, AFV_Float))
 	{
-		OutValue.y = Group.GetField(ARCHIVEHELPERS_VECFIELDS_Y).AsFloat();
+		OutValue.y = (float) Group.GetField(ARCHIVEHELPERS_VECFIELDS_Y).AsFloat();
 	}
 	else
 	{
@@ -107,7 +107,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec3Field(const FArchive& Archiv
 
 	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_Z, AFV_Float))
 	{
-		OutValue.z = Group.GetField(ARCHIVEHELPERS_VECFIELDS_Z).AsFloat();
+		OutValue.z = (float) Group.GetField(ARCHIVEHELPERS_VECFIELDS_Z).AsFloat();
 	}
 	else
 	{
@@ -135,7 +135,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec4Field(const FArchive& Archiv
 
 	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_X, AFV_Float))
 	{
-		OutValue.x = Group.GetField(ARCHIVEHELPERS_VECFIELDS_X).AsFloat();
+		OutValue.x = (float) Group.GetField(ARCHIVEHELPERS_VECFIELDS_X).AsFloat();
 	}
 	else
 	{
@@ -144,7 +144,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec4Field(const FArchive& Archiv
 
 	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_Y, AFV_Float))
 	{
-		OutValue.y = Group.GetField(ARCHIVEHELPERS_VECFIELDS_Y).AsFloat();
+		OutValue.y = (float) Group.GetField(ARCHIVEHELPERS_VECFIELDS_Y).AsFloat();
 	}
 	else
 	{
@@ -153,7 +153,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec4Field(const FArchive& Archiv
 
 	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_Z, AFV_Float))
 	{
-		OutValue.z = Group.GetField(ARCHIVEHELPERS_VECFIELDS_Z).AsFloat();
+		OutValue.z = (float) Group.GetField(ARCHIVEHELPERS_VECFIELDS_Z).AsFloat();
 	}
 	else
 	{
@@ -162,7 +162,7 @@ FArchiveHelpers::EGetResult FArchiveHelpers::GetVec4Field(const FArchive& Archiv
 
 	if (Group.HasFieldWithType(ARCHIVEHELPERS_VECFIELDS_W, AFV_Float))
 	{
-		OutValue.w = Group.GetField(ARCHIVEHELPERS_VECFIELDS_W).AsFloat();
+		OutValue.w = (float) Group.GetField(ARCHIVEHELPERS_VECFIELDS_W).AsFloat();
 	}
 	else
 	{

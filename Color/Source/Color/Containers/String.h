@@ -2,6 +2,7 @@
 
 #include "Allocators/DefaultAllocator.h"
 #include "Templates/TypeTraits/IsUnsigned.h" // Used in FromInt
+#include "Templates/TypeTraits/IsSigned.h" // Used in ToInteger
 #include "Templates/NumericLimits.h"
 #include "Templates/Hash.h"
 
@@ -606,26 +607,41 @@ public:
 		return FromDouble((double) Float);
 	}
 
-	static int32 ToInteger(const T* String, SizeType Length)
+	template <typename TInt = int32>
+	static TInt ToInteger(const T* String, SizeType Length)
 	{
-		int32 Parsed = 0;
-
-		for (int32 i = 0; i < Length; i++)
+		if (Length == 0)
+		{
+			return TInt(0);
+		}
+		
+		TInt Parsed = 0;
+		for (SizeType i = 0; i < Length; i++)
 		{
 			Parsed = (Parsed << 3) + (Parsed << 1) + (*String++) - '0';
+		}
+
+		if constexpr (VIsSigned<TInt>)
+		{
+			if (String[0] == '-')
+			{
+				Parsed = -Parsed;
+			}
 		}
 
 		return Parsed;
 	}
 
-	static int32 ToInteger(const T* String)
+	template <typename TInt = int32>
+	static TInt ToInteger(const T* String)
 	{
-		return ToInteger(String, (SizeType) StringUtility::Len(String));
+		return ToInteger<TInt>(String, (SizeType) StringUtility::Len(String));
 	}
 
-	int32 ToInteger() const
+	template <typename TInt = int32>
+	TInt ToInteger() const
 	{
-		return TString::ToInteger(Data, Size);
+		return TString::ToInteger<TInt>(Data, Size);
 	}
 
 	static double ToDouble(const T* String, SizeType Length)

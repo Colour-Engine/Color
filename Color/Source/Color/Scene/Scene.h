@@ -1,10 +1,12 @@
 #pragma once
 
-#include "Core/Base.h"
+#include "Asset/Asset.h"
 #include "Scene/Entity.h"
 
-class FScene
+class FScene : public FAsset
 {
+public:
+	IMPLEMENT_ASSET(Scene);
 public:
 	FScene();
 	~FScene();

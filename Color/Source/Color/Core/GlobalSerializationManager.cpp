@@ -6,6 +6,9 @@
 #include "Components/TransformComponent.h"
 #include "Components/CameraComponent.h"
 
+#include "Asset/Importers/TextureImporter.h"
+#include "Project/Project.h"
+
 static THash<char*> Hasher;
 static uint_t TC_HASH = Hasher.Hash(FTransformComponent::GetIDName());
 static uint_t CC_HASH = Hasher.Hash(FCameraComponent::GetIDName());
@@ -15,8 +18,11 @@ static uint_t CRC_HASH = Hasher.Hash(FCircleRendererComponent::GetIDName());
 FArchive FGlobalSerializationManager::SerializeScene(FScene* Scene)
 {
 	FArchive Ar;
-	FArchive& Entities = Ar.SetField("Entities", AFV_Group);
 
+	Ar.SetField("bRunning", Scene->IsRunning());
+	Ar.SetField("bPaused", Scene->IsPaused());
+
+	FArchive& Entities = Ar.SetField("Entities", AFV_Group);
 	for (auto&& [RefID, Entity] : Scene->GetEntities())
 	{
 		FArchive& EntityGroup = Entities.SetField(FString::FromInt((int32) Entity.RefID), FArchiveFieldValue(AFV_Group));
@@ -51,6 +57,20 @@ bool FGlobalSerializationManager::DeserializeScene(FScene* Scene, const FArchive
 	Scene->DestroyAllEntities();
 
 	bool bResult = true;
+	bool bRunning, bPaused;
+
+	GetFieldChecked(Ar, "bRunning", Bool, bRunning, bResult);
+	GetFieldChecked(Ar, "bPaused", Bool, bPaused, bResult);
+
+	if (bRunning)
+	{
+		Scene->Start();
+	}
+	else
+	{
+		Scene->Stop();
+	}
+	Scene->SetPaused(bPaused);
 
 	if (Ar.HasFieldWithType("Entities", AFV_Group))
 	{
@@ -92,6 +112,9 @@ FArchive FGlobalSerializationManager::SerializeComponent(FComponent* Component, 
 {
 	FArchive Ar;
 
+	Ar.SetField("bEnableTick", Component->IsTickEnabled());
+	Ar.SetField("bTickWhenPaused", Component->DoesTickWhenPaused());
+
 	uint_t IDNameHash = Hasher.Hash(Component->GetIdentificationName());
 	if (IDNameHash == TC_HASH)
 	{
@@ -114,6 +137,7 @@ FArchive FGlobalSerializationManager::SerializeComponent(FComponent* Component, 
 		FSpriteRendererComponent* SpriteRendererComponent = Cast<FSpriteRendererComponent>(Component);
 
 		Ar.SetField("TexturePath", SpriteRendererComponent->GetTexture()->GetPath());
+		Ar.SetField("TextureAssetHandle", SpriteRendererComponent->GetTexture()->AssetHandle);
 		Ar.SetField("TilingFactor", SpriteRendererComponent->GetTilingFactor());
 		FArchiveHelpers::SetVec4Field(Ar, "Color", SpriteRendererComponent->GetColor());
 	}
@@ -127,7 +151,12 @@ FArchive FGlobalSerializationManager::SerializeComponent(FComponent* Component, 
 	}
 	else
 	{
-		return SerializeUnrecognizedComponent(Component, bOutSuccess);
+		bool bSuccess = SerializeUnrecognizedComponent(Component, Ar);
+
+		if (!bSuccess)
+		{
+			CL_CORE_ERROR("Unknown component with IDNameHash='%e' couldn't be serialized!", IDNameHash);
+		}
 	}
 
 	return Ar;
@@ -137,10 +166,14 @@ bool FGlobalSerializationManager::DeserializeComponent(const char* IDName, const
 {
 	bool bSuccess = true;
 	uint_t IDNameHash = Hasher.Hash(IDName);
+	
+	bool bEnableTick = true;
+	bool bTickWhenPaused = false;
 
 	if (IDNameHash == TC_HASH)
 	{
 		FTransformComponent& TransformComponent = Entity.GetOrAddComponent<FTransformComponent>();
+		DeserializeComponentStart(TransformComponent);
 
 		glm::vec3 Location, Rotation, Scale;
 		GetVecFieldChecked(Ar, "Location", Vec3, Location, bSuccess);
@@ -154,6 +187,7 @@ bool FGlobalSerializationManager::DeserializeComponent(const char* IDName, const
 	else if (IDNameHash == CC_HASH)
 	{
 		FCameraComponent& CameraComponent = Entity.GetOrAddComponent<FCameraComponent>();
+		DeserializeComponentStart(CameraComponent);
 
 		if (Ar.HasFieldWithType("Camera", AFV_Group))
 		{
@@ -174,22 +208,42 @@ bool FGlobalSerializationManager::DeserializeComponent(const char* IDName, const
 	else if (IDNameHash == SRC_HASH)
 	{
 		FSpriteRendererComponent& SpriteRendererComponent = Entity.GetOrAddComponent<FSpriteRendererComponent>();
+		DeserializeComponentStart(SpriteRendererComponent);
 
 		FString TexturePath;
+		HAsset TextureAssetHandle;
 		glm::vec4 Color;
 		float TilingFactor=.0f;
 
 		GetFieldChecked(Ar, "TexturePath", String, TexturePath, bSuccess);
+		GetFieldChecked(Ar, "TextureAssetHandle", UInteger, TextureAssetHandle, bSuccess);
 		GetFieldChecked(Ar, "TilingFactor", Float, TilingFactor, bSuccess);
 		GetVecFieldChecked(Ar, "Color", Vec4, Color, bSuccess);
 
-		SpriteRendererComponent.SetTexture(FTexture2D::New(TexturePath));
+		if (TextureAssetHandle != HASSET_INVALID_HANDLE)
+		{
+			TRef<FAsset> Asset = FProject::GetActiveAssetManager()->GetAsset(TextureAssetHandle);
+			FTexture2D* TextureAsset = Cast<FTexture2D>(Asset.Get());
+
+			if (!TextureAsset)
+			{
+				CL_CORE_ERROR("Deserializing failure during SpriteRendererComponent deserialization! TextureAssetHandle != HASSET_INVALID_HANDLE but ActiveAssetManager returned nullptr when the asset with the assigned handle '%e' was requested. Either the asset does not exist or it corresponds to a different type of asset.");
+			}
+
+			SpriteRendererComponent.SetTexture(Asset);
+		}
+		else
+		{
+			SpriteRendererComponent.SetTexture(FTextureImporter::LoadTexture2D(TexturePath));
+		}
+
 		SpriteRendererComponent.SetTilingFactor(TilingFactor);
 		SpriteRendererComponent.SetColor(Color);
 	}
 	else if (IDNameHash == CRC_HASH)
 	{
 		FCircleRendererComponent& CircleRendererComponent = Entity.GetOrAddComponent<FCircleRendererComponent>();
+		DeserializeComponentStart(CircleRendererComponent);
 
 		glm::vec4 Color;
 		float Thickness=.0f,Fade=.0f;
@@ -210,10 +264,9 @@ bool FGlobalSerializationManager::DeserializeComponent(const char* IDName, const
 	return bSuccess;
 }
 
-FArchive FGlobalSerializationManager::SerializeUnrecognizedComponent(FComponent* Component, bool& bOutSuccess)
+bool FGlobalSerializationManager::SerializeUnrecognizedComponent(FComponent* Component, FArchive& Archive)
 {
-	bOutSuccess = false;
-	return FArchive();
+	return false;
 }
 
 bool FGlobalSerializationManager::DeserializeUnrecognizedComponent(const char* IDName, const FArchive& Ar, FEntity Entity)

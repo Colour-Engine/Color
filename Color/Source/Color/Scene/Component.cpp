@@ -9,6 +9,12 @@ FComponent* FComponent::Clone() const
 	return Copy;
 }
 
+void FComponent::SetTickRules(bool bEnable, bool bDoTickWhenPaused)
+{
+	SetEnableTick(bEnable);
+	SetTickWhenPaused(bDoTickWhenPaused);
+}
+
 void FComponent::SetEnableTick(bool bEnable)
 {
 	bEnableTick = bEnable;

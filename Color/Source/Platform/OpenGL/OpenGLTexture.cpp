@@ -33,76 +33,13 @@ namespace Utils
 	}
 }
 
-FOpenGLTexture2D::FOpenGLTexture2D(const FTextureSpecification& InSpecification)
+FOpenGLTexture2D::FOpenGLTexture2D(const FTextureSpecification& InSpecification, FBuffer Buffer)
 	: Specification(InSpecification), Width(InSpecification.Width), Height(InSpecification.Height)
 {
 	InternalFormat = Utils::ImageFormatToGLInternalFormat(InSpecification.ImageFormat);
 	DataFormat     = Utils::ImageFormatToGLDataFormat(InSpecification.ImageFormat);
 
-	CreateOnRenderer();
-}
-
-FOpenGLTexture2D::FOpenGLTexture2D(const FString& InPath)
-	: Path(InPath)
-{
-	int Width, Height, NumChannels;
-	stbi_set_flip_vertically_on_load(1);
-
-	stbi_uc* Data = nullptr;
-	float TimeLoad = 0.0f;
-	{
-		FTimer Timer;
-		Data = stbi_load(*InPath, &Width, &Height, &NumChannels, 0);
-		TimeLoad = Timer.ElapsedMs();
-	}
-
-	if (Data)
-	{
-		CL_CORE_WARN("Loading texture from file '%s' took '%f' ms.", *InPath, TimeLoad);
-
-		this->Width = Width;
-		this->Height = Height;
-
-		switch (NumChannels)
-		{
-		case 3:
-		{
-			InternalFormat = GL_RGB8;
-			DataFormat = GL_RGB;
-
-			break;
-		}
-		case 4:
-		{
-			InternalFormat = GL_RGBA8;
-			DataFormat = GL_RGBA;
-
-			break;
-		}
-		default:
-		{
-			CL_CORE_ERROR("Couldn't load texture from file '%s' because it has an invalid number of channels (%d). Color only supports 3 and 4.", *InPath, NumChannels);
-			stbi_image_free(Data);
-			return;
-		}
-		}
-
-		if (!(InternalFormat & DataFormat))
-		{
-			CL_CORE_ERROR("Couldn't load texture from file '%s' because it's formatted as such that Color doesn't support it. (!(InternalFormat & DataFormat))", *InPath);
-			stbi_image_free(Data);
-			return;
-		}
-
-		bLoaded = true;
-		CreateOnRenderer(Data);
-
-		stbi_image_free(Data);
-	}
-	else
-	{
-		CL_CORE_ERROR("Failed to load texture from file '%s'. stbi_load returned NULL.", *InPath);
-	}
+	CreateOnRenderer(Buffer.Data);
 }
 
 FOpenGLTexture2D::~FOpenGLTexture2D()

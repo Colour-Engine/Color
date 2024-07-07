@@ -58,6 +58,12 @@ public:
 		Destruct();
 	}
 
+	TRef& operator=(TYPE_OF_NULLPTR)
+	{
+		Destruct();
+		return *this;
+	}
+
 	TRef& operator=(const TRef& Other)
 	{
 		Copy(Other);

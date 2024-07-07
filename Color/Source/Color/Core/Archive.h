@@ -11,11 +11,17 @@ enum EArchiveFieldValueType
 	// Can be either "true" or "false".
 	AFV_Bool,
 
-	// A signed 32-bit integer.
+	// A signed 64-bit integer.
 	AFV_Integer,
+
+	// An unsigned 64-bit integer.
+	AFV_UInteger,
 
 	// A 32-bit floating point number.
 	AFV_Float,
+
+	// A 64-bit floating point number.
+	AFV_Double,
 
 	// Sequence of characters.
 	AFV_String,
@@ -135,8 +141,10 @@ public:
 	};
 public:
 	using FBoolType = bool;
-	using FIntegerType = int32;
+	using FIntegerType = int64;
+	using FUIntegerType = uint64;
 	using FFloatType = float;
+	using FDoubleType = double;
 	using FStringType = FString;
 	using FArrayType = TArray<FArchiveFieldValue>;
 public:
@@ -146,7 +154,9 @@ public:
 	FArchiveFieldValue(EArchiveFieldValueType Type);
 	FArchiveFieldValue(const FBoolType& bBoolValue);
 	FArchiveFieldValue(const FIntegerType& IntegerValue);
+	FArchiveFieldValue(const FUIntegerType& UIntegerValue);
 	FArchiveFieldValue(const FFloatType& FloatValue);
+	FArchiveFieldValue(const FDoubleType& DoubleValue);
 	FArchiveFieldValue(const FStringType& StringValue);
 	FArchiveFieldValue(const FArrayType& ArrayValue);
 	FArchiveFieldValue(const FGroupType& GroupValue);
@@ -157,14 +167,18 @@ public:
 
 	FArchiveFieldValue& operator=(const FBoolType& bBoolValue);
 	FArchiveFieldValue& operator=(const FIntegerType& IntegerValue);
+	FArchiveFieldValue& operator=(const FUIntegerType& UIntegerValue);
 	FArchiveFieldValue& operator=(const FFloatType& FloatValue);
+	FArchiveFieldValue& operator=(const FDoubleType& DoubleValue);
 	FArchiveFieldValue& operator=(const FStringType& StringValue);
 	FArchiveFieldValue& operator=(const FArrayType& ArrayValue);
 	FArchiveFieldValue& operator=(const FGroupType& GroupValue);
 
 	bool SetBool(const FBoolType& bBoolValue);
 	bool SetInteger(const FIntegerType& IntegerValue);
+	bool SetUInteger(const FUIntegerType& UIntegerValue);
 	bool SetFloat(const FFloatType& FloatValue);
+	bool SetDouble(const FDoubleType& DoubleValue);
 	bool SetString(const FStringType& StringValue);
 	bool SetArray(const FArrayType& ArrayValue);
 	bool SetGroup(const FGroupType& GroupValue);
@@ -197,7 +211,9 @@ public:
 
 	DECLARE_AS_FN(FBoolType, Bool);
 	DECLARE_AS_FN(FIntegerType, Integer);
+	DECLARE_AS_FN(FUIntegerType, UInteger);
 	DECLARE_AS_FN(FFloatType, Float);
+	DECLARE_AS_FN(FDoubleType, Double);
 	DECLARE_AS_FN(FStringType, String);
 	DECLARE_AS_FN(FArrayType, Array);
 	DECLARE_AS_FN(FGroupType, Group);
@@ -278,6 +294,18 @@ private:
 private:
 	EArchiveFieldValueType Type = AFV_None;
 	void* Value = nullptr;
+};
+
+struct ArTypes
+{
+	using Bool     = FArchiveFieldValue::FBoolType;
+	using Integer  = FArchiveFieldValue::FIntegerType;
+	using UInteger = FArchiveFieldValue::FUIntegerType;
+	using Float    = FArchiveFieldValue::FFloatType;
+	using Double   = FArchiveFieldValue::FDoubleType;
+	using String   = FArchiveFieldValue::FStringType;
+	using Array    = FArchiveFieldValue::FArrayType;
+	using Group    = FArchiveFieldValue::FGroupType;
 };
 
 using FArchive = FArchiveFieldValue::FGroupType;

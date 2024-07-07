@@ -41,6 +41,7 @@ public:
 	virtual void OnTick(float DeltaTime) { }
 	virtual void OnDetach() { }
 
+	void SetTickRules(bool bEnable, bool bDoTickWhenPaused);
 	void SetEnableTick(bool bEnable);
 	void SetTickWhenPaused(bool bTick);
 

@@ -107,6 +107,19 @@ FApplication::FApplication(const FCommandLine& InCommandLine)
 		}
 	}
 
+	if (!FProject::GetActive())
+	{
+		// We still need a project of some sort, because things may depend on it.
+		// We'll load a basic temporary project.
+
+		FProjectInfo ProjectInfo;
+		ProjectInfo.Name = "Color Runtime Unidentified Project";
+		ProjectInfo.RuntimeStartupScene = 0;
+		ProjectInfo.EditorStartupScene = 0;
+
+		FProject::SetActive(MakeRef<FProject>(ProjectInfo, "", MakeRef<FEditorAssetManager>()));
+	}
+
 	Window = FWindow::New(Specification.WindowProps);
 	if (!Window->Init())
 	{
