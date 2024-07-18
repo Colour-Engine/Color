@@ -1497,9 +1497,9 @@ public:
 	}
 };
 
-// Hash specialization for "FString"
-template <>
-class THash<FString>
+// Hash specialization for "TString"
+template <typename T>
+class THash<TString<T>>
 {
 public:
 	uint_t Hash(const FString& Value) const
@@ -1520,13 +1520,13 @@ public:
 
 namespace std
 {
-	// STL-support for FString hashing. Internally uses THash to generate the hash.
-	template <>
-	struct hash<FString>
+	// STL-support for tString hashing. Internally uses THash to generate the hash.
+	template <typename T>
+	struct hash<TString<T>>
 	{
 		size_t operator()(const FString& Value) const
 		{
-			THash<FString> Hasher;
+			THash<TString<T>> Hasher;
 			return Hasher.Hash(Value);
 		}
 	};

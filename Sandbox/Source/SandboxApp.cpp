@@ -5,7 +5,6 @@
 #include "Core/EntryPoint.h"
 
 #include "Sandbox2D.h"
-#include "SandboxGlobalSerializationManager.h"
 
 #include "Project/Project.h"
 
@@ -35,4 +34,3 @@ IMPLEMENT_SPECIFICATION
 );
 
 IMPLEMENT_APPLICATION(FSandboxApp);
-DECLARE_GLOBAL_SERIALIZATION_MANAGER(FSandboxGlobalSerializationManager);

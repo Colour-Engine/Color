@@ -51,6 +51,9 @@ public:
 	bool HasEntity(FEntity Entity);
 	bool HasEntity(EntityRef Ref);
 
+	FArchive Serialize() const;
+	bool Deserialize(const FArchive& Ar);
+
 	bool IsRunning() const { return bRunning; }
 	bool IsPaused() const { return bPaused; }
 	

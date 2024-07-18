@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Containers/StringView.h"
 #include "Containers/String.h"
 #include "Containers/Array.h"
 

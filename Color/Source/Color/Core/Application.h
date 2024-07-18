@@ -3,7 +3,6 @@
 #include "Core/Base.h"
 #include "Core/Window.h"
 #include "Core/LayerStack.h"
-#include "Core/GlobalSerializationManager.h"
 
 #include "Misc/CommandLine.h"
 #include "Misc/ExitCode.h"
@@ -71,8 +70,6 @@ private:
 const FApplicationSpecification& GetApplicationSpecification();
 FApplication* CreateApplication(const FCommandLine&);
 
-FGlobalSerializationManager* GetGlobalSerializationManager();
-
 inline bool __Flg_nowarn_projectnull = false;
 void HandleNoAutoLoadProject();
 
@@ -94,11 +91,4 @@ const ::FApplicationSpecification& ::GetApplicationSpecification() \
 ::FApplication* ::CreateApplication(const ::FCommandLine& InCommandLine) \
 { \
 	return new ApplicationClass(InCommandLine); \
-}
-
-#define DECLARE_GLOBAL_SERIALIZATION_MANAGER(ManagerClass) \
-::FGlobalSerializationManager* ::GetGlobalSerializationManager() \
-{ \
-	static FGlobalSerializationManager* GlobalSerializationManager = new ManagerClass(); \
-	return GlobalSerializationManager; \
 }

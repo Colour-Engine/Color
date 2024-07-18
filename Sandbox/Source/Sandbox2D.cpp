@@ -60,7 +60,7 @@ void FSandbox2D::OnAttach()
 
 	{
 		// Serialize the scene
-		FArchive SceneData = GetGlobalSerializationManager()->SerializeScene(Scene.Get());
+		FArchive SceneData = Scene->Serialize();
 		FString  CLARFData = SceneData.ConvertToCLARF();
 	
 		// Delete all entities and components
@@ -75,7 +75,7 @@ void FSandbox2D::OnAttach()
 	FFileSystem::ReadFile("Cache/SerialData/SceneData.clarf", CLARFData);
 	
 	FArchive SceneData = FCLARF::Load(CLARFData);
-	GetGlobalSerializationManager()->DeserializeScene(Scene.Get(), SceneData);
+	Scene->Deserialize(SceneData);
 
 	// Unnecessary because FGlobalDeserializationManager::DeserializeScene loads the entites with the same RefID they were serialized with.
 	// Before the commit that added this "deserialize with the same RefID" feature, the code line below would be necessary.

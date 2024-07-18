@@ -24,7 +24,7 @@ struct FEntityData
 	struct FComponentData
 	{
 		const char* IDName = nullptr;
-		FComponent* Data = nullptr;
+		FComponent* ComponentObject = nullptr;
 	};
 	std::unordered_map<const char*, FComponentData> Components;
 
@@ -47,7 +47,7 @@ struct FEntityData
 		bool bReplacing = false;
 		if (HasComponent<T>())
 		{
-			delete Components[IDName].Data;
+			delete Components[IDName].ComponentObject;
 			bReplacing = true;
 		}
 
@@ -73,7 +73,7 @@ struct FEntityData
 		}
 
 		Components[IDName].IDName = IDName;
-		Components[IDName].Data = Ptr;
+		Components[IDName].ComponentObject = Ptr;
 	}
 	
 	void RemoveComponentWithIDName(const char* IDName)
@@ -85,7 +85,7 @@ struct FEntityData
 		}
 
 		FComponentData& Data = Components[IDName];
-		FComponent* ComponentPtr = (FComponent*) Data.Data; // cast to generic FComponent for proper call to destructor
+		FComponent* ComponentPtr = (FComponent*) Data.ComponentObject; // cast to generic FComponent for proper call to destructor
 		
 		ComponentPtr->OnDetach();
 		delete ComponentPtr;
@@ -131,7 +131,7 @@ struct FEntityData
 			CL_CORE_FATAL("Failed to get component with IDName=%s. Specified component doesn't exist.", *IDName);
 		}
 
-		return *(T*) Components[IDName].Data;
+		return *(T*) Components[IDName].ComponentObject;
 	}
 
 	template <typename T>

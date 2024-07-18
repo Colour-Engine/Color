@@ -21,6 +21,6 @@ TRef<FScene> FSceneImporter::LoadScene(const FString& Filepath)
 		return nullptr;
 	}
 
-	GetGlobalSerializationManager()->DeserializeScene(Scene.Get(), FArchive::FromCLARF(Data));
+	Scene->Deserialize(FArchive::FromCLARF(Data));
 	return Scene;
 }
