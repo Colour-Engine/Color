@@ -9,13 +9,24 @@ class TStringView
 {
 public:
 	using CharType      = T;
-	using SizeType      = T;
+	using SizeType      = TSizeType;
 	using StringUtility = TStringUtility<T>;
 	using Iterator      = TIndexedContainerIterator<TStringView, T, TSizeType>;
 	using ConstIterator = TIndexedContainerIterator<const TStringView, const T, TSizeType>;
+
+	template <typename TAllocator>
+	using TStringType   = TString<T, TSizeType, TAllocator>;
+
+public:
+	static constexpr SizeType Npos = TNumericLimits<SizeType>::Max();
+	using AlgorithmLibType = StringAlgorithmLib<T, TSizeType, Npos>;
 public:
 	TStringView() = default;
-	TStringView(TString<T>&& String) = delete;
+	TStringView(const TStringView&) = default;
+	TStringView& operator=(const TStringView&) = default;
+
+	TStringView(TYPE_OF_NULLPTR) = delete;
+	TStringView& operator=(TYPE_OF_NULLPTR) = delete;
 
 	TStringView(const T* String, uint_t Size)
 		: Data(String), Size(Size) { }
@@ -23,22 +34,144 @@ public:
 	TStringView(const T* String)
 		: Data(String), Size((TSizeType) StringUtility::Len(String)) { }
 	
-	TStringView(const TString<T>& String)
+	template <typename TAllocator>
+	TStringView(const TStringType<TAllocator>& String)
 		: Data(String.Get()), Size(String.Len()) { }
 
-	int32 Compare(const T* String) const
+	template <typename TAllocator>
+	TStringView& operator=(const TStringType<TAllocator>& String)
 	{
-		return StringUtility::Cmp(Data, String);
+		Data = String.Get();
+		Size = String.Len();
+
+		return *this;
 	}
 
-	int32 Compare(const TStringView& Other) const
+	void RemovePrefix(SizeType Count)
+	{
+		Data += Count;
+		Size -= Count;
+	}
+
+	void RemoveSuffix(SizeType Count)
+	{
+		Size -= Count;
+	}
+
+	void Swap(TStringView& Other)
+	{
+		::Swap(Data, Other.Data);
+		::Swap(Size, Other.Size);
+	}
+
+	TStringView Sub(SizeType Position = 0, SizeType Count = Npos) const
+	{
+		return TStringView { Data + Position, Count == Npos ? Size - Position : Count };
+	}
+
+	SizeType Find(T Char, SizeType Position = 0, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return AlgorithmLibType::FindFirstOccurenceOfChar(Data, Size, Char, Position, SearchCase);
+	}
+
+	SizeType Find(TStringView Substring, SizeType Position = 0, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return AlgorithmLibType::FindFirstOccurenceOfSubstring(Data, Size, Substring.Data, Substring.Size, Position, SearchCase);
+	}
+
+	SizeType Rfind(T Char, SizeType Position = Npos, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return AlgorithmLibType::RfindFirstOccurenceOfChar(Data, Size, Char, Position, SearchCase);
+	}
+
+	SizeType Rfind(TStringView Substring, SizeType Position = Npos, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return AlgorithmLibType::RfindFirstOccurenceOfSubstring(Data, Size, Substring.Data, Substring.Size, Position, SearchCase);
+	}
+
+	SizeType FindFirstOf(T Char, SizeType Position = 0, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return Find(Char, Position, SearchCase);
+	}
+
+	SizeType FindFirstOf(TStringView Charset, SizeType Position = 0, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return AlgorithmLibType::FindFirstOfCharOccurenceInCharset(Data, Size, Charset.Data, Charset.Size, Position, SearchCase);
+	}
+
+	SizeType FindFirstNotOf(T Char, SizeType Position = 0, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return AlgorithmLibType::FindFirstCharNotOfOccurence(Data, Size, Char, Position, SearchCase);
+	}
+
+	SizeType FindFirstNotOf(TStringView Charset, SizeType Position = 0, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return AlgorithmLibType::FindFirstCharNotOfOccurrenceInCharset(Data, Size, Charset.Data, Charset.Size, Position, SearchCase);
+	}
+
+	SizeType FindLastOf(T Char, SizeType Position = Npos) const
+	{
+		return Rfind(Char, Position);
+	}
+
+	SizeType FindLastOf(TStringView Charset, SizeType Position = Npos, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return AlgorithmLibType::FindLastOfCharOccurrenceInCharset(Data, Size, Charset.Data, Charset.Size, Position, SearchCase);
+	}
+
+	SizeType FindLastNotOf(T Char, SizeType Position = Npos, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return AlgorithmLibType::FindLastCharNotOfOccurrence(Data, Size, Char, Position, SearchCase);
+	}
+
+	SizeType FindLastNotOf(TStringView Charset, SizeType Position = Npos, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return AlgorithmLibType::FindLastNotOfCharOccurrenceInCharset(Data, Size, Charset.Data, Charset.Size, Position, SearchCase);
+	}
+
+	bool StartsWith(T Char, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return AlgorithmLibType::StartsWithChar(Data, Size, Char, SearchCase);
+	}
+
+	bool StartsWith(TStringView Substring, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return AlgorithmLibType::StartsWith(Data, Size, Substring.Data, Substring.Size, SearchCase);
+	}
+
+	bool EndsWith(T Char, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return AlgorithmLibType::EndsWithChar(Data, Size, Char, SearchCase);
+	}
+	
+	bool EndsWith(TStringView Substring, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return AlgorithmLibType::EndsWith(Data, Size, Substring.Data, Substring.Size, SearchCase);
+	}
+
+	bool ContainsAnyOf(TStringView Charset, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return AlgorithmLibType::ContainsAnyCharInCharset(Data, Size, Charset.Data, Charset.Size, SearchCase);
+	}
+
+	bool Contains(T Char, ESearchCase SearchCase = ESearchCase::CaseSensitive)
+	{
+		return AlgorithmLibType::ContainsChar(Data, Size, Char, SearchCase);
+	}
+
+	bool Contains(TStringView Substring, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return AlgorithmLibType::ContainsSubstring(Data, Size, Substring.Data, Substring.Size, SearchCase);
+	}
+
+	int32 Compare(TStringView Other) const
 	{
 		return Compare(Other.Data);
 	}
 
-	int32 Compare(const TString<T>& Other) const
+	bool Equals(TStringView Other, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		return Compare(Other.Get());
+		return AlgorithmLibType::EqualityCompare(Data, Size, Other.Data, Other.Size, SearchCase);
 	}
 
 	bool IsValidIndex(SizeType Index) const
@@ -71,6 +204,7 @@ public:
 	// NOTE: Doesn't consider the Capacity of string, only calculates with the Size of it!
 	SizeType GetAllocatedSize() const { return Size * sizeof(T); }
 	SizeType GetMaxIndex() const { return Size > 0 ? Size - 1 : 0; }
+	SizeType MaxSize() const { return TNumericLimits<SizeType>::Max() - 1; }
 
 	// For container support. Prefer using Len() when working with strings.
 	SizeType Num() const { return Size; }
@@ -96,6 +230,8 @@ public:
 	}
 
 	const T& operator[](SizeType Index) const { return Data[Index]; }
+
+	bool operator==(TStringView Other) const { return Equals(Other); }
 private:
 	const T* Data = nullptr;
 	uint_t Size = 0;

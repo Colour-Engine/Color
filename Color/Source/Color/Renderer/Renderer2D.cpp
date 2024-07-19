@@ -7,6 +7,9 @@
 #include "Renderer/RenderCaps.h"
 #include "Renderer/Shader.h"
 
+#include "Utils/FileSystem.h"
+#include "Misc/Paths.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -166,9 +169,10 @@ void FRenderer2D::Init()
 	uint32 DefaultTextureData = 0xffffffff;
 	Data.DefaultTexture->SetData(&DefaultTextureData, sizeof(uint32));
 
-	Data.QuadShader = FShader::New("Assets/Shaders/Renderer2D_Quad.glsl");
-	Data.CircleShader = FShader::New("Assets/Shaders/Renderer2D_Circle.glsl");
-	Data.LineShader = FShader::New("Assets/Shaders/Renderer2D_Line.glsl");
+	FString ShadersPath = FPaths::GetEngineAssetsDirectory() / "Shaders";
+	Data.QuadShader = FShader::New(ShadersPath / "Renderer2D_Quad.glsl");
+	Data.CircleShader = FShader::New(ShadersPath / "Renderer2D_Circle.glsl");
+	Data.LineShader = FShader::New(ShadersPath / "Renderer2D_Line.glsl");
 
 	Data.TextureSlots.Resize(FRenderCaps::MaxTextureSlots);
 	Data.TextureSlots[0] = Data.DefaultTexture;

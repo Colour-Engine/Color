@@ -3,6 +3,7 @@
 #include "Allocators/DefaultAllocator.h"
 #include "Templates/TypeTraits/IsUnsigned.h" // Used in FromInt
 #include "Templates/TypeTraits/IsSigned.h" // Used in ToInteger
+#include "Templates/StringAlgorithmLib.h"
 #include "Templates/NumericLimits.h"
 #include "Templates/Hash.h"
 
@@ -25,19 +26,25 @@
 	#define CL_TString_AttentionRequired(InExitCode) FRuntimeErrorManager::RtFatal("TString internal error (exitcode %d)", (int32) ExitCode::InExitCode)
 #endif
 
+template <typename T, typename TSizeType>
+class TStringView;
+
 template <typename T, typename TSizeType = uint_t, typename TAllocatorType = TDefaultAllocator<T>>
 class TString
 {
 public:
-	using CharType      = T;
-	using SizeType      = TSizeType;
-	using AllocatorType = TAllocatorType;
-	using StringUtility = TStringUtility<T>;
-	using Iterator      = TIndexedContainerIterator<TString, T, TSizeType>;
-	using ConstIterator = TIndexedContainerIterator<const TString, const T, TSizeType>;
+	using CharType         = T;
+	using SizeType         = TSizeType;
+	using AllocatorType    = TAllocatorType;
+	using StringViewType   = TStringView<T, TSizeType>;
+	using StringUtility    = TStringUtility<T>;
+	using Iterator         = TIndexedContainerIterator<TString, T, TSizeType>;
+	using ConstIterator    = TIndexedContainerIterator<const TString, const T, TSizeType>;
 public:
 	static constexpr SizeType Npos = TNumericLimits<SizeType>::Max();
 	static constexpr SizeType BlockSize = 30;
+
+	using AlgorithmLibType = StringAlgorithmLib<T, TSizeType, Npos>;
 public:
 	TString(TYPE_OF_NULLPTR) = delete;
 	TString& operator=(TYPE_OF_NULLPTR) = delete;
@@ -70,6 +77,12 @@ public:
 		: Allocator(Allocator)
 	{
 		Move(MoveTemp(Other), false);
+	}
+
+	TString(StringViewType StringView, const AllocatorType& Allocator = AllocatorType())
+		: Allocator(Allocator)
+	{
+		Copy(StringView);
 	}
 
 	TString(std::initializer_list<T> InitList, const AllocatorType& Allocator = AllocatorType())
@@ -127,6 +140,12 @@ public:
 		return *this;
 	}
 
+	TString& operator=(StringViewType StringView)
+	{
+		Copy(StringView);
+		return *this;
+	}
+
 	TString& operator=(const T* String)
 	{
 		Copy(String);
@@ -169,6 +188,12 @@ public:
 		return *this;
 	}
 
+	TString& operator+=(StringViewType StringView)
+	{
+		Append(StringView);
+		return *this;
+	}
+
 	TString& operator+=(std::initializer_list<T> InitList)
 	{
 		Append(InitList);
@@ -188,6 +213,11 @@ public:
 	TString operator+(const TString& Other) const
 	{
 		return Appended(Other);
+	}
+
+	TString operator+(StringViewType StringView) const
+	{
+		return Appended(StringView);
 	}
 
 	TString operator+(std::initializer_list<T> InitList) const
@@ -232,6 +262,11 @@ public:
 		return Appended(Other.Data, Other.Size);
 	}
 
+	TString Appended(StringViewType StringView) const
+	{
+		return Appended(StringView.Get(), StringView.Len());
+	}
+
 	TString Appended(std::initializer_list<T> InitList) const
 	{
 		return Appended(InitList.begin(), (SizeType) InitList.size());
@@ -273,6 +308,11 @@ public:
 		Append(Other.Data, Other.Size);
 	}
 
+	void Append(StringViewType StringView)
+	{
+		Append(StringView.Get(), StringView.Len());
+	}
+
 	void Append(std::initializer_list<T> InitList)
 	{
 		Reserve(Size + (SizeType) InitList.size());
@@ -306,8 +346,8 @@ public:
 		InsertNullTerminator();
 	}
 
-	// Concates all given strings at once, the most performant way for concating multiple strings at once.
-	// Strings must match to Sizes! i.e. length of the string at Strings[0] must be equal to Sizes[0] and so on and so forth.
+	// Concates all given strings at once, the most performant way for concating multiple strings at once, even though it's an ugly way.
+	// Each string in Strings must map to the respective entry of Sizes! i.e. length of the string at Strings[0] must be equal to Sizes[0] and so on and so forth.
 	static TString BulkConcate(const T** Strings, uint_t* Sizes, uint_t NumStrings)
 	{
 		uint_t TotalSize = 0;
@@ -777,212 +817,64 @@ public:
 		::Swap(Allocator, Other.Allocator);
 	}
 
-	SizeType Find(T Char, SizeType Position = 0) const
+	SizeType Find(T Char, SizeType Position = 0, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		for (Position; Position < Size; Position++)
-		{
-			if (Data[Position] == Char)
-			{
-				return Position;
-			}
-		}
-
-		return Npos;
+		return AlgorithmLibType::FindFirstOccurenceOfChar(Data, Size, Char, Position, SearchCase);
 	}
 
-	SizeType Find(const T* Substring, SizeType Position, SizeType Length) const
+	SizeType Find(const T* Substring, SizeType Length, SizeType Position, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		if (Length > Size)
-		{
-			return false;
-		}
-		if (Length == Size)
-		{
-			return *this == Substring;
-		}
-
-		SizeType InitialIndex = Npos;
-		SizeType SubstringIndex = 0;
-
-		for (SizeType i = Position; i < Size; i++)
-		{
-			if (SubstringIndex == Length - 1)
-			{
-				return InitialIndex;
-			}
-
-			if (Data[i] == Substring[SubstringIndex])
-			{
-				if (InitialIndex == Npos)
-				{
-					InitialIndex = i;
-				}
-
-				SubstringIndex++;
-			}
-			else
-			{
-				InitialIndex = Npos;
-				SubstringIndex = 0;
-			}
-		}
-
-		if (SubstringIndex == Length - 1)
-		{
-			return InitialIndex;
-		}
-
-		return Npos;
+		return AlgorithmLibType::FindFirstOccurenceOfSubstring(Data, Size, Substring, Length, Position, SearchCase);
 	}
 
-	SizeType Find(const T* Substring, SizeType Position = 0) const
+	SizeType Find(StringViewType Substring, SizeType Position = 0, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		return Find(Substring, Position, (SizeType) StringUtility::Len(Substring));
+		return Find(Substring.Get(), Substring.Len(), Position, SearchCase);
 	}
 
-	SizeType Find(const TString& Substring, SizeType Position = 0) const
+	SizeType Rfind(T Char, SizeType Position = Npos, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		return Find(Substring.Data, Position, Substring.Size);
+		return AlgorithmLibType::RfindFirstOccurenceOfChar(Data, Size, Char, Position, SearchCase);
 	}
 
-	SizeType Rfind(T Char, SizeType Position = Npos) const
+	SizeType Rfind(const T* Substring, SizeType Length, SizeType Position, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		for (Position = (Position == Npos ? Size - 1 : Position); Position != 0; Position--)
-		{
-			if (Data[Position] == Char)
-			{
-				return Position;
-			}
-		}
-
-		return Npos;
+		return AlgorithmLibType::RfindFirstOccurenceOfSubstring(Data, Size, Substring, Length, Position, SearchCase);
 	}
 
-	SizeType Rfind(const T* Substring, SizeType Position, SizeType Length) const
+	SizeType Rfind(StringViewType Substring, SizeType Position = Npos, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		if (Length > Size)
-		{
-			return false;
-		}
-		if (Length == Size)
-		{
-			return *this == Substring;
-		}
-
-		const SizeType DefSubstrIdx = Length - 1;
-		SizeType SubstringIndex = DefSubstrIdx;
-
-		for (SizeType i = (Position == Npos ? Size - 1 : Position); i != 0; i--)
-		{
-			if (Data[i] == Substring[SubstringIndex])
-			{
-				if (SubstringIndex == 0)
-				{
-					return i;
-				}
-
-				SubstringIndex--;
-			}
-			else
-			{
-				SubstringIndex = DefSubstrIdx;
-			}
-		}
-
-		if (SubstringIndex == 0)
-		{
-			return 0;
-		}
-
-		return Npos;
+		return Rfind(Substring.Get(), Substring.Len(), Position, SearchCase);
 	}
 
-	SizeType Rfind(const T* Substring, SizeType Position = Npos) const
+	SizeType FindFirstOf(T Char, SizeType Position = 0, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		return Rfind(Substring, Position, (SizeType) StringUtility::Len(Substring));
+		return Find(Char, Position, SearchCase);
 	}
 
-	SizeType Rfind(const TString& Substring, SizeType Position = Npos) const
+	SizeType FindFirstOf(const T* Charset, SizeType Length, SizeType Position, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		return Rfind(Substring.Data, Position, Substring.Size);
+		return AlgorithmLibType::FindFirstOfCharOccurenceInCharset(Data, Size, Charset, Length, Position, SearchCase);
 	}
 
-	SizeType FindFirstOf(T Char, SizeType Position = 0) const
+	SizeType FindFirstOf(StringViewType Charset, SizeType Position = 0, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		return Find(Char, Position);
+		return FindFirstOf(Charset.Get(), Charset.Len(), Position, SearchCase);
 	}
 
-	SizeType FindFirstOf(const T* Charset, SizeType Position, SizeType Length) const
+	SizeType FindFirstNotOf(T Char, SizeType Position = 0, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		for (Position; Position < Size; Position++)
-		{
-			for (SizeType i = 0; i < Length; i++)
-			{
-				if (Data[Position] == Charset[i])
-				{
-					return Position;
-				}
-			}
-		}
-
-		return Npos;
+		return AlgorithmLibType::FindFirstCharNotOfOccurence(Data, Size, Char, Position, SearchCase);
 	}
 
-	SizeType FindFirstOf(const T* Charset, SizeType Position = 0) const
+	SizeType FindFirstNotOf(const T* Charset, SizeType Length, SizeType Position, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		return FindFirstOf(Charset, Position, (SizeType) StringUtility::Len(Charset));
+		return AlgorithmLibType::FindFirstCharNotOfOccurrenceInCharset(Data, Size, Charset, Length, Position, SearchCase);
 	}
 
-	SizeType FindFirstOf(const TString& Charset, SizeType Position = 0) const
+	SizeType FindFirstNotOf(StringViewType Charset, SizeType Position = 0, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		return FindFirstOf(Charset.Data, Position, Charset.Size);
-	}
-
-	SizeType FindFirstNotOf(T Char, SizeType Position = 0) const
-	{
-		for (Position; Position < Size; Position++)
-		{
-			if (Data[Position] != Char)
-			{
-				return Position;
-			}
-		}
-
-		return Npos;
-	}
-
-	SizeType FindFirstNotOf(const T* Charset, SizeType Position, SizeType Length) const
-	{
-		for (Position; Position < Size; Position++)
-		{
-			bool bMatched = false;
-
-			for (SizeType i = 0; i < Length; i++)
-			{
-				if (Data[Position] == Charset[i])
-				{
-					bMatched = true;
-					break;
-				}
-			}
-
-			if (!bMatched)
-			{
-				return Position;
-			}
-		}
-
-		return Npos;
-	}
-
-	SizeType FindFirstNotOf(const T* Charset, SizeType Position = 0) const
-	{
-		return FindFirstNotOf(Charset, Position, (SizeType) StringUtility::Len(Charset));
-	}
-
-	SizeType FindFirstNotOf(const TString& Charset, SizeType Position = 0) const
-	{
-		return FindFirstNotOf(Charset.Data, Position, Charset.Size);
+		return FindFirstNotOf(Charset.Get(), Charset.Len(), Position, SearchCase);
 	}
 
 	SizeType FindLastOf(T Char, SizeType Position = Npos) const
@@ -990,77 +882,29 @@ public:
 		return Rfind(Char, Position);
 	}
 
-	SizeType FindLastOf(const T* Charset, SizeType Position, SizeType Length) const
+	SizeType FindLastOf(const T* Charset, SizeType Length, SizeType Position, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		for (Position = (Position == Npos ? Size - 1 : Position); Position != 0; Position--)
-		{
-			for (SizeType i = 0; i < Length; i++)
-			{
-				if (Data[Position] == Charset[i])
-				{
-					return Position;
-				}
-			}
-		}
-
-		return Npos;
+		return AlgorithmLibType::FindLastOfCharOccurrenceInCharset(Data, Size, Charset, Length, Position, SearchCase);
 	}
 
-	SizeType FindLastOf(const T* Charset, SizeType Position = Npos) const
+	SizeType FindLastOf(StringViewType Charset, SizeType Position = Npos, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		return FindLastOf(Charset, Position, (SizeType) StringUtility::Len(Charset));
+		return FindLastOf(Charset.Get(), Charset.Len(), Position, SearchCase);
 	}
 
-	SizeType FindLastOf(const TString& Charset, SizeType Position = Npos) const
+	SizeType FindLastNotOf(T Char, SizeType Position = Npos, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		return FindLastOf(Charset.Data, Position, Charset.Size);
+		return AlgorithmLibType::FindLastCharNotOfOccurrence(Data, Size, Char, Position, SearchCase);
 	}
 
-	SizeType FindLastNotOf(T Char, SizeType Position = Npos) const
+	SizeType FindLastNotOf(const T* Charset, SizeType Length, SizeType Position, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		for (Position = (Position == Npos ? Size - 1 : Position); Position != 0; Position--)
-		{
-			if (Data[Position] != Char)
-			{
-				return Position;
-			}
-		}
-
-		return Npos;
+		return AlgorithmLibType::FindLastNotOfCharOccurrenceInCharset(Data, Size, Charset, Length, Position, SearchCase);
 	}
 
-	SizeType FindLastNotOf(const T* Charset, SizeType Position, SizeType Length) const
+	SizeType FindLastNotOf(StringViewType Charset, SizeType Position = Npos, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		for (Position = (Position == Npos ? Size - 1 : Position); Position != 0; Position--)
-		{
-			bool bMatched = false;
-
-			for (SizeType i = 0; i < Length; i++)
-			{
-				if (Data[Position] == Charset[i])
-				{
-					bMatched = true;
-					break;
-				}
-			}
-
-			if (!bMatched)
-			{
-				return Position;
-			}
-		}
-
-		return Npos;
-	}
-
-	SizeType FindLastNotOf(const T* Charset, SizeType Position = Npos) const
-	{
-		return FindLastNotOf(Charset, Position, (SizeType) StringUtility::Len(Charset));
-	}
-
-	SizeType FindLastNotOf(const TString& Charset, SizeType Position = Npos) const
-	{
-		return FindLastNotOf(Charset.Data, Position, Charset.Size);
+		return FindLastNotOf(Charset.Get(), Charset.Len(), Position, SearchCase);
 	}
 
 	TString Sub(SizeType Position = 0, SizeType Count = Npos) const
@@ -1068,161 +912,59 @@ public:
 		return TString(Data + Position, Count == Npos ? Size - Position : Count);
 	}
 
-	bool StartsWith(T Char) const
+	bool StartsWith(T Char, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		return *Data == Char;
+		return AlgorithmLibType::StartsWithChar(Data, Size, Char, SearchCase);
 	}
 
-	bool StartsWith(const T* Substring, SizeType Length) const
+	bool StartsWith(const T* Substring, SizeType Length, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		if (Length > Size)
-		{
-			return false;
-		}
-		if (Length == Size)
-		{
-			return *this == Substring;
-		}
-
-		for (SizeType i = 0; i < Size; i++)
-		{
-			if (Data[i] != Substring[i])
-			{
-				return false;
-			}
-
-			if (i == Length - 1)
-			{
-				return true;
-			}
-		}
-
-		return false;
+		return AlgorithmLibType::StartsWith(Data, Size, Substring, Length, SearchCase);
 	}
 
-	bool StartsWith(const T* Substring) const
+	bool StartsWith(StringViewType Substring, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		return StartsWith(Substring, (SizeType) StringUtility::Len(Substring));
+		return StartsWith(Substring.Get(), Substring.Len(), SearchCase);
 	}
 
-	bool StartsWith(const TString& Substring) const
+	bool EndsWith(T Char, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		return StartsWith(Substring.Data, Substring.Size);
+		return AlgorithmLibType::EndsWithChar(Data, Size, Char, SearchCase);
 	}
 
-	bool EndsWith(T Char) const
+	bool EndsWith(const T* Substring, SizeType Length, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		return Back() == Char;
+		return AlgorithmLibType::EndsWith(Data, Size, Substring, Length, SearchCase);
+	}
+	
+	bool EndsWith(StringViewType Substring, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return EndsWith(Substring.Get(), Substring.Len());
 	}
 
-	bool EndsWith(const T* Substring, SizeType Length) const
+	bool ContainsAnyOf(const T* Charset, SizeType Length, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		if (Length > Size)
-		{
-			return false;
-		}
-		if (Length == Size)
-		{
-			return *this == Substring;
-		}
-
-		SizeType SubstringIndex = 0;
-		for (SizeType i = Size - Length - 1; i < Size; i++)
-		{
-			if (SubstringIndex == Length - 1)
-			{
-				return true;
-			}
-
-			if (Data[i] == Substring[SubstringIndex])
-			{
-				SubstringIndex++;
-			}
-			else
-			{
-				SubstringIndex = 0;
-			}
-		}
-
-		return SubstringIndex == Length - 1;
+		return AlgorithmLibType::ContainsAnyCharInCharset(Data, Size, Charset, Length, SearchCase);
 	}
 
-	bool EndsWith(const T* Substring) const
+	bool ContainsAnyOf(StringViewType Charset, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		return EndsWith(Substring, (SizeType) StringUtility::Len(Substring));
+		return ContainsAnyOf(Charset.Get(), Charset.Len());
 	}
 
-	bool EndsWith(const TString& Substring) const
+	bool Contains(T Char, ESearchCase SearchCase = ESearchCase::CaseSensitive)
 	{
-		return EndsWith(Substring.Data, Substring.Size);
+		return AlgorithmLibType::ContainsChar(Data, Size, Char, SearchCase);
 	}
 
-	bool ContainsAnyOf(const T* Charset, SizeType Length) const
+	bool Contains(const T* Substring, SizeType Length, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		for (SizeType i = 0; i < Size; i++)
-		{
-			for (SizeType j = 0; j < Length; j++)
-			{
-				if (Data[i] == Charset[i])
-				{
-					return true;
-				}
-			}
-		}
-
-		return false;
+		return AlgorithmLibType::ContainsSubstring(Data, Size, Substring, Length, SearchCase);
 	}
 
-	bool ContainsAnyOf(const T* Charset) const
+	bool Contains(StringViewType Substring, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
 	{
-		return ContainsAnyOf(Charset, (SizeType) StringUtility::Len(Charset));
-	}
-
-	bool ContainsAnyOf(const TString& Charset) const
-	{
-		return ContainsAnyOf(Charset, Charset.Size);
-	}
-
-	bool Contains(const T* Substring, SizeType Length) const
-	{
-		if (Length > Size)
-		{
-			return false;
-		}
-		if (Length == Size)
-		{
-			return *this == Substring;
-		}
-
-		SizeType SubstringIndex = 0;
-		for (SizeType i = 0; i < Size; i++)
-		{
-			if (SubstringIndex == Length - 1)
-			{
-				return true;
-			}
-
-			if (Data[i] == Substring[SubstringIndex])
-			{
-				SubstringIndex++;
-			}
-			else
-			{
-				SubstringIndex = 0;
-			}
-		}
-
-		return SubstringIndex == Length - 1;
-	}
-
-	bool Contains(const T* Substring) const
-	{
-		return Contains(Substring, (SizeType) StringUtility::Len(Substring));
-	}
-
-	bool Contains(const TString& Substring) const
-	{
-		return Contains(Substring.Data, Substring.Size);
+		return Contains(Substring.Get(), Substring.Len(), SearchCase);
 	}
 
 	int32 Compare(const T* String) const
@@ -1230,9 +972,19 @@ public:
 		return StringUtility::Cmp(Data, String);
 	}
 
-	int32 Compare(const TString& Other) const
+	int32 Compare(StringViewType StringView) const
 	{
-		return Compare(Other.Data);
+		return Compare(StringView.Get());
+	}
+
+	bool Equals(const T* String, SizeType Length, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return AlgorithmLibType::EqualityCompare(Data, Size, String, Length, SearchCase);
+	}
+
+	bool Equals(StringViewType StringView, ESearchCase SearchCase = ESearchCase::CaseSensitive) const
+	{
+		return Equals(StringView.Get(), StringView.Len(), SearchCase);
 	}
 
 	bool IsValidIndex(SizeType Index) const
@@ -1269,7 +1021,7 @@ public:
 	AllocatorType& GetAllocator() { return Allocator; }
 
 	SizeType GetAllocatedSize() const { return Capacity * sizeof(T); }
-	SizeType MaxSize() const { return TNumericLimits<SizeType>::Max(); }
+	SizeType MaxSize() const { return TNumericLimits<SizeType>::Max() - 1; }
 	SizeType GetMaxIndex() const { return Size > 0 ? Size - 1 : 0; }
 
 	// For container support. Prefer using Len() when working with strings.
@@ -1316,15 +1068,9 @@ public:
 	const T& operator[](SizeType Index) const { return Data[Index]; }
 	T& operator[](SizeType Index) { return Data[Index]; }
 
-	bool operator==(const T* String) const
-	{
-		return Compare(String) == 0;
-	}
-
-	bool operator==(const TString& Other) const
-	{
-		return Compare(Other) == 0;
-	}
+	bool operator==(const T* String) const { return Equals(String); }
+	bool operator==(const TString& Other) const { return Equals(Other); }
+	bool operator==(StringViewType StringView) const { return Equals(StringView); }
 private:
 	void Allocate(SizeType Cap, bool bStrictlyUseGivenSize = false)
 	{
@@ -1387,6 +1133,11 @@ private:
 	void Copy(const T* String)
 	{
 		Copy(String, (SizeType) StringUtility::Len(String));
+	}
+
+	void Copy(StringViewType StringView)
+	{
+		Copy(StringView.Get(), StringView.Len());
 	}
 
 	void Copy(std::initializer_list<T> InitList)

@@ -31,15 +31,13 @@ FString FFileSystem::ExtractExtensionFromFilepath(const FString& Filepath)
 	return LastDot == FString::Npos || LastDot == Filepath.Len() - 1 ? "" : Filepath.Sub(LastDot + 1);
 }
 
-FString FFileSystem::AppendPath(const FString& Path, const FString& PathToAppend)
+FString FFileSystem::AppendPath(FStringView Path, FStringView PathToAppend)
 {
-	FString Result = Path;
-	FString AppendPath = PathToAppend;
+	FStringView Result = Path;
+	FStringView AppendPath = PathToAppend;
 
-	while (Result.Last() == '/' || Result.Last() == '\\')
-	{
-		Result.Pop();
-	}
+	uint_t Pos = Result.FindLastNotOf("/\\");
+	Result = Result.Sub(0, Pos == FStringView::Npos ? Pos : Pos + 1);
 
 	// Quick hack to see if the base path is empty so we see if we can just return the second part.
 	// Also without this we'd have a leading seperator in our result if the logic below all ran (after this if statement)
@@ -48,10 +46,8 @@ FString FFileSystem::AppendPath(const FString& Path, const FString& PathToAppend
 		return AppendPath;
 	}
 
-	while (AppendPath.Front() == '/' || AppendPath.Front() == '\\')
-	{
-		AppendPath.PopFront();
-	}
+	Pos = AppendPath.FindFirstNotOf("/\\");
+	AppendPath = AppendPath.Sub(Pos == FStringView::Npos ? 0 : Pos);
 
 	uint_t FirstSeperator = Result.FindFirstOf("/\\");
 	char SeperatorType = FirstSeperator != FString::Npos ? Result[FirstSeperator] : '/';

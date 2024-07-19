@@ -8,6 +8,7 @@ struct FPaths
 {
 	// Content-related
 	static FString GetContentDirectory();
+	static FString GetEngineAssetsDirectory();
 
 	// Cache/Temp-related
 	static FString GetCacheDirectory();

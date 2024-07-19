@@ -6,6 +6,11 @@ FString FPaths::GetContentDirectory()
 	return "Content";
 }
 
+FString FPaths::GetEngineAssetsDirectory()
+{
+	return "EngineAssets";
+}
+
 FString FPaths::GetCacheDirectory()
 {
 	return "Cache";

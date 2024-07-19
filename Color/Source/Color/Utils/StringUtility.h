@@ -2,6 +2,7 @@
 
 #include "Misc/IntTypes.h"
 
+// Low level functionality implementation of string utilities (Like functions in C standard header <string.h>)
 // Expected static methods that the implementation must suffice (may be updated as time goes on):
 //   - uint_t Len(const T*)
 //   - int32 Cmp(const T*, const T*)
