@@ -3,7 +3,7 @@
 #include "Misc/IntTypes.h"
 
 /**
- * The default control block that the standard TRef and TWeakRef uses.
+ * The default control block that the standard TRef and TWeakRef use.
  */
 struct FRefControlBlock
 {

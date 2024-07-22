@@ -51,6 +51,13 @@ public:
 		Move(MoveTemp(Other));
 	}
 
+	template <typename U>
+	TRef(const TWeakRef<U>& WeakRef)
+	{
+		ControlBlock = WeakRef.GetControlBlock();
+		ControlBlock->uRefs++;
+	}
+
 	~TRef()
 	{
 		DiscardCurrentControlBlock(true);
@@ -161,7 +168,13 @@ private:
 		{
 			if (--ControlBlock->uRefs == 0)
 			{
-				if (bObjectFreeingRuleApplies && ControlBlock->uWeakRefs == 0)
+				if (bObjectFreeingRuleApplies)
+				{
+					delete ControlBlock->pObject;
+						   ControlBlock->pObject = nullptr;
+				}
+
+				if (ControlBlock->uWeakRefs == 0)
 				{
 					delete ControlBlock;
 				}
