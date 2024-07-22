@@ -1,7 +1,10 @@
 #pragma once
 
-#include "Misc/IntTypes.h"
+#include "Templates/Detail/RefControlBlock.h"
 #include "Templates/Utility.h"
+
+template <typename T>
+class TWeakRef;
 
 /**
  * Ref is a shared pointer tasked with the lifetime management of a dynamically-allocated object.
@@ -12,23 +15,18 @@ template <typename T>
 class TRef
 {
 public:
-	typedef T ElementType;
+	using ElementType = T;
+	using WeakType = TWeakRef<T>;
 public:
-	TRef()
-	{
-		AllocNewRefs(0);
-	}
+	TRef() = default;
 
 	TRef(TYPE_OF_NULLPTR)
-		: TRef()
-	{
-	}
+		: TRef() { }
 
 	template <typename U>
 	explicit TRef(U* InPointer)
 	{
-		Pointer = InPointer;
-		AllocNewRefs(1);
+		Copy(InPointer);
 	}
 
 	TRef(const TRef& Other)
@@ -36,15 +34,15 @@ public:
 		Copy(Other);
 	}
 
-	TRef(TRef&& Other) noexcept
-	{
-		Move(MoveTemp(Other));
-	}
-
 	template <typename U>
 	TRef(const TRef<U>& Other)
 	{
 		Copy(Other);
+	}
+	
+	TRef(TRef&& Other) noexcept
+	{
+		Move(MoveTemp(Other));
 	}
 
 	template <typename U>
@@ -55,16 +53,23 @@ public:
 
 	~TRef()
 	{
-		Destruct();
+		DiscardCurrentControlBlock(true);
 	}
 
 	TRef& operator=(TYPE_OF_NULLPTR)
 	{
-		Destruct();
+		DiscardCurrentControlBlock(true);
 		return *this;
 	}
 
 	TRef& operator=(const TRef& Other)
+	{
+		Copy(Other);
+		return *this;
+	}
+
+	template <typename U>
+	TRef& operator=(const TRef<U>& Other)
 	{
 		Copy(Other);
 		return *this;
@@ -77,13 +82,6 @@ public:
 	}
 
 	template <typename U>
-	TRef& operator=(const TRef<U>& Other)
-	{
-		Copy(Other);
-		return *this;
-	}
-
-	template <typename U>
 	TRef& operator=(TRef<U>&& Other) noexcept
 	{
 		Move(MoveTemp(Other));
@@ -92,124 +90,94 @@ public:
 
 	void Reset()
 	{
-		Pointer = nullptr;
-
-		if ((--*Refs) == 0)
-		{
-			Destruct();
-		}
-
-		AllocNewRefs(0);
+		DiscardCurrentControlBlock(true);
 	}
 
 	template <typename U>
 	void Reset(U* InPointer)
 	{
-		if ((--*Refs) == 0)
-		{
-			Destruct();
-		}
-
-		Pointer = InPointer;
-		AllocNewRefs(1);
+		DiscardAndCreateNewControlBlock((void*) InPointer, 1, 0);
 	}
 
 	void Swap(TRef& Other)
 	{
-		::Swap(Pointer, Other.Pointer);
-		::Swap(Refs, Other.Refs);
+		::Swap(ControlBlock, Other.ControlBlock);
 	}
 
-	T& operator*()  const { return *Pointer; }
-	T* operator->() const { return  Pointer; }
+	T* Get() const { return (T*) ControlBlock->pObject; }
+	T* operator->() const { return Get(); }
+	T& operator*() const { return *Get(); }
 
-	T* Get() const { return Pointer; }
-	uint32 GetRefCount() const { return *Refs; }
-	bool IsUnique() const { return *Refs == 0; }
+	// Returns the number of shared TRef objects.
+	uint32 GetRefCount() const { return ControlBlock->uRefs; }
+
+	// Returns the amount of TWeakRefs holding references to the shared instance.
+	uint32 GetWeakRefCount() const { return ControlBlock->uWeakRefs; }
+
+	// Checks if this TRef instance is the only one sharing the managed object. (I.e. Refs == 1)
+	bool IsUnique() const { return GetRefCount() == 1; }
+
+	bool IsValid() const { return Get(); }
+	operator bool() const { return IsValid(); }
 
 	template <typename U>
 	bool operator==(const TRef<U>& Other) const
 	{
-		return Pointer == Other.Pointer;
+		return ControlBlock->pObject == Other.GetControlBlock()->pObject;
 	}
 
-	explicit operator bool() const { return Pointer; }
-
-	T*& __Internal_GetPtr() { return Pointer; }
-	uint32*& __Internal_GetControlBlock() { return Refs; }
+	FRefControlBlock* GetControlBlock() const { return ControlBlock; }
+	FRefControlBlock*& __internal_get_control_block_reference() { return ControlBlock; }
 private:
+	template <typename U>
+	void Copy(U* InPointer)
+	{
+		DiscardAndCreateNewControlBlock((void*) InPointer, 1, 0);
+	}
+
 	template <typename U>
 	void Copy(const TRef<U>& Other)
 	{
-		Destruct();
-
-		Pointer = (T*) Other.Get();
-		Refs = ((TRef<U>&)(Other)).__Internal_GetControlBlock();
-
-		++*Refs;
+		DiscardAndCreateNewControlBlock(Other.GetControlBlock()->pObject, ++Other.GetControlBlock()->uRefs, Other.GetControlBlock()->uWeakRefs);
 	}
 
 	template <typename U>
 	void Move(TRef<U>&& Other) noexcept
 	{
-		Destruct();
+		DiscardCurrentControlBlock();
 
-		Pointer = (T*) Other.Get();
-		Refs = ((TRef<U>&)(Other)).__Internal_GetControlBlock();
-
-		Other.__Internal_GetPtr() = nullptr;
-		Other.__Internal_GetControlBlock() = nullptr;
+		ControlBlock = Other.GetControlBlock();
+		Other.__internal_get_control_block_reference() = nullptr;
 	}
 
-	void Destruct()
+	void CreateNewControlBlock(void* pObject = nullptr, uint32 uRefs = 0, uint32 uWeakRefs = 0)
 	{
-		if (Refs)
-		{
-			if (Pointer)
-			{
-				if ((Refs == 0 || (--*Refs == 0)))
-				{
-					delete Pointer;
-					delete Refs;
+		ControlBlock = new FRefControlBlock { pObject, uRefs, uWeakRefs };
+	}
 
-					Pointer = nullptr;
-					Refs = nullptr;
-				}
-			}
-			else
+	void DiscardCurrentControlBlock(bool bObjectFreeingRuleApplies = true)
+	{
+		if (ControlBlock)
+		{
+			if (--ControlBlock->uRefs == 0)
 			{
-				delete Refs;
-				Refs = nullptr;
+				if (bObjectFreeingRuleApplies && ControlBlock->uWeakRefs == 0)
+				{
+					delete ControlBlock;
+				}
+
+				ControlBlock = nullptr;
 			}
 		}
 	}
 
-	void AllocNewRefs(uint32 NewRefCount)
+	void DiscardAndCreateNewControlBlock(void* pObject = nullptr, uint32 uRefs = 0, uint32 uWeakRefs = 0)
 	{
-		if (Refs)
-		{
-			if (Refs == 0)
-			{
-				*Refs = NewRefCount;
-			}
-			else
-			{
-				if (--*Refs == 0)
-				{
-					delete Pointer;
-				}
-
-				Refs = new uint32(NewRefCount);
-			}
-		}
-		else
-		{
-			Refs = new uint32(NewRefCount);
-		}
+		DiscardCurrentControlBlock();
+		CreateNewControlBlock(pObject, uRefs, uWeakRefs);
 	}
 private:
-	T* Pointer = nullptr;
-	uint32* Refs = nullptr;
+	FRefControlBlock* ControlBlock = nullptr;
 };
 
 template <typename T, typename... Args>
