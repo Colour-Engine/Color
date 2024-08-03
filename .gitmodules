@@ -3,10 +3,10 @@
 	url = https://github.com/g-truc/glm
 [submodule "Color/ThirdParty/GLFW"]
 	path = Color/ThirdParty/GLFW
-	url = https://github.com/trianglxboi/cleglfw
+	url = https://github.com/Color-Engine/cleglfw
 [submodule "Color/ThirdParty/Glad"]
 	path = Color/ThirdParty/Glad
-	url = https://github.com/trianglxboi/cleglad
+	url = https://github.com/Color-Engine/cleglad
 [submodule "Color/ThirdParty/stb"]
 	path = Color/ThirdParty/stb
-	url = https://github.com/trianglxboi/clstbcol
+	url = https://github.com/Color-Engine/clstbcol
