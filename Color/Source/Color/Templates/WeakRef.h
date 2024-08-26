@@ -117,7 +117,7 @@ public:
 	template <typename U>
 	void Copy(const TWeakRef<U>& Other)
 	{
-		LeaveAndJoinControlBlock(Other->GetControlBlock());
+		LeaveAndJoinControlBlock(Other.GetControlBlock());
 	}
 
 	template <typename U>
